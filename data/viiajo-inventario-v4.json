@@ -1,7 +1,4 @@
-// productos.js - Generado automáticamente el 24/11/2025 17:51
-// No editar manualmente → se sobrescribe con el script Python
-
-export const productos = [
+[
     {
         "id": "KP0107623",
         "titulo": "Capilla Sixtina 5000 Piezas",
@@ -1964,4 +1961,4 @@ export const productos = [
             "https://demuseo.com/wp-content/uploads/2021/07/116853.jpg"
         ]
     }
-];
+]
