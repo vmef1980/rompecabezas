@@ -2,9 +2,9 @@ import csv
 import json
 import os
 
-# Rutas de entrada/salida
-csv_file = './data/rompecabezas-v4.csv'
-json_file = './data/viiajo-inventario-v4.json'
+# Rutas de entrada/salidas
+csv_file = './data/OrganizaGT-v5.csv'
+json_file = './data/OrgnaizaGT-v5.json'
 js_file = './js/productos.js'  # ¡NUEVO! Generamos directamente el .js
 
 # Validar existencia del archivo CSV

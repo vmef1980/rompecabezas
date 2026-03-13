@@ -1,7 +1,4 @@
-// productos.js - Generado automáticamente el 23/02/2026 10:48
-// No editar manualmente → se sobrescribe con el script Python
-
-export const productos = [
+[
     {
         "id": "IND-THEBOX-YELLOW",
         "titulo": "THE BOX AMARILLA",
@@ -327,4 +324,4 @@ export const productos = [
             "https://hexibo.com/wp-content/uploads/2023/07/Captura-de-pantalla-2023-07-08-a-las-13.53.02.png"
         ]
     }
-];
+]
