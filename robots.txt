@@ -1,0 +1,14 @@
+# robots.txt — Rompecabezas de Guatemala
+# https://rompecabezasdeguatemala.online/
+
+User-agent: *
+Disallow:
+Allow: /
+
+# Bloquear archivos que no necesitan indexarse
+Disallow: /img/
+Disallow: /*.ico$
+Disallow: /*.png$
+Disallow: /*.jpg$
+
+Sitemap: https://rompecabezasdeguatemala.online/sitemap.xml
