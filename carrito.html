@@ -8,6 +8,44 @@
 
   <link rel="icon" id="favicon" href="img/RompecabezasDeGuatemala-v1.ico" type="image/x-icon">
 
+  <!-- ══ SEGURIDAD: Protección de contenido ══ -->
+  <script>
+    // 1. Bloquear Ver Código Fuente (Ctrl+U)
+    // 2. Bloquear herramientas de desarrollador F12 / Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+Shift+C
+    document.addEventListener('keydown', function(e) {
+      // F12
+      if (e.key === 'F12' || e.keyCode === 123) { e.preventDefault(); return false; }
+      // Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+Shift+C
+      if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C' || e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) { e.preventDefault(); return false; }
+      // Ctrl+U (ver código fuente)
+      if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.keyCode === 85)) { e.preventDefault(); return false; }
+      // Ctrl+S (guardar página)
+      if (e.ctrlKey && (e.key === 's' || e.key === 'S' || e.keyCode === 83)) { e.preventDefault(); return false; }
+      // Ctrl+P (imprimir / guardar como PDF)
+      if (e.ctrlKey && (e.key === 'p' || e.key === 'P' || e.keyCode === 80)) { e.preventDefault(); return false; }
+    });
+
+    // 3 & 4. Bloquear clic derecho (impide "Guardar imagen como" y "Buscar imagen con Google Lens")
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      return false;
+    });
+
+    // Detección de DevTools abiertos (técnica por tamaño de ventana)
+    (function detectDevTools() {
+      const threshold = 160;
+      function check() {
+        if (
+          window.outerWidth - window.innerWidth > threshold ||
+          window.outerHeight - window.innerHeight > threshold
+        ) {
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#c0392b;font-size:1.5rem;font-weight:bold;">⚠️ Herramientas de desarrollador no permitidas.</div>';
+        }
+      }
+      setInterval(check, 1000);
+    })();
+  </script>
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
   
