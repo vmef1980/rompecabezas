@@ -1,5 +1,5 @@
 # robots.txt — Rompecabezas de Guatemala
-# https://rompecabezasdeguatemala.online/
+# https://shop.rompecabezas.online/
 
 User-agent: *
 Disallow:
@@ -11,4 +11,4 @@ Disallow: /*.ico$
 Disallow: /*.png$
 Disallow: /*.jpg$
 
-Sitemap: https://rompecabezasdeguatemala.online/sitemap.xml
+Sitemap: https://shop.rompecabezas.online/sitemap.xml
