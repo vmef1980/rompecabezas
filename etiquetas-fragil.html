@@ -1,0 +1,622 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Etiquetas Frágil</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: mesa de empaque — panel de datos a la izquierda, tapete de corte con la etiqueta al centro, muestrario de 20 diseños debajo */
+:root{
+  --bg:#F2F1EF; --surface:#FFFFFF; --ink:#1B1C1F; --muted:#64666C; --line:#DCDAD6;
+  --accent:#C8231B; --accent-ink:#FFFFFF; --accent-soft:#FBE7E5;
+  --mat:#2F5D50; --mat-line:rgba(255,255,255,.10); --mat-line-strong:rgba(255,255,255,.22); --mat-ink:#DCEBE5;
+  --f-display:'Barlow Condensed','Arial Narrow',Arial,sans-serif;
+  --f-body:'Barlow','Helvetica Neue',Arial,sans-serif;
+  --radius:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141516; --surface:#1D1F21; --ink:#ECEBE8; --muted:#9C9EA3; --line:#2F3134;
+  --accent:#FF5A4E; --accent-ink:#1A0B0A; --accent-soft:#3A1916;
+  --mat:#1E3B33; --mat-line:rgba(255,255,255,.06); --mat-line-strong:rgba(255,255,255,.14); --mat-ink:#B9D2C9;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#141516; --surface:#1D1F21; --ink:#ECEBE8; --muted:#9C9EA3; --line:#2F3134;
+  --accent:#FF5A4E; --accent-ink:#1A0B0A; --accent-soft:#3A1916;
+  --mat:#1E3B33; --mat-line:rgba(255,255,255,.06); --mat-line-strong:rgba(255,255,255,.14); --mat-ink:#B9D2C9;
+  color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45}
+.wrap{max-width:1280px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-bottom:16px;border-bottom:2px solid var(--ink);margin-bottom:20px}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(34px,6vw,54px);line-height:.9;margin:0;letter-spacing:.01em;text-transform:uppercase;text-wrap:balance}
+h1 span{color:var(--accent)}
+.lede{margin:6px 0 0;color:var(--muted);max-width:60ch}
+.tag{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:13px;color:var(--muted);border:1.5px solid var(--line);padding:4px 10px;border-radius:999px}
+.grid{display:grid;grid-template-columns:340px minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:18px}
+.sec{display:flex;flex-direction:column;gap:10px}
+.sec + .sec{border-top:1px dashed var(--line);padding-top:16px}
+.sec h2{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:14px;margin:0;color:var(--muted);display:flex;gap:8px;align-items:center}
+.sec h2 b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--ink);color:var(--surface);font-size:12px;letter-spacing:0}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600}
+input[type=text],input[type=tel],input[type=url],input[type=number],select{font:inherit;font-weight:500;font-size:15px;padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.row > *{flex:1 1 0;min-width:0}
+.check{display:flex;gap:8px;align-items:center;font-size:14px;font-weight:500;cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--accent)}
+.note{font-size:12.5px;color:var(--muted);margin:0}
+.logo-drop{display:flex;gap:12px;align-items:center;border:1.5px dashed var(--line);border-radius:8px;padding:10px;cursor:pointer;transition:border-color .15s}
+.logo-drop:hover,.logo-drop.over{border-color:var(--accent)}
+.logo-thumb{width:56px;height:56px;border-radius:8px;background:var(--bg) center/contain no-repeat;border:1px solid var(--line);flex:none;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;color:var(--muted)}
+.logo-drop .t{font-size:13.5px;font-weight:600}
+.logo-drop .t small{display:block;font-weight:400;color:var(--muted)}
+.linkbtn{background:none;border:0;color:var(--accent);font:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:0;text-decoration:underline;align-self:flex-start}
+.color-row{display:flex;gap:10px;align-items:center}
+input[type=color]{width:44px;height:38px;border:1.5px solid var(--line);border-radius:8px;padding:2px;background:var(--bg);cursor:pointer;flex:none}
+.seg{display:flex;border:1.5px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{flex:1;font:inherit;font-weight:600;font-size:14px;padding:8px;border:0;background:transparent;color:var(--ink);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--surface)}
+/* stage */
+.stage{display:flex;flex-direction:column;gap:14px;min-width:0}
+.mat{position:relative;background-color:var(--mat);background-image:
+  linear-gradient(var(--mat-line-strong) 1px,transparent 1px),linear-gradient(90deg,var(--mat-line-strong) 1px,transparent 1px),
+  linear-gradient(var(--mat-line) 1px,transparent 1px),linear-gradient(90deg,var(--mat-line) 1px,transparent 1px);
+  background-size:100px 100px,100px 100px,20px 20px,20px 20px;border-radius:var(--radius);padding:36px 20px 44px;display:flex;align-items:center;justify-content:center;min-height:420px}
+.mat svg.label{display:block;max-width:100%;max-height:62vh;width:auto;height:auto;box-shadow:0 1px 0 rgba(0,0,0,.25),0 12px 30px rgba(0,0,0,.35);border-radius:2px;background:#fff}
+.mat .dim{position:absolute;left:0;right:0;bottom:12px;text-align:center;font-family:var(--f-display);font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mat-ink);font-size:13px;font-variant-numeric:tabular-nums}
+.mat .dname{position:absolute;left:16px;top:10px;font-family:var(--f-display);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mat-ink);font-size:13px}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:16px;padding:11px 16px;border-radius:8px;border:1.5px solid var(--ink);background:var(--surface);color:var(--ink);cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:hover{transform:translateY(-1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn small{font-family:var(--f-body);text-transform:none;letter-spacing:0;font-weight:500;font-size:12.5px;opacity:.8}
+/* gallery */
+.gal-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin:30px 0 12px;border-bottom:2px solid var(--ink);padding-bottom:8px}
+.gal-head h2{font-family:var(--f-display);font-weight:800;text-transform:uppercase;font-size:28px;margin:0;line-height:1}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.thumb{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);padding:10px;cursor:pointer;display:flex;flex-direction:column;gap:8px;align-items:stretch;text-align:left;font:inherit;color:var(--ink);transition:border-color .15s,transform .15s}
+.thumb:hover{transform:translateY(-2px);border-color:var(--muted)}
+.thumb[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.thumb .pv{height:150px;display:flex;align-items:center;justify-content:center;background:var(--bg);border-radius:6px;padding:8px}
+.thumb .pv svg{max-width:100%;max-height:100%;width:auto;height:auto;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.thumb .nm{font-size:13.5px;font-weight:600;display:flex;gap:6px;align-items:baseline}
+.thumb .nm i{font-style:normal;font-family:var(--f-display);font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:8px;font-weight:600;font-size:14px;z-index:20;max-width:calc(100% - 32px)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:grid;place-items:center;z-index:30;padding:20px}
+.overlay .box{background:var(--surface);border-radius:var(--radius);padding:16px;max-width:520px;width:100%;display:flex;flex-direction:column;gap:10px;max-height:90vh}
+.overlay img{max-width:100%;max-height:60vh;object-fit:contain;align-self:center;border:1px solid var(--line)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.btn:hover,.thumb:hover{transform:none}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Etiquetas <span>Frágil</span></h1>
+      <p class="lede">Pon tu logo, nombre, teléfono y el QR de tu sitio. Elige uno de los 20 diseños y la medida de tu etiqueta; descárgala lista para imprimir.</p>
+    </div>
+    <span class="tag" id="sizeTag">4 × 6 in</span>
+  </header>
+
+  <div class="grid">
+    <aside class="panel" aria-label="Datos de la etiqueta">
+      <div class="sec">
+        <h2><b>1</b>Tu empresa</h2>
+        <div class="logo-drop" id="logoDrop" tabindex="0" role="button" aria-label="Subir logo">
+          <div class="logo-thumb" id="logoThumb">LOGO</div>
+          <div class="t">Sube tu logo<small>PNG con fondo transparente se ve mejor. Sin logo se usa un monograma.</small></div>
+          <input type="file" id="logoIn" accept="image/*" hidden>
+        </div>
+        <button class="linkbtn" id="logoClear" hidden>Quitar logo</button>
+        <label class="f">Nombre de la empresa<input type="text" id="nameIn" maxlength="40"></label>
+        <label class="f">Teléfono<input type="tel" id="phoneIn" maxlength="24"></label>
+        <label class="f">Sitio web (para el QR)<input type="url" id="webIn" placeholder="https://tuempresa.com"></label>
+        <label class="check"><input type="checkbox" id="qrIn" checked>Incluir código QR</label>
+        <p class="note" id="sampleNote">Datos de ejemplo: cámbialos por los tuyos.</p>
+      </div>
+
+      <div class="sec">
+        <h2><b>2</b>Color de marca</h2>
+        <div class="color-row">
+          <input type="color" id="brandIn" value="#1F4E79" aria-label="Color de marca">
+          <label class="check"><input type="checkbox" id="useBrandIn">Aplicar mi color a todos los diseños</label>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h2><b>3</b>Medida</h2>
+        <label class="f">Tamaño de etiqueta<select id="sizeIn"></select></label>
+        <div class="row" id="customRow" hidden>
+          <label class="f">Ancho (mm)<input type="number" id="cwIn" min="30" max="300" step="1"></label>
+          <label class="f">Alto (mm)<input type="number" id="chIn" min="30" max="300" step="1"></label>
+        </div>
+        <div class="seg" role="group" aria-label="Orientación">
+          <button type="button" id="oV" aria-pressed="true">Vertical</button>
+          <button type="button" id="oH" aria-pressed="false">Horizontal</button>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h2><b>4</b>Texto</h2>
+        <label class="f">Texto secundario<input type="text" id="subIn" maxlength="44"></label>
+        <p class="note">Déjalo vacío para usar el del diseño.</p>
+      </div>
+    </aside>
+
+    <section class="stage" aria-label="Vista previa">
+      <div class="mat">
+        <span class="dname" id="dName"></span>
+        <div id="preview" style="display:contents"></div>
+        <span class="dim" id="dim"></span>
+      </div>
+      <div class="actions">
+        <button class="btn primary" id="bPdf">PDF <small>tamaño exacto</small></button>
+        <button class="btn" id="bSheet">PDF hoja carta <small id="sheetCount"></small></button>
+        <button class="btn" id="bPng">PNG <small>300 dpi</small></button>
+        <button class="btn" id="bSvg">SVG <small>vector</small></button>
+      </div>
+      <p class="note" id="dlNote" hidden>Las descargas funcionan al abrir esta página en Claude. Aquí puedes ver el PNG y guardarlo con clic derecho.</p>
+    </section>
+  </div>
+
+  <div class="gal-head">
+    <h2>20 diseños</h2>
+    <p class="note">Toca uno para usarlo. Todos muestran tus datos.</p>
+  </div>
+  <div class="gal" id="gal"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function(){
+/* ---------- datos ---------- */
+const SIZES=[
+ {g:'Pulgadas',id:'4x6',label:'4 × 6 in · guía de envío térmica',w:101.6,h:152.4},
+ {g:'Pulgadas',id:'4x4',label:'4 × 4 in',w:101.6,h:101.6},
+ {g:'Pulgadas',id:'4x3',label:'4 × 3 in',w:101.6,h:76.2},
+ {g:'Pulgadas',id:'4x2',label:'4 × 2 in',w:101.6,h:50.8},
+ {g:'Pulgadas',id:'3x5',label:'3 × 5 in',w:76.2,h:127},
+ {g:'Pulgadas',id:'3x3',label:'3 × 3 in',w:76.2,h:76.2},
+ {g:'Pulgadas',id:'3x2',label:'3 × 2 in',w:76.2,h:50.8},
+ {g:'Pulgadas',id:'2x2',label:'2 × 2 in',w:50.8,h:50.8},
+ {g:'Milímetros',id:'100x150',label:'100 × 150 mm · guía de envío',w:100,h:150},
+ {g:'Milímetros',id:'100x100',label:'100 × 100 mm',w:100,h:100},
+ {g:'Milímetros',id:'100x70',label:'100 × 70 mm',w:100,h:70},
+ {g:'Milímetros',id:'100x50',label:'100 × 50 mm',w:100,h:50},
+ {g:'Milímetros',id:'70x50',label:'70 × 50 mm',w:70,h:50},
+ {g:'Hojas',id:'a6',label:'A6 · 105 × 148 mm',w:105,h:148},
+ {g:'Hojas',id:'a7',label:'A7 · 74 × 105 mm',w:74,h:105},
+ {g:'Hojas',id:'halfletter',label:'Media carta · 5.5 × 8.5 in',w:139.7,h:215.9},
+ {g:'Otra',id:'custom',label:'Personalizado…'}
+];
+const PAL={
+ rojo:{bg:'#FFFFFF',ink:'#141414',muted:'#555',accent:'#D7261E',aInk:'#FFFFFF',stripe:'#141414'},
+ amarillo:{bg:'#FFFFFF',ink:'#141414',muted:'#555',accent:'#FFC400',aInk:'#141414',stripe:'#141414'},
+ kraft:{bg:'#E6CDA3',ink:'#3A2817',muted:'#6B5134',accent:'#3A2817',aInk:'#E6CDA3',stripe:'#E6CDA3'},
+ azul:{bg:'#FFFFFF',ink:'#0E2A47',muted:'#4A6077',accent:'#0F5FA8',aInk:'#FFFFFF',stripe:'#FFFFFF'},
+ menta:{bg:'#F1FAF6',ink:'#0C3B2E',muted:'#3F6A5C',accent:'#1E8E6A',aInk:'#FFFFFF',stripe:'#F1FAF6'},
+ rosa:{bg:'#FFF2F5',ink:'#5A1530',muted:'#8A4560',accent:'#E2457A',aInk:'#FFFFFF',stripe:'#FFF2F5'},
+ premium:{bg:'#121212',ink:'#F4F1EA',muted:'#B8B2A6',accent:'#D9A944',aInk:'#121212',stripe:'#121212',dark:true},
+ naranja:{bg:'#FFFFFF',ink:'#1A1A1A',muted:'#555',accent:'#F26B1D',aInk:'#FFFFFF',stripe:'#1A1A1A'},
+ mono:{bg:'#FFFFFF',ink:'#000000',muted:'#444',accent:'#000000',aInk:'#FFFFFF',stripe:'#FFFFFF'},
+ lavanda:{bg:'#F6F2FF',ink:'#2A1B5C',muted:'#5D4F8A',accent:'#6B4BD8',aInk:'#FFFFFF',stripe:'#F6F2FF'},
+ neon:{bg:'#0B0F14',ink:'#E8F7FF',muted:'#8FB3C4',accent:'#22E1FF',aInk:'#0B0F14',stripe:'#0B0F14',dark:true},
+ rojoBlanco:{bg:'#FFFFFF',ink:'#141414',muted:'#555',accent:'#D7261E',aInk:'#FFFFFF',stripe:'#FFFFFF'}
+};
+const DESIGNS=[
+ {name:'Rojo clásico',layout:'banda',pal:'rojo',icon:'glassBroken',title:'FRÁGIL',sub:'Manéjese con cuidado',font:'heavy'},
+ {name:'Bilingüe ISO',layout:'clasica',pal:'rojo',icon:'glassBroken',title:'FRÁGIL|FRAGILE',sub:'Handle with care',font:'heavy'},
+ {name:'Sello rojo',layout:'sello',pal:'rojo',icon:null,title:'FRÁGIL',sub:'Manejar con cuidado',font:'impact'},
+ {name:'Precaución',layout:'franjas',pal:'amarillo',icon:'crack',title:'¡FRÁGIL!',sub:'No golpear · No lanzar',font:'heavy'},
+ {name:'Kraft artesanal',layout:'sello',pal:'kraft',icon:'glass',title:'FRÁGIL',sub:'Hecho a mano · Trátalo con cariño',font:'impact'},
+ {name:'Este lado arriba',layout:'panel',pal:'naranja',icon:'arrows',title:'FRÁGIL',sub:'Este lado arriba',font:'heavy'},
+ {name:'Mantener seco',layout:'banda',pal:'azul',icon:'umbrella',title:'FRÁGIL',sub:'Mantener seco',font:'heavy'},
+ {name:'Empacado con amor',layout:'insignia',pal:'rosa',icon:'heart',title:'FRÁGIL',sub:'Empacado con amor',font:'heavy'},
+ {name:'Premium dorado',layout:'minimal',pal:'premium',icon:'glass',title:'FRÁGIL',sub:'Contenido delicado',font:'heavy'},
+ {name:'Minimal',layout:'minimal',pal:'mono',icon:'glassBroken',title:'FRÁGIL',sub:'Manéjese con cuidado',font:'heavy'},
+ {name:'Tu marca primero',layout:'marca',pal:'rojo',icon:'glassBroken',title:'FRÁGIL',sub:'Manéjese con cuidado',font:'heavy'},
+ {name:'Marca menta',layout:'marca',pal:'menta',icon:'boxCrack',title:'FRÁGIL',sub:'Contenido frágil · Gracias por tu compra',font:'heavy'},
+ {name:'Contenido delicado',layout:'insignia',pal:'naranja',icon:'egg',title:'FRÁGIL',sub:'Contenido delicado',font:'heavy'},
+ {name:'No apilar',layout:'clasica',pal:'azul',icon:'noStack',title:'FRÁGIL',sub:'No apilar',font:'heavy'},
+ {name:'Con cuidado',layout:'panel',pal:'menta',icon:'hand',title:'FRÁGIL',sub:'Manéjese con cuidado',font:'heavy'},
+ {name:'Neón',layout:'banda',pal:'neon',icon:'crack',title:'FRÁGIL',sub:'Handle with care',font:'heavy'},
+ {name:'Lavanda',layout:'insignia',pal:'lavanda',icon:'glass',title:'FRÁGIL',sub:'Delicado',font:'heavy'},
+ {name:'Industrial',layout:'franjas',pal:'rojoBlanco',icon:'boxCrack',title:'FRÁGIL|FRAGILE',sub:'Handle with care',font:'impact'},
+ {name:'Cristalería',layout:'clasica',pal:'kraft',icon:'glass',title:'FRÁGIL|VIDRIO',sub:'Cristalería',font:'impact'},
+ {name:'Marca premium',layout:'marca',pal:'premium',icon:'glassBroken',title:'FRÁGIL',sub:'Gracias por tu compra',font:'heavy'}
+];
+const FONTS={
+ heavy:"'Arial Black','Arial Bold',Gadget,'Helvetica Neue',Arial,sans-serif",
+ impact:"Impact,Haettenschweiler,'Arial Narrow Bold','Arial Black',sans-serif",
+ sans:"'Helvetica Neue',Helvetica,Arial,sans-serif"
+};
+const K={heavy:0.82,impact:0.52,sans:0.6};
+
+/* ---------- helpers SVG ---------- */
+let UID=0;
+const f=n=>Math.round(n*100)/100;
+const R=(x,y,w,h)=>({x,y,w,h});
+const inset=(r,d)=>R(r.x+d,r.y+d,r.w-2*d,r.h-2*d);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const rect=(r,fill,extra='')=>`<rect x="${f(r.x)}" y="${f(r.y)}" width="${f(r.w)}" height="${f(r.h)}" fill="${fill}" ${extra}/>`;
+
+function textEl(str,r,base,fs,o){
+  const font=o.font||'heavy', k=(o.k||K[font])+(o.ls||0);
+  const align=o.align||'middle';
+  const x=align==='middle'?r.x+r.w/2:align==='start'?r.x:r.x+r.w;
+  const est=[...str].length*k*fs;
+  const tl=est>r.w*0.98?`textLength="${f(r.w*0.98)}" lengthAdjust="spacingAndGlyphs"`:'';
+  const ls=o.ls?`letter-spacing="${f(o.ls*fs)}"`:'';
+  return `<text x="${f(x)}" y="${f(base)}" font-family="${FONTS[font]}" font-weight="${o.weight||900}" font-size="${f(fs)}" fill="${o.fill}" text-anchor="${align}" ${ls} ${tl}>${esc(str)}</text>`;
+}
+function fitText(str,r,o){
+  if(!str||r.w<=0||r.h<=0) return '';
+  const font=o.font||'heavy', k=(o.k||K[font])+(o.ls||0);
+  let fs=Math.min(r.h*(o.hr||0.8), r.w/([...str].length*k));
+  if(o.maxFs) fs=Math.min(fs,o.maxFs);
+  return textEl(str,r,r.y+r.h/2+fs*0.36,fs,o);
+}
+function fitLines(lines,r,o){
+  if(r.w<=0||r.h<=0) return '';
+  const font=o.font||'heavy', k=(o.k||K[font])+(o.ls||0), n=lines.length;
+  let fs=(r.h*0.92)/(0.75*n+0.3*(n-1));
+  lines.forEach(L=>{fs=Math.min(fs, r.w/(Math.max(1,[...L].length)*k));});
+  if(o.maxFs) fs=Math.min(fs,o.maxFs);
+  const blockH=fs*(0.75*n+0.3*(n-1));
+  const y0=r.y+(r.h-blockH)/2;
+  return lines.map((L,i)=>textEl(L,r,y0+i*1.05*fs+0.75*fs,fs,o)).join('');
+}
+
+/* ---------- iconos ---------- */
+function icon(name,r,C,BG){
+  if(!name) return '';
+  const S=`stroke="${C}" stroke-linecap="round" stroke-linejoin="round" fill="none"`;
+  const X=`stroke="${BG}" stroke-linecap="round" stroke-linejoin="round" fill="none"`;
+  const I={
+   glassBroken:`<path d="M27 8H73C73 40 64 55 50 58C36 55 27 40 27 8Z" fill="${C}"/><path d="M50 58V86M33 91H67" ${S} stroke-width="7"/><path d="M44 8L53 22L42 31L54 46" ${X} stroke-width="5"/>`,
+   glass:`<path d="M27 8H73C73 40 64 55 50 58C36 55 27 40 27 8Z" fill="${C}"/><path d="M50 58V86M33 91H67" ${S} stroke-width="7"/><path d="M36 16C36 30 39 40 45 46" ${X} stroke-width="4" opacity=".7"/>`,
+   umbrella:`<path d="M10 62C12 38 30 26 50 26C70 26 88 38 90 62C84 56 76 56 70 62C64 56 56 56 50 62C44 56 36 56 30 62C24 56 16 56 10 62Z" fill="${C}"/><path d="M50 60V86C50 95 39 95 39 86" ${S} stroke-width="6"/><path d="M22 4l-4 9M50 1l-4 9M78 4l-4 9M36 13l-3 7M64 13l-3 7" ${S} stroke-width="4"/>`,
+   arrows:`<path d="M30 8L12 34H23V78H37V34H48ZM70 8L52 34H63V78H77V34H88Z" fill="${C}"/><rect x="8" y="85" width="84" height="8" fill="${C}"/>`,
+   boxCrack:`<path d="M16 36H70V90H16ZM16 36L34 18H88L70 36M70 90L88 72V18" ${S} stroke-width="5.5"/><path d="M30 36L39 51L31 61L44 75L39 90" ${S} stroke-width="4.5"/>`,
+   egg:`<ellipse cx="50" cy="54" rx="31" ry="41" fill="${C}"/><path d="M20 50L31 43L40 54L50 43L60 54L69 45L80 52" ${X} stroke-width="4.5"/>`,
+   heart:`<path d="M50 89C20 67 7 51 7 32C7 18 18 8 32 8C40 8 46 12 50 19C54 12 60 8 68 8C82 8 93 18 93 32C93 51 80 67 50 89Z" fill="${C}"/><path d="M50 19L43 36L56 48L45 62L52 77" ${X} stroke-width="5"/>`,
+   hand:`<rect x="29" y="12" width="42" height="38" rx="2" fill="${C}"/><rect x="46" y="12" width="8" height="38" fill="${BG}" opacity=".55"/><path d="M8 58Q50 98 92 58" ${S} stroke-width="9"/><path d="M92 58L96 46M8 58L4 46" ${S} stroke-width="7"/>`,
+   crack:`<path d="M60 3L28 52H47L35 97L76 40H56L68 3Z" fill="${C}"/>`,
+   noStack:`<rect x="24" y="48" width="52" height="44" rx="2" fill="${C}"/><rect x="34" y="10" width="32" height="24" rx="2" ${S} stroke-width="5"/><path d="M22 4L78 40M78 4L22 40" ${S} stroke-width="6"/>`
+  };
+  return `<svg x="${f(r.x)}" y="${f(r.y)}" width="${f(r.w)}" height="${f(r.h)}" viewBox="0 0 100 100" overflow="visible">${I[name]||''}</svg>`;
+}
+
+/* ---------- QR ---------- */
+const qrCache={};
+function qrMatrix(text){
+  if(!text||!window.qrcode) return null;
+  if(qrCache[text]) return qrCache[text];
+  try{
+    if(qrcode.stringToBytesFuncs&&qrcode.stringToBytesFuncs['UTF-8']) qrcode.stringToBytes=qrcode.stringToBytesFuncs['UTF-8'];
+    const q=qrcode(0,'M'); q.addData(text); q.make();
+    const n=q.getModuleCount(); let d='';
+    for(let r=0;r<n;r++) for(let c=0;c<n;c++) if(q.isDark(r,c)) d+=`M${c} ${r}h1v1h-1z`;
+    return qrCache[text]={n,d};
+  }catch(e){return null;}
+}
+function qrBlock(r,D,P){
+  const m=qrMatrix(D.web); if(!m) return '';
+  const capH=r.h>r.w*0.95?Math.min(r.h*0.16,r.w*0.2):0;
+  const s=Math.min(r.w,r.h-capH);
+  const x=r.x+(r.w-s)/2, y=r.y+(r.h-capH-s)/2;
+  let o=`<rect x="${f(x)}" y="${f(y)}" width="${f(s)}" height="${f(s)}" rx="${f(s*0.06)}" fill="#FFFFFF" ${P.dark?'':`stroke="${P.ink}" stroke-opacity=".18" stroke-width="${f(s*0.012)}"`}/>`;
+  const q=s*0.08;
+  o+=`<svg x="${f(x+q)}" y="${f(y+q)}" width="${f(s-2*q)}" height="${f(s-2*q)}" viewBox="0 0 ${m.n} ${m.n}" shape-rendering="crispEdges"><path d="${m.d}" fill="#000000"/></svg>`;
+  if(capH) o+=fitText('ESCANÉANOS',R(r.x,y+s+capH*0.12,r.w,capH*0.88),{font:'sans',weight:800,fill:P.ink,k:0.72,ls:0.14,hr:0.62,maxFs:s*0.14});
+  return o;
+}
+
+/* ---------- marca ---------- */
+function initials(n){const w=(n||'').trim().split(/\s+/).filter(Boolean);return ((w[0]||'?')[0]+((w[1]||'')[0]||'')).toUpperCase();}
+function logoEl(r,D,P){
+  if(D.logo){
+    let o='';let lr=r;
+    if(P.dark){o+=rect(r,'#FFFFFF',`rx="${f(r.w*0.12)}"`);lr=inset(r,r.w*0.08);}
+    return o+`<image href="${D.logo}" xlink:href="${D.logo}" x="${f(lr.x)}" y="${f(lr.y)}" width="${f(lr.w)}" height="${f(lr.h)}" preserveAspectRatio="xMidYMid meet"/>`;
+  }
+  const c=r.w/2;
+  return `<circle cx="${f(r.x+c)}" cy="${f(r.y+c)}" r="${f(c)}" fill="${P.accent}"/>`+
+    fitText(initials(D.name),inset(r,r.w*0.2),{font:'sans',weight:900,fill:P.aInk,k:0.72,hr:0.62});
+}
+function brandBlock(r,D,P){
+  if(r.w<=0||r.h<=0) return '';
+  const lines=[{t:D.name||'Tu empresa',wt:2.4,st:{font:'sans',weight:800,fill:P.ink,k:0.62}}];
+  if(D.phone) lines.push({t:'Tel. '+D.phone,wt:1,st:{font:'sans',weight:700,fill:P.ink,k:0.56}});
+  if(D.webShort) lines.push({t:D.webShort,wt:0.85,st:{font:'sans',weight:500,fill:P.muted,k:0.55}});
+  const stacked=r.h>r.w*0.62;
+  let lr,tr;
+  if(stacked){const ls=Math.min(r.h*0.46,r.w*0.6);lr=R(r.x+(r.w-ls)/2,r.y,ls,ls);const g=r.h*0.05;tr=R(r.x,r.y+ls+g,r.w,r.h-ls-g);}
+  else{const ls=Math.min(r.h,r.w*0.3);lr=R(r.x,r.y+(r.h-ls)/2,ls,ls);const g=ls*0.16;tr=R(r.x+ls+g,r.y+r.h*0.06,r.w-ls-g,r.h*0.88);}
+  let o=logoEl(lr,D,P);
+  const align=stacked?'middle':'start';
+  const tot=lines.reduce((a,l)=>a+l.wt,0);let y=tr.y;
+  lines.forEach(l=>{const h=tr.h*l.wt/tot;o+=fitText(l.t,R(tr.x,y,tr.w,h),{...l.st,align,hr:0.72});y+=h;});
+  return o;
+}
+function body(r,D,P){
+  if(!(D.showQR&&qrMatrix(D.web))) return brandBlock(r,D,P);
+  if(r.w/r.h>1.45){const qs=Math.min(r.h*1.0,r.w*0.34);const g=r.w*0.05;return brandBlock(R(r.x,r.y,r.w-qs-g,r.h),D,P)+qrBlock(R(r.x+r.w-qs,r.y,qs,r.h),D,P);}
+  const bh=r.h*0.48,g=r.h*0.06;
+  return brandBlock(R(r.x,r.y,r.w,bh),D,P)+qrBlock(R(r.x,r.y+bh+g,r.w,r.h-bh-g),D,P);
+}
+function titleBlock(r,D,P,o){
+  let out='',tr=r,align=o.align||'middle';
+  if(o.icon&&D.icon){
+    if(r.w/r.h>1.8){const s=Math.min(r.h,r.w*0.3);out+=icon(D.icon,R(r.x,r.y+(r.h-s)/2,s,s),o.iconColor,o.iconBg);const g=s*0.14;tr=R(r.x+s+g,r.y,r.w-s-g,r.h);align=o.align||'start';}
+    else{const s=Math.min(r.h*0.5,r.w*0.6);out+=icon(D.icon,R(r.x+(r.w-s)/2,r.y,s,s),o.iconColor,o.iconBg);const g=r.h*0.05;tr=R(r.x,r.y+s+g,r.w,r.h-s-g);}
+  }
+  const subH=o.sub&&D.sub?tr.h*0.22:0;
+  out+=fitLines(D.title.split('|'),R(tr.x,tr.y,tr.w,tr.h-subH),{font:D.font,fill:o.color,align,ls:o.ls||0});
+  if(subH) out+=fitText(D.sub.toUpperCase(),R(tr.x,tr.y+tr.h-subH,tr.w,subH),{font:'sans',weight:700,fill:o.subColor||o.color,align,k:0.66,ls:0.1,hr:0.62});
+  return out;
+}
+
+/* ---------- layouts ---------- */
+const L={
+ banda(W,H,D,P){
+  const s=Math.min(W,H),pad=s*0.06,land=W/H>1.15;
+  const bh=land?H*0.42:H*0.3;
+  let o=rect(R(0,0,W,bh),P.accent);
+  o+=titleBlock(inset(R(0,0,W,bh),pad*0.8),D,P,{icon:true,color:P.aInk,iconColor:P.aInk,iconBg:P.accent,sub:true});
+  return o+body(R(pad,bh+pad,W-2*pad,H-bh-2*pad),D,P);
+ },
+ clasica(W,H,D,P){
+  const s=Math.min(W,H),pad=s*0.05,land=W/H>1.15,bw=s*0.035;
+  let o=`<rect x="${f(bw/2)}" y="${f(bw/2)}" width="${f(W-bw)}" height="${f(H-bw)}" rx="${f(s*0.03)}" fill="none" stroke="${P.accent}" stroke-width="${f(bw)}"/>`;
+  const inn=inset(R(0,0,W,H),bw+pad);
+  const th=inn.h*(land?0.5:0.42),g=pad*0.7;
+  o+=titleBlock(R(inn.x,inn.y,inn.w,th),D,P,{icon:true,color:P.accent,iconColor:P.accent,iconBg:P.bg,sub:true,subColor:P.ink});
+  o+=`<line x1="${f(inn.x)}" x2="${f(inn.x+inn.w)}" y1="${f(inn.y+th+g)}" y2="${f(inn.y+th+g)}" stroke="${P.ink}" stroke-width="${f(s*0.006)}"/>`;
+  return o+body(R(inn.x,inn.y+th+g*2,inn.w,inn.h-th-g*2),D,P);
+ },
+ sello(W,H,D,P){
+  const s=Math.min(W,H),pad=s*0.06,land=W/H>1.15;
+  const st=R(pad*1.6,pad*1.5,W-pad*3.2,land?H*0.5:H*0.38);
+  const cx=st.x+st.w/2,cy=st.y+st.h/2;
+  let o=`<g transform="rotate(-4 ${f(cx)} ${f(cy)})" opacity=".94">`;
+  o+=`<rect x="${f(st.x)}" y="${f(st.y)}" width="${f(st.w)}" height="${f(st.h)}" rx="${f(s*0.02)}" fill="none" stroke="${P.accent}" stroke-width="${f(s*0.022)}"/>`;
+  const i2=inset(st,s*0.03);
+  o+=`<rect x="${f(i2.x)}" y="${f(i2.y)}" width="${f(i2.w)}" height="${f(i2.h)}" fill="none" stroke="${P.accent}" stroke-width="${f(s*0.007)}"/>`;
+  o+=titleBlock(inset(st,s*0.06),D,P,{icon:true,color:P.accent,iconColor:P.accent,iconBg:P.bg,sub:true});
+  o+='</g>';
+  const y=st.y+st.h+pad*1.4;
+  return o+body(R(pad,y,W-2*pad,H-y-pad),D,P);
+ },
+ franjas(W,H,D,P){
+  const s=Math.min(W,H),pad=s*0.05,land=W/H>1.15,id='hz'+(++UID),sw=s*0.04;
+  let o=`<defs><pattern id="${id}" patternUnits="userSpaceOnUse" width="${f(sw*2)}" height="${f(sw*2)}" patternTransform="rotate(45)"><rect width="${f(sw)}" height="${f(sw*2)}" fill="${P.accent}"/><rect x="${f(sw)}" width="${f(sw)}" height="${f(sw*2)}" fill="${P.stripe}"/></pattern></defs>`;
+  o+=rect(R(0,0,W,H),`url(#${id})`);
+  const inner=inset(R(0,0,W,H),s*0.075);
+  o+=rect(inner,P.bg,`rx="${f(s*0.02)}"`);
+  const inn=inset(inner,pad);
+  const th=inn.h*(land?0.45:0.36),g=pad*0.8;
+  o+=titleBlock(R(inn.x,inn.y,inn.w,th),D,P,{icon:true,color:P.ink,iconColor:P.ink,iconBg:P.bg,sub:true});
+  return o+body(R(inn.x,inn.y+th+g,inn.w,inn.h-th-g),D,P);
+ },
+ panel(W,H,D,P){
+  const s=Math.min(W,H),pad=s*0.06,land=W/H>1.15;
+  let o='';
+  if(land){const pw=W*0.38;o+=rect(R(0,0,pw,H),P.accent);o+=titleBlock(inset(R(0,0,pw,H),pad),D,P,{icon:true,color:P.aInk,iconColor:P.aInk,iconBg:P.accent,sub:true});return o+body(R(pw+pad,pad,W-pw-2*pad,H-2*pad),D,P);}
+  const ph=H*0.42;o+=rect(R(0,0,W,ph),P.accent);
+  o+=titleBlock(inset(R(0,0,W,ph),pad),D,P,{icon:true,color:P.aInk,iconColor:P.aInk,iconBg:P.accent,sub:true});
+  return o+body(R(pad,ph+pad,W-2*pad,H-ph-2*pad),D,P);
+ },
+ minimal(W,H,D,P){
+  const s=Math.min(W,H),pad=s*0.07,land=W/H>1.15;
+  const inn=inset(R(0,0,W,H),pad);
+  const th=inn.h*(land?0.3:0.24),g=pad*0.6,fh=D.sub?inn.h*0.08:0;
+  let o=titleBlock(R(inn.x,inn.y,inn.w,th),D,P,{icon:true,color:P.ink,iconColor:P.accent,iconBg:P.bg,sub:false,ls:0.22});
+  o+=`<line x1="${f(inn.x)}" x2="${f(inn.x+inn.w)}" y1="${f(inn.y+th+g)}" y2="${f(inn.y+th+g)}" stroke="${P.accent}" stroke-width="${f(s*0.008)}"/>`;
+  const by=inn.y+th+g*2;
+  o+=body(R(inn.x,by,inn.w,inn.y+inn.h-fh-g-by),D,P);
+  if(fh){o+=`<line x1="${f(inn.x)}" x2="${f(inn.x+inn.w)}" y1="${f(inn.y+inn.h-fh-g*0.5)}" y2="${f(inn.y+inn.h-fh-g*0.5)}" stroke="${P.ink}" stroke-opacity=".25" stroke-width="${f(s*0.004)}"/>`;
+   o+=fitText(D.sub.toUpperCase(),R(inn.x,inn.y+inn.h-fh,inn.w,fh),{font:'sans',weight:700,fill:P.muted,k:0.66,ls:0.25,hr:0.6});}
+  return o;
+ },
+ insignia(W,H,D,P){
+  const s=Math.min(W,H),pad=s*0.06,land=W/H>1.15;
+  let c,br;
+  if(land){const d=H-2*pad;c={x:pad+d/2,y:H/2,r:d/2};br=R(pad*2+d,pad,W-d-3*pad,H-2*pad);}
+  else{const d=Math.min(W-2*pad,H*0.48);c={x:W/2,y:pad+d/2,r:d/2};br=R(pad,pad*2+d,W-2*pad,H-d-3*pad);}
+  let o=`<circle cx="${f(c.x)}" cy="${f(c.y)}" r="${f(c.r)}" fill="${P.accent}"/>`;
+  o+=`<circle cx="${f(c.x)}" cy="${f(c.y)}" r="${f(c.r*0.9)}" fill="none" stroke="${P.aInk}" stroke-width="${f(c.r*0.025)}" stroke-dasharray="${f(c.r*0.06)} ${f(c.r*0.04)}"/>`;
+  const is=c.r*0.78;
+  o+=icon(D.icon,R(c.x-is/2,c.y-c.r*0.7,is,is),P.aInk,P.accent);
+  o+=fitText(D.title.replace('|',' · '),R(c.x-c.r*0.68,c.y+c.r*0.14,c.r*1.36,c.r*0.36),{font:D.font,fill:P.aInk});
+  if(D.sub) o+=fitText(D.sub.toUpperCase(),R(c.x-c.r*0.5,c.y+c.r*0.52,c.r*1.0,c.r*0.15),{font:'sans',weight:700,fill:P.aInk,k:0.66,ls:0.08,hr:0.7});
+  return o+body(br,D,P);
+ },
+ marca(W,H,D,P){
+  const s=Math.min(W,H),pad=s*0.06,land=W/H>1.15;
+  const inn=inset(R(0,0,W,H),pad);
+  const bh=inn.h*(land?0.36:0.34);
+  let o=brandBlock(R(inn.x,inn.y,inn.w,bh),D,P);
+  const barY=inn.y+bh+pad*0.7,barH=H*(land?0.28:0.22);
+  o+=rect(R(0,barY,W,barH),P.accent);
+  o+=titleBlock(R(pad,barY+barH*0.12,W-2*pad,barH*0.76),D,P,{icon:true,color:P.aInk,iconColor:P.aInk,iconBg:P.accent,sub:false});
+  const by=barY+barH+pad*0.7,bR=R(inn.x,by,inn.w,H-pad-by);
+  const subLines=(D.sub||'').toUpperCase().split(' · ').filter(Boolean);
+  const subO={font:'sans',weight:700,fill:P.ink,k:0.66,ls:0.06};
+  if(D.showQR&&qrMatrix(D.web)){
+    const qs=Math.min(bR.h,bR.w*0.4),g=bR.w*0.05;
+    if(subLines.length) o+=fitLines(subLines,R(bR.x,bR.y+bR.h*0.15,bR.w-qs-g,bR.h*0.7),{...subO,align:'start',maxFs:bR.h*0.2});
+    o+=qrBlock(R(bR.x+bR.w-qs,bR.y,qs,bR.h),D,P);
+  }else if(subLines.length) o+=fitLines(subLines,R(bR.x,bR.y+bR.h*0.2,bR.w,bR.h*0.6),{...subO,maxFs:bR.h*0.22});
+  return o;
+ }
+};
+
+/* ---------- estado ---------- */
+const DEF={name:'Cerámica Atitlán',phone:'+502 5555 1234',web:'https://ceramicaatitlan.com',showQR:true,logo:null,brand:'#1F4E79',useBrand:false,sub:'',size:'4x6',cw:100,ch:150,orient:'v',design:0};
+let S={...DEF};
+try{const saved=JSON.parse(localStorage.getItem('etiq-fragil')||'null');if(saved)S={...S,...saved};}catch(e){}
+function persist(){try{localStorage.setItem('etiq-fragil',JSON.stringify(S));}catch(e){try{localStorage.setItem('etiq-fragil',JSON.stringify({...S,logo:null}));}catch(_){}}}
+
+function dims(){
+  let w,h;
+  if(S.size==='custom'){w=Math.max(30,Math.min(300,+S.cw||100));h=Math.max(30,Math.min(300,+S.ch||100));}
+  else{const z=SIZES.find(x=>x.id===S.size)||SIZES[0];w=z.w;h=z.h;}
+  const a=Math.min(w,h),b=Math.max(w,h);
+  return S.orient==='h'?{W:b,H:a}:{W:a,H:b};
+}
+function contrast(hex){const n=parseInt(hex.slice(1),16),r=n>>16&255,g=n>>8&255,b=n&255;return (0.299*r+0.587*g+0.114*b)/255>0.6?'#141414':'#FFFFFF';}
+function palette(d){
+  const P={...PAL[d.pal]};
+  if(S.useBrand&&/^#[0-9a-f]{6}$/i.test(S.brand)){P.accent=S.brand;P.aInk=contrast(S.brand);if(d.pal==='kraft'){P.ink=S.brand;}}
+  return P;
+}
+function data(d){
+  const web=(S.web||'').trim();
+  return {...d,name:S.name.trim(),phone:S.phone.trim(),web:web,webShort:web.replace(/^https?:\/\//i,'').replace(/^www\./i,'').replace(/\/$/,''),showQR:S.showQR,logo:S.logo,sub:(S.sub||'').trim()||d.sub};
+}
+function buildSVG(i,W,H,size){
+  const d=DESIGNS[i],P=palette(d),D=data(d);
+  const inner=rect(R(0,0,W,H),P.bg)+L[d.layout](W,H,D,P);
+  const sz=size?`width="${size.w}" height="${size.h}"`:'';
+  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${f(W)} ${f(H)}" ${sz}>${inner}</svg>`;
+}
+
+/* ---------- UI ---------- */
+const $=id=>document.getElementById(id);
+const sizeIn=$('sizeIn');
+(function(){let g='',html='';SIZES.forEach(z=>{if(z.g!==g){if(g)html+='</optgroup>';html+=`<optgroup label="${z.g}">`;g=z.g;}html+=`<option value="${z.id}">${z.label}</option>`;});sizeIn.innerHTML=html+'</optgroup>';})();
+
+function fmt(mm){return (Math.round(mm*10)/10).toString().replace(/\.0$/,'');}
+function inch(mm){return (Math.round(mm/25.4*100)/100).toString();}
+
+function syncForm(){
+  $('nameIn').value=S.name;$('phoneIn').value=S.phone;$('webIn').value=S.web;$('qrIn').checked=S.showQR;
+  $('brandIn').value=S.brand;$('useBrandIn').checked=S.useBrand;$('subIn').value=S.sub;
+  sizeIn.value=S.size;$('cwIn').value=S.cw;$('chIn').value=S.ch;
+  updateLogoUI();
+}
+function updateLogoUI(){
+  const t=$('logoThumb');
+  if(S.logo){t.style.backgroundImage=`url("${S.logo}")`;t.textContent='';$('logoClear').hidden=false;}
+  else{t.style.backgroundImage='';t.textContent=initials(S.name);$('logoClear').hidden=true;}
+}
+function renderPreview(){
+  const {W,H}=dims();
+  $('preview').innerHTML=buildSVG(S.design,W,H).replace('<svg ','<svg class="label" role="img" aria-label="Vista previa de la etiqueta" ');
+  $('dName').textContent=String(S.design+1).padStart(2,'0')+' · '+DESIGNS[S.design].name;
+  $('dim').textContent=`${fmt(W)} × ${fmt(H)} mm · ${inch(W)} × ${inch(H)} in`;
+  $('sizeTag').textContent=`${inch(W)} × ${inch(H)} in`;
+  $('oV').setAttribute('aria-pressed',S.orient==='v');$('oH').setAttribute('aria-pressed',S.orient==='h');
+  $('customRow').hidden=S.size!=='custom';
+  $('subIn').placeholder=DESIGNS[S.design].sub;
+  const n=sheetFit(W,H);$('sheetCount').textContent=n.cols*n.rows?`${n.cols*n.rows} por hoja`:'no cabe';$('bSheet').disabled=!(n.cols*n.rows);
+  $('sampleNote').hidden=!(S.name===DEF.name&&S.web===DEF.web);
+}
+let galT;
+function renderGallery(now){
+  clearTimeout(galT);
+  galT=setTimeout(()=>{
+    const {W,H}=dims();
+    $('gal').innerHTML=DESIGNS.map((d,i)=>`<button class="thumb" type="button" data-i="${i}" aria-pressed="${i===S.design}" aria-label="Diseño ${i+1}: ${esc(d.name)}"><span class="pv">${buildSVG(i,W,H)}</span><span class="nm"><i>${String(i+1).padStart(2,'0')}</i>${esc(d.name)}</span></button>`).join('');
+  },now?0:160);
+}
+function render(gal=true){renderPreview();if(gal)renderGallery();persist();}
+
+$('gal').addEventListener('click',e=>{const b=e.target.closest('.thumb');if(!b)return;S.design=+b.dataset.i;document.querySelectorAll('.thumb').forEach(t=>t.setAttribute('aria-pressed',t===b));render(false);
+  if(window.innerWidth<900) document.querySelector('.mat').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});});
+[['nameIn','name'],['phoneIn','phone'],['webIn','web'],['subIn','sub'],['cwIn','cw'],['chIn','ch']].forEach(([id,k])=>$(id).addEventListener('input',e=>{S[k]=e.target.value;if(k==='name')updateLogoUI();render();}));
+$('qrIn').addEventListener('change',e=>{S.showQR=e.target.checked;render();});
+$('brandIn').addEventListener('input',e=>{S.brand=e.target.value;if(!S.useBrand){S.useBrand=true;$('useBrandIn').checked=true;}render();});
+$('useBrandIn').addEventListener('change',e=>{S.useBrand=e.target.checked;render();});
+sizeIn.addEventListener('change',e=>{S.size=e.target.value;const z=SIZES.find(x=>x.id===S.size);if(z&&z.w)S.orient=z.w>z.h?'h':'v';render();});
+$('oV').addEventListener('click',()=>{S.orient='v';render();});
+$('oH').addEventListener('click',()=>{S.orient='h';render();});
+
+/* logo */
+const drop=$('logoDrop'),logoIn=$('logoIn');
+drop.addEventListener('click',()=>logoIn.click());
+drop.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();logoIn.click();}});
+drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('over');});
+drop.addEventListener('dragleave',()=>drop.classList.remove('over'));
+drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('over');const fl=e.dataTransfer.files[0];if(fl)loadLogo(fl);});
+logoIn.addEventListener('change',e=>{const fl=e.target.files[0];if(fl)loadLogo(fl);logoIn.value='';});
+$('logoClear').addEventListener('click',()=>{S.logo=null;updateLogoUI();render();});
+function loadLogo(file){
+  if(!file.type.startsWith('image/')){toast('Ese archivo no es una imagen. Usa PNG, JPG o SVG.');return;}
+  const rd=new FileReader();
+  rd.onload=()=>{const img=new Image();img.onload=()=>{
+      const max=800,sc=Math.min(1,max/Math.max(img.width||max,img.height||max));
+      const c=document.createElement('canvas');c.width=Math.max(1,Math.round((img.width||max)*sc));c.height=Math.max(1,Math.round((img.height||max)*sc));
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      try{S.logo=c.toDataURL('image/png');}catch(e){S.logo=rd.result;}
+      updateLogoUI();render();toast('Logo cargado');
+    };img.onerror=()=>toast('No se pudo leer la imagen. Prueba con otro archivo.');img.src=rd.result;};
+  rd.readAsDataURL(file);
+}
+
+/* ---------- exportar ---------- */
+let dl=null;
+const dlReady=(window.claude&&window.claude.use?window.claude.use('downloads'):Promise.resolve(null)).then(x=>{dl=x;$('dlNote').hidden=!!dl;return x;}).catch(()=>{dl=null;$('dlNote').hidden=false;return null;});
+setTimeout(()=>{if(!dl)$('dlNote').hidden=false;},2500);
+
+function slug(){return ('fragil-'+(S.name||'etiqueta')).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
+async function toCanvas(W,H,dpi=300){
+  const pw=Math.round(W/25.4*dpi),ph=Math.round(H/25.4*dpi);
+  const svg=buildSVG(S.design,W,H,{w:pw,h:ph});
+  const img=new Image();
+  await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);});
+  const c=document.createElement('canvas');c.width=pw;c.height=ph;
+  const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,pw,ph);ctx.drawImage(img,0,0,pw,ph);
+  return c;
+}
+function sheetFit(W,H){const PW=215.9,PH=279.4,m=8,g=3;return {cols:Math.max(0,Math.floor((PW-2*m+g)/(W+g))),rows:Math.max(0,Math.floor((PH-2*m+g)/(H+g))),PW,PH,g};}
+async function save(filename,data){
+  await dlReady;
+  if(!dl){showFallback();return;}
+  try{await dl.save({filename,data});toast('Archivo listo: '+filename);}
+  catch(e){const c=e&&e.code;
+    if(c==='declined') toast('Descarga cancelada');
+    else if(c==='rate_limited') toast('Ya hay una descarga pendiente. Espera un momento.');
+    else {toast('No se pudo descargar aquí.');showFallback();}}
+}
+async function withBusy(btn,fn){btn.disabled=true;try{await fn();}catch(e){toast('Algo falló al generar el archivo. Intenta de nuevo.');}finally{btn.disabled=false;}}
+$('bPng').addEventListener('click',e=>withBusy(e.currentTarget,async()=>{const {W,H}=dims();const c=await toCanvas(W,H);const blob=await new Promise(r=>c.toBlob(r,'image/png'));await save(slug()+'.png',blob);}));
+$('bSvg').addEventListener('click',e=>withBusy(e.currentTarget,async()=>{const {W,H}=dims();await save(slug()+'.svg',new Blob([buildSVG(S.design,W,H,{w:f(W)+'mm',h:f(H)+'mm'})],{type:'image/svg+xml'}));}));
+$('bPdf').addEventListener('click',e=>withBusy(e.currentTarget,async()=>{
+  if(!window.jspdf){toast('El generador de PDF no cargó. Recarga la página.');return;}
+  const {W,H}=dims();const c=await toCanvas(W,H);
+  const doc=new jspdf.jsPDF({unit:'mm',format:[W,H],orientation:W>H?'landscape':'portrait'});
+  doc.addImage(c.toDataURL('image/png'),'PNG',0,0,W,H);
+  await save(slug()+'.pdf',doc.output('blob'));
+}));
+$('bSheet').addEventListener('click',e=>withBusy(e.currentTarget,async()=>{
+  if(!window.jspdf){toast('El generador de PDF no cargó. Recarga la página.');return;}
+  const {W,H}=dims();const n=sheetFit(W,H);if(!(n.cols*n.rows))return;
+  const c=await toCanvas(W,H);const png=c.toDataURL('image/png');
+  const doc=new jspdf.jsPDF({unit:'mm',format:'letter',orientation:'portrait'});
+  const gw=n.cols*W+(n.cols-1)*n.g,gh=n.rows*H+(n.rows-1)*n.g;
+  const x0=(n.PW-gw)/2,y0=(n.PH-gh)/2;
+  doc.setDrawColor(170);doc.setLineWidth(0.15);doc.setLineDashPattern([1.2,1.2],0);
+  for(let r=0;r<n.rows;r++)for(let k=0;k<n.cols;k++){const x=x0+k*(W+n.g),y=y0+r*(H+n.g);doc.addImage(png,'PNG',x,y,W,H,'lbl','FAST');doc.rect(x-0.4,y-0.4,W+0.8,H+0.8);}
+  await save(slug()+'-hoja-carta.pdf',doc.output('blob'));
+}));
+async function showFallback(){
+  const {W,H}=dims();const c=await toCanvas(W,H);
+  const ov=document.createElement('div');ov.className='overlay';
+  ov.innerHTML=`<div class="box"><strong>Tu etiqueta en PNG</strong><p class="note">Haz clic derecho (o mantén presionado en el teléfono) y elige “Guardar imagen”.</p><img alt="Etiqueta generada" src="${c.toDataURL('image/png')}"><button class="btn" type="button">Cerrar</button></div>`;
+  ov.addEventListener('click',e=>{if(e.target===ov||e.target.tagName==='BUTTON')ov.remove();});
+  document.body.appendChild(ov);
+}
+let tT;
+function toast(msg){let t=document.querySelector('.toast');if(!t){t=document.createElement('div');t.className='toast';t.setAttribute('role','status');document.body.appendChild(t);}t.textContent=msg;t.hidden=false;clearTimeout(tT);tT=setTimeout(()=>{t.hidden=true;},2600);}
+
+syncForm();renderPreview();renderGallery(true);
+/* el QR depende de la librería; si cargó tarde, vuelve a dibujar */
+if(!window.qrcode) window.addEventListener('load',()=>render());
+})();
+</script>
+
+</body></html>

@@ -12,9 +12,11 @@ cambios, adiciones o eliminaciones de fotos en Google Drive.
 
 # ── CONFIGURACIÓN ─────────────────────────────────────────────────────────────
 CREDENTIALS_JSON  = r"D:\Horus\Downloads\CS.json"          # ← archivo descargado de Google Cloud
-SPREADSHEET_ID    = "1aqe-RbvdbN6T9-SSWV2Npy1td81C_6q5I9XN9nT17GU"  # ← ID de tu Google Sheet
-KOSSINO_FOLDER_ID = "1s0elos0PRRUTuXLqqZfKLSZldlksedh0"    # ← ID de la carpeta KOSSINO en Drive
+SPREADSHEET_ID    = "1gGF1VQwFfekFXaFmkKjL9UZjnKidWS2X_lnrj4RPtR4"  # ← ID de tu Google Sheet
+KOSSINO_FOLDER_ID = "12MPJBNSBO9GasktGrrP8q8ridX38bC9i"    # ← ID de la carpeta KOSSINO en Drive
 SHEET_NAME        = "Productos"                             # ← nombre de la pestaña en el Google Sheet
+
+
 
 # Nombres exactos de las columnas en tu Google Sheets
 ID_COLUMN_NAME      = "id"

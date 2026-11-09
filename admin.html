@@ -88,18 +88,22 @@
         button { border: none; padding: 16px; border-radius: 14px; cursor: pointer; font-weight: 800; transition: 0.3s; text-transform: uppercase; font-size: 0.85rem; }
         #btnGuardar { background: linear-gradient(135deg, var(--dark), #142e47); color: white; flex: 2; }
         #btnCancelar { background: #f1f5f9; color: #64748b; flex: 1; display: none; }
+        #btnEliminarForm { background: #fef2f2; color: var(--danger); flex: 1; display: none; }
 
         .table-wrapper { overflow-x: auto; border-radius: 20px; border: 1px solid #f1f5f9; }
         table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 1000px; }
         th { background: #f8fafc; color: #64748b; padding: 18px; text-align: left; border-bottom: 2px solid #f1f5f9; }
+        th:first-child, td:first-child { min-width: 96px; }
         td { padding: 16px; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
         
         .id-text { display: block; font-size: 0.75rem; color: #94a3b8; }
         .id-text.hidden { display: none; }
 
         .img-preview { width: 55px; height: 55px; object-fit: cover; border-radius: 14px; background: #f1f5f9; display: block; }
-        .btn-accion { width: 38px; height: 38px; border-radius: 10px; cursor: pointer; border: none; display: inline-flex; align-items: center; justify-content: center; }
+        .celda-acciones { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .btn-accion { width: 38px; height: 38px; flex-shrink: 0; border-radius: 10px; cursor: pointer; border: none; display: inline-flex; align-items: center; justify-content: center; }
         .btn-edit { background: #eff6ff; color: var(--info); }
+        .btn-delete { background: #fef2f2; color: var(--danger); }
         .badge { padding: 6px 12px; border-radius: 10px; font-size: 0.7rem; font-weight: 800; }
         .disponible { background: #dcfce7; color: #166534; }
         .agotado { background: #fee2e2; color: #991b1b; }
@@ -135,9 +139,9 @@
 
 <div class="container">
     <div class="brand-header">
-        <img src="img/Flamax-v1.png" id="js-brand-logo" alt="Logo" class="brand-logo">
+        <img src="img/RompecabezasDeGuatemala-v1.png" id="js-brand-logo" alt="Logo" class="brand-logo">
         <div style="text-align: right">
-            <h1 id="js-brand-name" style="margin:0; font-size: 1.6rem; color: var(--dark);">Flamax</h1>
+            <h1 id="js-brand-name" style="margin:0; font-size: 1.6rem; color: var(--dark);">Rompecabezas de Guatemala</h1>
             <small id="js-brand-tagline" style="font-weight: 700; text-transform: uppercase; font-size: 0.7rem;">GESTIÓN DE INVENTARIOS V1.0</small>
         </div>
     </div>
@@ -148,7 +152,7 @@
             <div class="grid-form">
                 <div class="field" id="field-id"><label>ID Único</label><input type="text" id="id" required></div>
                 <div class="field"><label>Nombre del Producto</label><input type="text" id="titulo" required></div>
-                <div class="field"><label>Imagen Principal (URL)</label><input type="url" id="imagen" required></div>
+                <div class="field"><label>Imagen Principal (URL)</label><input type="text" id="imagen" placeholder="Opcional"></div>
                 <div class="field"><label>Galería (Separar con |)</label><input type="text" id="imagenes"></div>
                 <div class="field"><label>ID Categoría</label><input type="text" id="categoria_id" required></div>
                 <div class="field"><label>Nombre Categoría</label><input type="text" id="categoria_nombre" required></div>
@@ -169,6 +173,7 @@
             </div>
             <div class="btn-group">
                 <button type="submit" id="btnGuardar">Sincronizar Datos</button>
+                <button type="button" id="btnEliminarForm" onclick="eliminarDesdeForm()">Eliminar Producto</button>
                 <button type="button" id="btnCancelar" onclick="cancelarEdicion()">Descartar Cambios</button>
             </div>
         </form>
@@ -344,6 +349,18 @@
     }
 
     // Convierte URLs de Drive a thumbnail embeddable (sin CORS, funciona desde cualquier origen)
+    // Si Drive frena por demasiadas peticiones, reintenta la foto con espera creciente
+    // (3 s, 8 s, 20 s) y por la ruta alterna de Google; si aun así falla, deja la imagen de respaldo.
+    function reintentarImg(img, respaldo) {
+      const n = +(img.dataset.intentos || 0);
+      const id = (img.dataset.orig || img.src).match(/[?&]id=([\w-]+)/);
+      if (!img.dataset.orig) img.dataset.orig = img.src;
+      if (n >= 3 || !id) { img.onerror = null; if (respaldo) img.src = respaldo; return; }
+      img.dataset.intentos = n + 1;
+      const url = n === 1 ? `https://lh3.googleusercontent.com/d/${id[1]}=w400` : `${img.dataset.orig}&r=${n + 1}`;
+      setTimeout(() => { img.src = url; }, [3000, 8000, 20000][n]);
+    }
+
     function driveThumb(url, size = 400) {
         if (!url) return url;
         let m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
@@ -352,25 +369,38 @@
         return url;
     }
 
+    // Lee la hoja EN VIVO desde el Apps Script (sin el retraso de ~5 min de la
+    // hoja publicada). Si falla, usa el CSV publicado como respaldo.
+    async function leerFilas() {
+        try {
+            const r = await fetch(`${CONFIG.SCRIPT_URL}?action=listar&t=${Date.now()}`);
+            const j = await r.json();
+            if (j.ok && Array.isArray(j.data)) { fuenteDatos = "en vivo"; return j.data; }
+        } catch (e) { console.warn("Lectura en vivo no disponible, uso el CSV publicado.", e); }
+        const response = await fetch(`${CONFIG.CSV_URL}&t=${Date.now()}`);
+        fuenteDatos = "hoja publicada (puede tardar ~5 min en actualizarse)";
+        return parseCSV(await response.text());
+    }
+    let fuenteDatos = "";
+
     async function cargarDatos() {
         try {
-            const response = await fetch(`${CONFIG.CSV_URL}&t=${Date.now()}`);
-            const data = await response.text();
-            const rows = parseCSV(data);
+            const rows = await leerFilas();
             productosGlobal = [];
             for (let i = 1; i < rows.length; i++) {
                 const r = rows[i];
                 if (!r[0]) continue;
 
                 // CORRECCIÓN 1: Limpieza segura del precio eliminando "Q", comas o espacios antes de parsear
-                let precioLimpio = r[9] ? r[9].replace(/[^0-9.]/g, '') : "0";
+                let precioLimpio = r[9] !== undefined && r[9] !== null ? String(r[9]).replace(/[^0-9.]/g, '') : "0";
 
                 productosGlobal.push({
-                    id: r[0], titulo: r[1], imagen: driveThumb(r[2]), imagenes: driveThumb(r[3]),
+                    id: String(r[0]).trim(), titulo: r[1], imagen: driveThumb(String(r[2] || '')), imagenes: driveThumb(String(r[3] || '')),
+                    imagenRaw: String(r[2] || ''), imagenesRaw: String(r[3] || ''),   // URLs tal cual están en la hoja
                     cat_id: r[4], cat_nom: r[5], sub_id: r[6], sub_nom: r[7],
                     desc: r[8], 
                     precio: parseFloat(precioLimpio) || 0, // Se almacena como número real limpio
-                    estado: (r[10] || "DISPONIBLE").trim().toUpperCase()
+                    estado: String(r[10] || "DISPONIBLE").trim().toUpperCase()
                 });
             }
             poblarFiltros();
@@ -387,7 +417,12 @@
             const tr = document.createElement('tr');
             
             tr.innerHTML = `
-                <td><button class="btn-accion btn-edit"><i class="bi bi-pencil-square"></i></button></td>
+                <td>
+                    <div class="celda-acciones">
+                        <button class="btn-accion btn-edit"><i class="bi bi-pencil-square"></i></button>
+                        <button class="btn-accion btn-delete"><i class="bi bi-trash3"></i></button>
+                    </div>
+                </td>
                 <td class="td-foto"></td>
                 <td><strong class="prod-title"></strong><br><small class="id-text ${showID ? '' : 'hidden'}">${p.id}</small></td>
                 <td>${p.cat_nom}</td>
@@ -398,13 +433,13 @@
             
             tr.querySelector('.prod-title').innerText = p.titulo;
             tr.querySelector('.btn-edit').onclick = () => prepararEdicion(p.id);
+            tr.querySelector('.btn-delete').onclick = () => eliminarProducto(p.id, p.titulo);
             
             const imgNode = document.createElement('img');
             imgNode.className = "img-preview";
-            imgNode.onerror = () => {
-                imgNode.onerror = null;
-                imgNode.src = TABLE_PLACEHOLDER;
-            };
+            imgNode.loading = "lazy";        // solo carga las fotos visibles (evita que Drive bloquee)
+            imgNode.decoding = "async";
+            imgNode.onerror = () => reintentarImg(imgNode, TABLE_PLACEHOLDER);
             imgNode.src = p.imagen; 
             
             tr.querySelector('.td-foto').appendChild(imgNode);
@@ -984,14 +1019,42 @@
         }
     }
 
+    async function eliminarProducto(id, titulo) {
+        const confirmado = confirm(`¿Eliminar "${titulo}" (${id})?\n\nEsta acción no se puede deshacer.`);
+        if (!confirmado) return;
+
+        try {
+            await fetch(CONFIG.SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ action: "delete", id: id })
+            });
+            await new Promise(r => setTimeout(r, 1500));
+            cancelarEdicion();
+            await cargarDatos();
+            const sigue = productosGlobal.some(x => x.id === id);
+            alert(sigue && fuenteDatos === "en vivo" ? "⚠️ El producto sigue en la hoja. No se eliminó." : "🗑️ Producto eliminado.");
+        } catch (e) {
+            alert("Error de comunicación con el servidor central.");
+            console.error(e);
+        }
+    }
+
+    function eliminarDesdeForm() {
+        const id = document.getElementById('id').value.trim();
+        const titulo = document.getElementById('titulo').value.trim();
+        if (!id) return;
+        eliminarProducto(id, titulo);
+    }
+
     function prepararEdicion(id) {
         const p = productosGlobal.find(x => x.id === id);
         if (!p) return;
         document.getElementById('id').value = p.id;
         document.getElementById('id').readOnly = true;
         document.getElementById('titulo').value = p.titulo;
-        document.getElementById('imagen').value = p.imagen;
-        document.getElementById('imagenes').value = p.imagenes || "";
+        document.getElementById('imagen').value = p.imagenRaw || "";        // original, no la miniatura
+        document.getElementById('imagenes').value = p.imagenesRaw || "";
         document.getElementById('categoria_id').value = p.cat_id;
         document.getElementById('categoria_nombre').value = p.cat_nom;
         document.getElementById('subcategoria_id').value = p.sub_id || "";
@@ -1003,6 +1066,7 @@
         document.getElementById('contenedorForm').classList.add('modo-edicion');
         document.getElementById('btnGuardar').innerText = "Guardar Cambios";
         document.getElementById('btnCancelar').style.display = "block";
+        document.getElementById('btnEliminarForm').style.display = "block";
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -1014,18 +1078,24 @@
         document.getElementById('contenedorForm').classList.remove('modo-edicion');
         document.getElementById('btnGuardar').innerText = "Sincronizar Datos";
         document.getElementById('btnCancelar').style.display = "none";
+        document.getElementById('btnEliminarForm').style.display = "none";
     }
 
     function parseCSV(text) {
         const lines = []; let curLine = []; let curCell = ""; let inQuotes = false;
         for (let i = 0; i < text.length; i++) {
-            let c = text[i];
-            if (c === '"') inQuotes = !inQuotes;
+            const c = text[i], n = text[i + 1];
+            if (c === '"' && inQuotes && n === '"') { curCell += '"'; i++; }        // "" = comilla literal
+            else if (c === '"') inQuotes = !inQuotes;
             else if (c === ',' && !inQuotes) { curLine.push(curCell); curCell = ""; }
-            else if (c === '\n' && !inQuotes) { curLine.push(curCell); lines.push(curLine); curLine = []; curCell = ""; }
+            else if ((c === '\n' || c === '\r') && !inQuotes) {
+                if (c === '\r' && n === '\n') i++;
+                curLine.push(curCell); lines.push(curLine); curLine = []; curCell = "";
+            }
             else curCell += c;
         }
-        curLine.push(curCell); lines.push(curLine); return lines;
+        if (curCell || curLine.length) { curLine.push(curCell); lines.push(curLine); }
+        return lines;
     }
 
     document.getElementById('formAdmin').onsubmit = async (e) => {
@@ -1049,11 +1119,23 @@
             estado: document.getElementById('estado').value
         };
         
+        if (!payload.id) { alert("Falta el ID del producto."); btn.disabled = false; btn.innerText = "Sincronizar Datos"; return; }
         try {
             await fetch(CONFIG.SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            alert("✅ Sincronizado exitosamente con la Base de Datos. Recargando...");
-            cancelarEdicion();
-            setTimeout(cargarDatos, 2000);
+            await new Promise(r => setTimeout(r, 1500));
+            await cargarDatos();
+            const guardado = productosGlobal.find(x => x.id === payload.id);
+            const precioOk = guardado && Math.abs(guardado.precio - (parseFloat(payload.precio) || 0)) < 0.005;
+            const estadoOk = guardado && guardado.estado === payload.estado;
+            if (guardado && precioOk && estadoOk) {
+                alert(`✅ Guardado y verificado: ${payload.id} · Q${guardado.precio.toFixed(2)} · ${guardado.estado}`);
+                cancelarEdicion();
+            } else if (fuenteDatos !== "en vivo") {
+                alert("📤 Enviado. No pude verificarlo en vivo; la hoja publicada puede tardar ~5 minutos en mostrar el cambio.\n\nRevisá que el Apps Script tenga la versión nueva implementada.");
+                cancelarEdicion();
+            } else {
+                alert("⚠️ El cambio NO aparece en la hoja. No se guardó.\n\nRevisá que SCRIPT_URL sea el enlace de la implementación actual (termina en /exec) y que esté implementada para 'Cualquier persona'.");
+            }
         } catch (e) { alert("Error de comunicación con el servidor central."); console.error(e); }
         finally { btn.disabled = false; btn.innerText = "Sincronizar Datos"; }
     };

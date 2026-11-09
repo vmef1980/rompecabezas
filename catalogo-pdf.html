@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="es-GT">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Generador de Catálogo PDF | Rompecabezas de Guatemala</title>
+<link rel="icon" href="img/RompecabezasDeGuatemala-v1.ico" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  /* ═══════════ COLORES (la temporada los cambia) ═══════════ */
+  :root{
+    --navy:#003772;   /* títulos y fondos de separador */
+    --ink:#071a33;    /* fondo de portada y contraportada */
+    --accent:#0074B7; /* detalles */
+    --sun:#FFD447;    /* acento brillante */
+    --leaf:#1fa463;   /* botón WhatsApp */
+    --glow1:rgba(0,116,183,.55);
+    --glow2:rgba(255,212,71,.22);
+    --paper:#ffffff; --mist:#f2f5f9; --text:#14253d; --soft:#5b6b80; --line:#e3e8ef;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#d9dee6;font-family:Inter,system-ui,sans-serif;color:var(--text)}
+  img{display:block}
+
+  /* ═══════════ PANEL ═══════════ */
+  #panel{position:fixed;inset:0 auto 0 0;width:340px;background:#0d1b2e;color:#e8eef7;overflow-y:auto;padding:22px 20px 40px;z-index:10;font-size:13px}
+  #panel h1{font-family:Outfit;font-size:20px;font-weight:800;display:flex;gap:10px;align-items:center;margin-bottom:4px}
+  #panel h1 img{width:34px;height:34px;border-radius:8px}
+  #panel .sub{color:#8aa0bd;font-size:12px;margin-bottom:18px}
+  #panel fieldset{border:1px solid #23354f;border-radius:12px;padding:12px 12px 14px;margin-bottom:14px}
+  #panel legend{padding:0 6px;color:#FFD447;font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  #panel label{display:block;margin:8px 0 4px;color:#b9c7da;font-size:12px}
+  #panel input[type=text],#panel input[type=date],#panel input[type=number],#panel select{width:100%;padding:8px 10px;border-radius:8px;border:1px solid #2a3f5c;background:#13243b;color:#fff;font:inherit}
+  #panel .check{display:flex;gap:8px;align-items:center;margin:7px 0;color:#dbe5f2;cursor:pointer}
+  #panel .check input{accent-color:#FFD447;width:15px;height:15px;flex:none}
+  #panel .seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+  #panel .seg button{padding:8px 6px;border-radius:8px;border:1px solid #2a3f5c;background:#13243b;color:#cfdbea;font:600 12px Inter;cursor:pointer}
+  #panel .seg button.on{background:#FFD447;color:#1a1a1a;border-color:#FFD447}
+  #panel .hint{font-size:11.5px;color:#8aa0bd;margin-top:6px;line-height:1.45}
+  #temaPrev{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px;border-radius:10px;background:var(--ink)}
+  #temaPrev .sw{display:flex;gap:4px}
+  #temaPrev .sw i{width:14px;height:14px;border-radius:50%;border:1px solid rgba(255,255,255,.3)}
+  #temaPrev b{font:800 13px Outfit;color:#fff}
+  #lista-productos{max-height:230px;overflow-y:auto;margin-top:8px;border:1px solid #23354f;border-radius:8px;padding:4px 8px}
+  #lista-productos .check{font-size:12px;margin:5px 0}
+  #lista-productos small{color:#7f93ad}
+  .btn{display:block;width:100%;padding:12px;border:0;border-radius:10px;font:700 14px Inter;cursor:pointer;margin-top:10px}
+  .btn-main{background:#FFD447;color:#14130f}
+  .btn-sec{background:#1d3a63;color:#fff}
+  .btn:disabled{opacity:.5;cursor:wait}
+  #estado{margin-top:10px;font-size:12px;color:#9fb3cc;min-height:16px}
+  #ayuda{margin-top:14px;font-size:11.5px;line-height:1.5;color:#8aa0bd;background:#122238;border-radius:10px;padding:10px 12px}
+  #ayuda b{color:#e8eef7}
+
+  /* ═══════════ VISTA PREVIA ═══════════ */
+  #preview{margin-left:340px;padding:30px 0 60px;display:flex;flex-direction:column;align-items:center;gap:22px}
+  #preview .vacio{margin-top:120px;color:#5b6b80;font-size:15px;text-align:center;line-height:1.6}
+
+  /* ═══════════ LOGO ADORNADO ═══════════ */
+  .logo{position:relative;display:inline-block;flex:none}
+  .logo img{width:100%;height:100%;border-radius:22%}
+  .logo .deco{position:absolute;pointer-events:none}
+  .logo .deco svg{width:100%;height:100%;display:block}
+  .logo.ring img{box-shadow:0 0 0 .9mm var(--sun)}
+
+  /* Patrón decorativo de temporada */
+  .pattern{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .pattern span{position:absolute;display:block}
+  .pattern svg{width:100%;height:100%;display:block}
+
+  /* ═══════════ PÁGINA A4 ═══════════ */
+  .page{width:210mm;height:297mm;background:var(--paper);position:relative;overflow:hidden;box-shadow:0 10px 40px rgba(10,30,60,.18);display:flex;flex-direction:column}
+  .page-head{display:flex;justify-content:space-between;align-items:flex-end;padding:13mm 14mm 5mm}
+  .page-head .cat{font-family:Outfit;font-weight:800;font-size:22pt;line-height:1;color:var(--navy);letter-spacing:-.02em}
+  .page-head .cat small{display:block;font:600 8pt Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:2.5mm}
+  .page-head .brand{display:flex;align-items:center;gap:2.5mm;font:700 9pt Outfit;color:var(--navy)}
+  .page-head .brand .logo{width:9mm;height:9mm}
+  .rule{height:1.2mm;margin:0 14mm 6mm;background:linear-gradient(90deg,var(--navy) 0 22%,var(--sun) 22% 30%,var(--line) 30%);border-radius:1mm}
+  .page-body{flex:1;padding:0 14mm;min-height:0}
+  .page-foot{display:flex;justify-content:space-between;align-items:center;gap:4mm;padding:4mm 14mm 9mm;font-size:7.5pt;color:var(--soft)}
+  .page-foot b{color:var(--navy)}
+  .page-foot .num{font:800 11pt Outfit;color:var(--navy);background:var(--mist);border-radius:2mm;padding:1mm 3mm}
+  .promo-strip{margin:0 14mm 5mm;background:var(--ink);color:#fff;border-radius:3mm;padding:2.4mm 4mm;display:flex;justify-content:space-between;align-items:center;font:600 8pt Inter}
+  .promo-strip b{color:var(--sun);font:800 10pt Outfit;letter-spacing:.02em}
+
+  /* Cuadrícula */
+  .grid{display:grid;gap:5mm;height:100%}
+  .g6{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,1fr)}
+  .g9{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr)}
+  .g12{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr);gap:4mm}
+  .card{position:relative;background:var(--paper);border:0.3mm solid var(--line);border-radius:4mm;overflow:hidden;display:flex;flex-direction:column;min-height:0}
+  .card .ph{flex:1;min-height:0;background:radial-gradient(circle at 50% 40%,#ffffff 0,#f1f4f8 75%);display:flex;align-items:center;justify-content:center;padding:9mm 4mm 4mm}
+  .card .ph img{max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:multiply}
+  .card .info{padding:3mm 4mm 3.5mm;border-top:0.3mm solid var(--line)}
+  .card .sku{font:600 6pt Inter;letter-spacing:.08em;color:var(--soft);text-transform:uppercase}
+  .card h3{font:700 9.5pt/1.2 Outfit;color:var(--text);margin:1mm 0 1.2mm;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .card .desc{font-size:7pt;line-height:1.35;color:var(--soft);display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:2mm}
+  .card .row{display:flex;justify-content:space-between;align-items:flex-end;gap:2mm}
+  .card .price{font:800 12pt/1 Outfit;color:var(--navy)}
+  .card .price s{display:block;font:500 7pt Inter;color:var(--soft);margin-bottom:.8mm}
+  .card .price small{font-size:7pt;font-weight:600;color:var(--soft)}
+  .card .wa{font:700 6.5pt Inter;color:#fff;background:var(--leaf);padding:1.3mm 2.6mm;border-radius:10mm;text-decoration:none;white-space:nowrap}
+  .card .tag{position:absolute;top:3mm;left:3mm;max-width:calc(100% - 6mm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:700 6pt Inter;letter-spacing:.06em;text-transform:uppercase;padding:1mm 2.2mm;border-radius:10mm;background:var(--navy);color:#fff}
+  .card .tag.agot{background:#c0392b}
+  .card .off{position:absolute;top:2.5mm;right:2.5mm;width:11mm;height:11mm;border-radius:50%;background:var(--sun);color:#111;font:900 8pt/11mm Outfit;text-align:center;transform:rotate(-8deg)}
+  .g9 .card h3,.g12 .card h3{font-size:8.5pt}
+  .g9 .card .price,.g12 .card .price{font-size:10.5pt}
+  .g12 .card .desc{display:none}
+  .g12 .card .ph{padding:8mm 3mm 3mm}
+
+  /* Ficha */
+  .ficha{display:grid;grid-template-rows:auto 1fr;gap:7mm;height:100%}
+  .ficha .hero{height:150mm;border-radius:6mm;background:radial-gradient(circle at 50% 40%,#fff 0,#eef2f7 75%);display:flex;align-items:center;justify-content:center;padding:10mm;position:relative}
+  .ficha .hero > img{max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:multiply}
+  .ficha .hero .off{position:absolute;top:6mm;right:6mm;width:24mm;height:24mm;border-radius:50%;background:var(--sun);color:#111;font:900 15pt/24mm Outfit;text-align:center;transform:rotate(-8deg)}
+  .ficha .thumbs{position:absolute;right:5mm;bottom:5mm;display:flex;gap:2mm}
+  .ficha .thumbs img{width:18mm;height:18mm;object-fit:contain;background:#fff;border-radius:2mm;border:0.3mm solid var(--line);padding:1mm}
+  .ficha .det{display:grid;grid-template-columns:1.4fr 1fr;gap:8mm}
+  .ficha .sku{font:600 8pt Inter;letter-spacing:.12em;color:var(--accent);text-transform:uppercase}
+  .ficha h2{font:800 24pt/1.05 Outfit;color:var(--navy);letter-spacing:-.02em;margin:2mm 0 5mm}
+  .ficha .desc{font-size:9.5pt;line-height:1.6;color:var(--text);white-space:pre-line}
+  .ficha .box{background:var(--ink);color:#fff;border-radius:6mm;padding:8mm;align-self:start}
+  .ficha .box .lbl{font:600 7.5pt Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--sun)}
+  .ficha .box s{display:block;font:500 10pt Inter;color:#b9c4d4;margin-top:2mm}
+  .ficha .box .price{font:900 30pt Outfit;margin:1mm 0 4mm}
+  .ficha .box .st{display:inline-block;font:700 7.5pt Inter;padding:1.2mm 3mm;border-radius:10mm;background:rgba(255,255,255,.12);margin-bottom:5mm}
+  .ficha .box a{display:block;text-align:center;background:var(--leaf);color:#fff;text-decoration:none;font:700 10pt Inter;padding:3.5mm;border-radius:3mm}
+
+  /* Portada */
+  .cover{background:var(--ink);color:#fff}
+  .cover .glow{position:absolute;width:170mm;height:170mm;border-radius:50%;right:-55mm;top:-40mm;background:radial-gradient(circle,var(--glow1),transparent 70%)}
+  .cover .glow2{position:absolute;width:120mm;height:120mm;border-radius:50%;left:-50mm;bottom:20mm;background:radial-gradient(circle,var(--glow2),transparent 70%)}
+  .cover .top{position:relative;display:flex;align-items:center;gap:5mm;padding:16mm 16mm 0}
+  .cover .top .logo{width:17mm;height:17mm}
+  .cover .top b{font:800 17pt Outfit;letter-spacing:-.01em}
+  .cover .top span{display:block;font:500 8pt Inter;color:rgba(255,255,255,.65);letter-spacing:.06em}
+  .cover .collage{position:relative;margin:14mm 16mm 0;height:118mm;display:grid;grid-template-columns:1.25fr 1fr;grid-template-rows:1fr 1fr;gap:4mm}
+  .cover .collage > div{background:#fff;border-radius:6mm;display:flex;align-items:center;justify-content:center;padding:6mm;overflow:hidden}
+  .cover .collage > div:first-of-type{grid-row:span 2}
+  .cover .collage img{max-width:100%;max-height:100%;object-fit:contain}
+  .cover .bigoff{position:absolute;right:8mm;top:-8mm;width:40mm;height:40mm;border-radius:50%;background:var(--sun);color:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(-10deg);box-shadow:0 4mm 10mm rgba(0,0,0,.35);z-index:2}
+  .cover .bigoff b{font:900 26pt/1 Outfit}
+  .cover .bigoff span span,.cover .bigoff > span{font:700 7pt Inter;letter-spacing:.12em;text-transform:uppercase}
+  .cover .title{position:relative;padding:11mm 16mm 0}
+  .cover .kick{font:700 9pt Inter;letter-spacing:.3em;text-transform:uppercase;color:var(--sun)}
+  .cover h1{font:900 46pt/0.95 Outfit;letter-spacing:-.035em;margin:4mm 0 5mm}
+  .cover h1 em{font-style:normal;color:var(--sun)}
+  .cover p{font-size:10.5pt;line-height:1.55;color:rgba(255,255,255,.78);max-width:155mm}
+  .cover .bar{position:absolute;left:16mm;right:16mm;bottom:14mm;display:flex;justify-content:space-between;align-items:center;border-top:0.3mm solid rgba(255,255,255,.18);padding-top:5mm;font-size:8.5pt;color:rgba(255,255,255,.78)}
+  .cover .bar b{color:#fff}
+  .cover .pill{background:var(--sun);color:#14130f;font:800 8.5pt Inter;padding:2mm 4mm;border-radius:10mm}
+
+  /* Separador */
+  .divider{background:var(--navy);color:#fff}
+  .divider .num{position:absolute;right:12mm;top:4mm;font:900 120pt Outfit;color:rgba(255,255,255,.08);line-height:1}
+  .divider .inner{position:relative;padding:30mm 16mm 0}
+  .divider .kick{font:700 9pt Inter;letter-spacing:.3em;text-transform:uppercase;color:var(--sun)}
+  .divider h2{font:900 44pt/0.95 Outfit;letter-spacing:-.03em;margin:5mm 0 6mm;max-width:170mm}
+  .divider .meta{font-size:10.5pt;color:rgba(255,255,255,.78)}
+  .divider .subs{display:flex;flex-wrap:wrap;gap:2.5mm;margin-top:8mm;max-width:178mm}
+  .divider .subs span{border:0.3mm solid rgba(255,255,255,.3);border-radius:10mm;padding:1.6mm 4mm;font:600 8pt Inter}
+  .divider .shots{position:absolute;left:16mm;right:16mm;bottom:18mm;display:grid;grid-template-columns:repeat(3,1fr);gap:5mm;height:72mm}
+  .divider .shots div{background:#fff;border-radius:6mm;display:flex;align-items:center;justify-content:center;padding:6mm}
+  .divider .shots img{max-width:100%;max-height:100%;object-fit:contain}
+
+  /* Índice */
+  .toc h2{font:900 34pt Outfit;color:var(--navy);letter-spacing:-.03em;margin:4mm 0 10mm}
+  .toc ol{list-style:none}
+  .toc li{display:flex;align-items:baseline;gap:3mm;padding:3.6mm 0;border-bottom:0.3mm solid var(--line);font:600 12pt Outfit;color:var(--text)}
+  .toc li .n{font:800 9pt Inter;color:var(--accent);width:9mm}
+  .toc li .c{font:500 8.5pt Inter;color:var(--soft)}
+  .toc li .dots{flex:1;border-bottom:0.5mm dotted #c3cdd9;transform:translateY(-1mm)}
+  .toc li .p{font:800 12pt Outfit;color:var(--navy)}
+
+  /* Contraportada */
+  .back{background:var(--ink);color:#fff}
+  .back .inner{position:relative;padding:22mm 16mm 0}
+  .back .saludo{font:700 9pt Inter;letter-spacing:.3em;text-transform:uppercase;color:var(--sun);margin-bottom:4mm}
+  .back h2{font:900 34pt/1 Outfit;letter-spacing:-.03em;margin-bottom:10mm}
+  .back h2 em{font-style:normal;color:var(--sun)}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm;margin-bottom:12mm}
+  .steps div{background:rgba(255,255,255,.07);border:0.3mm solid rgba(255,255,255,.14);border-radius:5mm;padding:6mm}
+  .steps b{display:block;font:900 22pt Outfit;color:var(--sun);margin-bottom:2mm}
+  .steps p{font-size:9pt;line-height:1.5;color:rgba(255,255,255,.78)}
+  .steps strong{color:#fff;display:block;font:700 10.5pt Outfit;margin-bottom:1.5mm}
+  .info2{display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-bottom:12mm}
+  .info2 div{border-left:1mm solid var(--sun);padding:1mm 0 1mm 5mm}
+  .info2 h4{font:700 11pt Outfit;margin-bottom:2mm}
+  .info2 li{list-style:none;font-size:9pt;line-height:1.7;color:rgba(255,255,255,.78)}
+  .qrs{display:flex;gap:8mm}
+  .qr{background:#fff;color:var(--text);border-radius:5mm;padding:5mm;display:flex;gap:5mm;align-items:center;flex:1}
+  .qr .code{width:30mm;height:30mm;flex:none}
+  .qr .code img,.qr .code canvas{width:30mm!important;height:30mm!important}
+  .qr b{display:block;font:800 12pt Outfit;color:var(--navy)}
+  .qr span{font-size:8.5pt;color:var(--soft)}
+  .back .legal{position:absolute;left:16mm;right:16mm;bottom:12mm;font-size:7.5pt;color:rgba(255,255,255,.6);display:flex;justify-content:space-between;border-top:0.3mm solid rgba(255,255,255,.15);padding-top:4mm}
+
+  /* Impresión */
+  @page{size:A4;margin:0}
+  @media print{
+    html,body{background:#fff}
+    #panel{display:none}
+    #preview{margin:0;padding:0;gap:0;display:block}
+    .page{box-shadow:none;break-after:page;page-break-after:always}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+
+<aside id="panel">
+  <h1><img src="img/RompecabezasDeGuatemala-v1.png" alt="">Catálogo PDF</h1>
+  <div class="sub">Herramienta interna · Rompecabezas de Guatemala</div>
+
+  <fieldset>
+    <legend>1 · Datos</legend>
+    <label>Hoja de Google (CSV publicado)</label>
+    <input type="text" id="csvUrl" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vSF1IBRN7QT8W2CsR8MvcW9x-Psy3R61mePJ0UvLEbL0GQMOAYNenr3BvYwzGKfue7x4Rc17Qzpvv8D/pub?output=csv">
+    <button class="btn btn-sec" id="btnCargar">Cargar productos</button>
+  </fieldset>
+
+  <fieldset>
+    <legend>2 · Temporada</legend>
+    <select id="tema"></select>
+    <div id="temaPrev"><span class="sw"><i id="sw1"></i><i id="sw2"></i><i id="sw3"></i></span><b id="temaNom"></b></div>
+    <div class="hint" id="temaInfo"></div>
+    <label class="check"><input type="checkbox" id="optSugeridos" checked> Solo productos sugeridos para la temporada</label>
+    <label>Descuento a mostrar (%)</label>
+    <input type="number" id="descuento" min="0" max="90" step="1" value="0">
+    <div class="hint">Muestra precio regular tachado y precio con descuento. Úsalo solo si de verdad vas a dar ese descuento.</div>
+  </fieldset>
+
+  <fieldset id="fsSel" disabled>
+    <legend>3 · ¿Qué incluir?</legend>
+    <div class="seg" id="modo">
+      <button data-m="todo" class="on">Todo</button>
+      <button data-m="cat">Categoría</button>
+      <button data-m="sub">Subcategoría</button>
+      <button data-m="prod">Productos</button>
+    </div>
+    <div id="boxCat" hidden><label>Categoría</label><select id="selCat"></select></div>
+    <div id="boxSub" hidden><label>Subcategoría</label><select id="selSub"></select></div>
+    <div id="boxProd" hidden>
+      <label>Buscar y marcar productos</label>
+      <input type="text" id="buscar" placeholder="Nombre o código...">
+      <div id="lista-productos"></div>
+      <div class="hint"><span id="nSel">0</span> seleccionados</div>
+    </div>
+  </fieldset>
+
+  <fieldset id="fsOpt" disabled>
+    <legend>4 · Diseño</legend>
+    <label>Distribución</label>
+    <select id="layout">
+      <option value="g6">Cuadrícula grande · 6 por página</option>
+      <option value="g9" selected>Cuadrícula · 9 por página</option>
+      <option value="g12">Compacta · 12 por página</option>
+      <option value="ficha">Ficha · 1 producto por página</option>
+    </select>
+    <label>Título de portada</label>
+    <input type="text" id="titulo" placeholder="(automático según temporada)">
+    <label id="lblVig">Precios vigentes al</label>
+    <input type="date" id="vigencia">
+    <label class="check"><input type="checkbox" id="optPrecio" checked> Mostrar precios</label>
+    <label class="check"><input type="checkbox" id="optAgotados"> Incluir agotados</label>
+    <label class="check"><input type="checkbox" id="optWa" checked> Botón "Pedir" con enlace a WhatsApp</label>
+    <label class="check"><input type="checkbox" id="optPortada" checked> Portada</label>
+    <label class="check"><input type="checkbox" id="optIndice" checked> Índice (si hay 2+ categorías)</label>
+    <label class="check"><input type="checkbox" id="optSep" checked> Página separadora por categoría</label>
+    <label class="check"><input type="checkbox" id="optContra" checked> Contraportada (cómo pedir + QR)</label>
+  </fieldset>
+
+  <button class="btn btn-main" id="btnGenerar" disabled>Generar vista previa</button>
+  <button class="btn btn-sec" id="btnPDF" disabled>Guardar como PDF</button>
+  <div id="estado"></div>
+  <div id="ayuda"><b>Para guardar el PDF:</b> en la ventana de impresión elige <b>Destino: Guardar como PDF</b>, <b>Márgenes: Ninguno</b> y activa <b>Gráficos de fondo</b>. Usa Chrome o Edge.</div>
+</aside>
+
+<main id="preview"><div class="vacio">1. Da clic en <b>Cargar productos</b>.<br>2. Elige temporada, qué incluir y el diseño.<br>3. <b>Generar vista previa</b> → <b>Guardar como PDF</b>.</div></main>
+
+<script>
+/* ═══════════ NEGOCIO ═══════════ */
+const NEGOCIO = {
+  nombre:"Rompecabezas de Guatemala", web:"shop.rompecabezas.online", whatsapp:"50241084481", whatsappVisible:"4108-4481", email:"",   // email: agrega el correo de ventas cuando exista
+ 
+  logo:"img/RompecabezasDeGuatemala-v1.png", ciudad:"Ciudad de Guatemala",
+  lema:"Puzzles de 100 a 9000 piezas, rompecabezas 3D y accesorios. Precio a la vista, entrega en 24 h en la capital y envíos a toda Guatemala."
+};
+
+/* ═══════════ ADORNOS (SVG originales) ═══════════ */
+const SVG = {
+  gorro:`<svg viewBox="0 0 100 100"><path d="M14 74 C22 38 46 14 74 18 C88 20 92 34 86 46 C80 34 70 32 62 40 C52 50 50 64 52 74 Z" fill="#d62828"/><rect x="8" y="68" width="56" height="16" rx="8" fill="#fff"/><circle cx="88" cy="48" r="10" fill="#fff"/></svg>`,
+  copo:`<svg viewBox="0 0 100 100" stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none"><path d="M50 8V92M14 29L86 71M14 71L86 29"/><path d="M50 22L40 12M50 22L60 12M50 78L40 88M50 78L60 88M24 35L12 38M24 35L20 24M76 65L88 62M76 65L80 76M24 65L12 62M24 65L20 76M76 35L88 38M76 35L80 24"/></svg>`,
+  calabaza:`<svg viewBox="0 0 100 100"><rect x="46" y="8" width="8" height="18" rx="3" fill="#3a5a1c"/><ellipse cx="50" cy="60" rx="42" ry="34" fill="#f77f00"/><ellipse cx="50" cy="60" rx="20" ry="34" fill="#fb8b24"/><path d="M28 52L38 44L42 56Z M72 52L62 44L58 56Z" fill="#2b1400"/><path d="M30 70 Q50 86 70 70 L64 72 L58 66 L52 74 L46 66 L40 74 L36 68 Z" fill="#2b1400"/></svg>`,
+  murcielago:`<svg viewBox="0 0 100 60"><path d="M50 22 C46 14 42 14 40 18 C30 8 14 8 2 20 C12 22 16 30 16 38 C22 32 30 32 34 40 C38 34 44 34 50 44 C56 34 62 34 66 40 C70 32 78 32 84 38 C84 30 88 22 98 20 C86 8 70 8 60 18 C58 14 54 14 50 22 Z" fill="#14081f"/></svg>`,
+  barrilete:`<svg viewBox="0 0 100 120"><g transform="translate(50 50)"><polygon points="0,-46 32,-32 46,0 32,32 0,46 -32,32 -46,0 -32,-32" fill="#ffd23f"/><polygon points="0,0 0,-46 32,-32" fill="#e4572e"/><polygon points="0,0 46,0 32,32" fill="#29a19c"/><polygon points="0,0 0,46 -32,32" fill="#e4572e"/><polygon points="0,0 -46,0 -32,-32" fill="#29a19c"/><polygon points="0,0 32,-32 46,0" fill="#7b2cbf"/><polygon points="0,0 -32,32 -46,0" fill="#7b2cbf"/><circle r="9" fill="#fff"/></g><path d="M50 96 q-8 8 0 16 q8 8 0 16" stroke="#e4572e" stroke-width="4" fill="none"/></svg>`,
+  escarapela:`<svg viewBox="0 0 100 120"><path d="M34 70L22 116L38 106L46 118L50 74Z" fill="#4997D0"/><path d="M66 70L78 116L62 106L54 118L50 74Z" fill="#4997D0"/><circle cx="50" cy="48" r="40" fill="#4997D0"/><circle cx="50" cy="48" r="28" fill="#fff"/><circle cx="50" cy="48" r="16" fill="#4997D0"/></svg>`,
+  corazon:`<svg viewBox="0 0 100 100"><path d="M50 88 C20 66 6 50 6 32 C6 18 18 8 31 8 C40 8 46 13 50 20 C54 13 60 8 69 8 C82 8 94 18 94 32 C94 50 80 66 50 88 Z" fill="#ff4d6d"/><path d="M26 24 Q30 18 38 20" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".7"/></svg>`,
+  flor:`<svg viewBox="0 0 100 100"><g fill="#ff8fab"><circle cx="50" cy="24" r="20"/><circle cx="75" cy="42" r="20"/><circle cx="65" cy="72" r="20"/><circle cx="35" cy="72" r="20"/><circle cx="25" cy="42" r="20"/></g><circle cx="50" cy="50" r="14" fill="#ffd166"/></svg>`,
+  hoja:`<svg viewBox="0 0 100 100"><path d="M50 6 L58 30 L80 20 L72 44 L94 50 L72 58 L80 80 L58 70 L50 94 L42 70 L20 80 L28 58 L6 50 L28 44 L20 20 L42 30 Z" fill="#d9822b"/><path d="M50 30 V96" stroke="#7a3e0c" stroke-width="4"/></svg>`,
+  etiqueta:`<svg viewBox="0 0 100 100"><path d="M8 40 L40 8 H88 a4 4 0 0 1 4 4 V60 L60 92 a6 6 0 0 1 -8 0 L8 48 a6 6 0 0 1 0-8Z" fill="#FFD447"/><circle cx="76" cy="24" r="7" fill="#111"/><text x="50" y="66" font-family="Outfit,Arial" font-weight="900" font-size="34" fill="#111" text-anchor="middle" transform="rotate(-45 50 56)">%</text></svg>`,
+  llama:`<svg viewBox="0 0 100 120"><path d="M50 6 C62 30 86 42 82 76 C80 100 64 114 50 114 C34 114 18 102 18 78 C18 58 30 50 34 34 C42 46 40 58 48 62 C52 44 44 26 50 6Z" fill="#f77f00"/><path d="M50 50 C58 66 70 74 66 92 C64 104 58 110 50 110 C42 110 34 104 34 92 C34 80 42 74 46 64 C48 72 50 74 54 76 C56 66 50 58 50 50Z" fill="#ffd60a"/></svg>`,
+  estrella:`<svg viewBox="0 0 100 100" stroke="#f5d76e" stroke-width="5" stroke-linecap="round"><path d="M50 6V30M50 70V94M6 50H30M70 50H94M19 19L35 35M65 65L81 81M19 81L35 65M65 35L81 19"/><circle cx="50" cy="50" r="8" fill="#fff" stroke="none"/></svg>`,
+  corbata:`<svg viewBox="0 0 60 100"><path d="M18 4H42L36 16H24Z" fill="#6b4226"/><path d="M24 16H36L46 74L30 96L14 74Z" fill="#f4a259"/><path d="M20 40L40 30M18 58L42 48M22 74L40 66" stroke="#6b4226" stroke-width="4"/></svg>`,
+  lapiz:`<svg viewBox="0 0 100 100"><g transform="rotate(-35 50 50)"><rect x="12" y="40" width="58" height="20" fill="#f2c94c"/><rect x="12" y="40" width="10" height="20" fill="#e76f51"/><path d="M70 40 L90 50 L70 60Z" fill="#f4d9b0"/><path d="M84 47 L90 50 L84 53Z" fill="#333"/></g></svg>`,
+  palma:`<svg viewBox="0 0 100 100"><path d="M50 96 V30" stroke="#6a994e" stroke-width="5"/><g fill="#a7c957"><path d="M50 30 C40 20 24 18 12 24 C26 26 36 30 50 36Z"/><path d="M50 30 C60 20 76 18 88 24 C74 26 64 30 50 36Z"/><path d="M50 44 C38 36 22 38 10 48 C26 46 38 48 50 52Z"/><path d="M50 44 C62 36 78 38 90 48 C74 46 62 48 50 52Z"/><path d="M50 30 C46 18 48 10 50 4 C52 10 54 18 50 30Z"/></g></svg>`
+};
+
+/* ═══════════ TEMPORADAS ═══════════
+   desde/hasta = MM-DD (cuándo se sugiere automáticamente)
+   colores: ink=fondo portada, navy=títulos/separadores, accent, sun=acento, glow1/glow2=luces de portada
+   logo: adorno sobre el logo  · patron: adornos de fondo · claves: palabras para sugerir productos */
+const TEMAS = {
+  marca:{nombre:"Marca Rompecabezas de Guatemala (sin temporada)",fecha:"Todo el año",
+    c:{ink:"#141416",navy:"#2b2b2e",accent:"#ee7c12",sun:"#ee7c12",glow1:"rgba(238,124,18,.45)",glow2:"rgba(255,212,71,.18)"},
+    kicker:"Catálogo {año}",titulo:"Catálogo General",lema:null,cierre:"Gracias por tu preferencia",claves:[]},
+  anionuevo:{nombre:"Año Nuevo",fecha:"31 dic – 6 ene",desde:"12-27",hasta:"01-06",
+    c:{ink:"#0b0b16",navy:"#1d1d3b",accent:"#b8932f",sun:"#f5d76e",glow1:"rgba(184,147,47,.45)",glow2:"rgba(255,255,255,.12)"},
+    logo:{svg:"estrella",pos:"tr"},patron:["estrella"],
+    kicker:"Bienvenido {año}",titulo:"Año Nuevo, Nuevo Reto",lema:"Empieza el año con un rompecabezas nuevo: de 500 a 9000 piezas para ponerte a prueba.",cierre:"¡Feliz Año Nuevo!",
+    claves:["1000","1500","2000","3000","4000","5000","6000","9000"]},
+  clases:{nombre:"Regreso a clases",fecha:"Enero",desde:"01-07",hasta:"01-31",
+    c:{ink:"#12372a",navy:"#1b4d3e",accent:"#2a9d8f",sun:"#f2c94c",glow1:"rgba(42,157,143,.45)",glow2:"rgba(242,201,76,.25)"},
+    logo:{svg:"lapiz",pos:"tr"},patron:["lapiz"],
+    kicker:"Temporada escolar {año}",titulo:"Regreso a Clases",lema:"Rompecabezas educativos para aprender jugando: letras, números, mapas y animales.",cierre:"¡Feliz regreso a clases!",
+    claves:["escritura","letra","numero","número","mapa","mundo","animal","educativ","100 "]},
+  carino:{nombre:"Día del Cariño",fecha:"14 de febrero",desde:"02-01",hasta:"02-14",
+    c:{ink:"#4a0d26",navy:"#a4133c",accent:"#ff4d6d",sun:"#ffb3c1",glow1:"rgba(255,77,109,.45)",glow2:"rgba(255,179,193,.25)"},
+    logo:{svg:"corazon",pos:"tr"},patron:["corazon"],
+    kicker:"14 de febrero",titulo:"Armemos Juntos",lema:"Un plan perfecto en pareja: rompecabezas románticos, de arte y paisajes para armar entre dos.",cierre:"¡Feliz Día del Cariño!",
+    claves:["amor","corazon","corazón","flor","rosa","jardin","jardín","paris","beso","romant"]},
+  cuaresma:{nombre:"Cuaresma y Semana Santa",fecha:"Febrero – abril",desde:"02-15",hasta:"04-20",
+    c:{ink:"#24103d",navy:"#4c1d73",accent:"#7b2cbf",sun:"#e9c46a",glow1:"rgba(123,44,191,.5)",glow2:"rgba(233,196,106,.22)"},
+    logo:{svg:"palma",pos:"tr"},patron:["palma","flor"],
+    kicker:"Temporada de Cuaresma",titulo:"Semana Santa en Familia",lema:"Días de descanso para armar juntos: rompecabezas para todas las edades.",cierre:"Bendiciones en esta Semana Santa",
+    claves:["500","1000","familia","paisaje","3d"]},
+  madre:{nombre:"Día de la Madre",fecha:"10 de mayo",desde:"04-21",hasta:"05-10",
+    c:{ink:"#3f1534",navy:"#9b2d6f",accent:"#d64f97",sun:"#ffc2d1",glow1:"rgba(214,79,151,.45)",glow2:"rgba(255,194,209,.25)"},
+    logo:{svg:"flor",pos:"tr"},patron:["flor","corazon"],
+    kicker:"10 de mayo",titulo:"Para la Reina de la Casa",lema:"Flores, jardines, arte y paisajes: rompecabezas que mamá va a disfrutar armar.",cierre:"¡Feliz Día de la Madre!",
+    claves:["flor","jardin","jardín","arte","pintura","paisaje","gato","perro","pavo real"]},
+  padre:{nombre:"Día del Padre",fecha:"17 de junio",desde:"06-01",hasta:"06-17",
+    c:{ink:"#1c1814",navy:"#5a3a22",accent:"#b5651d",sun:"#f4a259",glow1:"rgba(181,101,29,.45)",glow2:"rgba(244,162,89,.22)"},
+    logo:{svg:"corbata",pos:"tr"},patron:["corbata","llama"],
+    kicker:"17 de junio",titulo:"Papá al Mando",lema:"Autos, ciudades, mapas y grandes retos para el papá armador.",cierre:"¡Feliz Día del Padre!",
+    claves:["coche","auto","avion","avión","ciudad","mapa","barco","3d","2000","3000"]},
+  patrias:{nombre:"Fiestas Patrias",fecha:"15 de septiembre",desde:"09-01",hasta:"09-16",
+    c:{ink:"#0a3157",navy:"#1d5f9e",accent:"#4997D0",sun:"#ffffff",glow1:"rgba(73,151,208,.55)",glow2:"rgba(255,255,255,.18)"},
+    logo:{svg:"escarapela",pos:"tr"},patron:["escarapela"],
+    kicker:"15 de septiembre",titulo:"Orgullo Chapín",lema:"Celebra la independencia armando en familia: paisajes, mapas y grandes retos.",cierre:"¡Feliz Día de la Independencia!",
+    claves:["mapa","paisaje","volcan","volcán","montaña","mundo","1000"]},
+  halloween:{nombre:"Halloween",fecha:"31 de octubre",desde:"10-01",hasta:"10-31",
+    c:{ink:"#160d24",navy:"#c4500a",accent:"#7b2cbf",sun:"#ff9f1c",glow1:"rgba(123,44,191,.5)",glow2:"rgba(255,159,28,.28)"},
+    logo:{svg:"calabaza",pos:"tr"},patron:["murcielago","calabaza"],
+    kicker:"31 de octubre",titulo:"Halloween Sin Sustos",lema:"Monstruos, dinosaurios y criaturas… con precios que no asustan.",cierre:"¡Feliz Halloween!",
+    claves:["monstruo","dinosaur","t-rex","noche","bruja","fantasma","criatura"]},
+  santos:{nombre:"Todos los Santos · Fiambre",fecha:"1 de noviembre",desde:"10-15",hasta:"11-02",
+    c:{ink:"#1b2a4e",navy:"#c2410c",accent:"#29a19c",sun:"#ffd23f",glow1:"rgba(41,161,156,.45)",glow2:"rgba(228,87,46,.3)"},
+    logo:{svg:"barrilete",pos:"tr"},patron:["barrilete"],
+    kicker:"1 de noviembre",titulo:"Puente de Todos los Santos",lema:"Días libres para armar en familia: rompecabezas para todas las edades.",cierre:"Que el fiambre quede como el de la abuela",
+    claves:["500","1000","familia","paisaje"]},
+  gracias:{nombre:"Día de Acción de Gracias",fecha:"4º jueves de noviembre",desde:"11-03",hasta:"11-26",
+    c:{ink:"#2b1a10",navy:"#8a3d14",accent:"#d9822b",sun:"#f4a261",glow1:"rgba(217,130,43,.45)",glow2:"rgba(244,162,97,.25)"},
+    logo:{svg:"hoja",pos:"tr"},patron:["hoja"],
+    kicker:"Thanksgiving",titulo:"Gracias por Armar con Nosotros",lema:"Los rompecabezas favoritos de nuestros clientes, para armar en familia.",cierre:"¡Feliz Día de Acción de Gracias!",
+    claves:["1000","1500","arte","paisaje"]},
+  black:{nombre:"BLACK FRIDAY (Viernes de ofertas)",fecha:"Último viernes de noviembre",desde:"11-20",hasta:"11-30",descuento:15,
+    c:{ink:"#000000",navy:"#111111",accent:"#FFD447",sun:"#FFD447",glow1:"rgba(255,212,71,.28)",glow2:"rgba(255,255,255,.08)"},
+    logo:{svg:"etiqueta",pos:"tr"},patron:["etiqueta"],
+    kicker:"Solo por tiempo limitado",titulo:"BLACK FRIDAY",lema:"Los mejores precios del año en Rompecabezas de Guatemala. Ofertas reales en productos seleccionados, hasta agotar existencias.",cierre:"¡Aprovecha antes de que se acabe!",
+    claves:[]},
+  quema:{nombre:"Quema del Diablo",fecha:"7 de diciembre",desde:"12-01",hasta:"12-07",
+    c:{ink:"#240404",navy:"#9d0208",accent:"#e85d04",sun:"#ffba08",glow1:"rgba(232,93,4,.5)",glow2:"rgba(255,186,8,.25)"},
+    logo:{svg:"llama",pos:"tr"},patron:["llama"],
+    kicker:"7 de diciembre",titulo:"Quema de Precios",lema:"Arranca diciembre con precios al rojo vivo en rompecabezas para regalar.",cierre:"¡Que arda la fiesta!",
+    claves:["1000","1500","2000","3d"]},
+  navidad:{nombre:"Navidad",fecha:"Diciembre",desde:"12-08",hasta:"12-26",
+    c:{ink:"#0c2f1f",navy:"#a4161a",accent:"#2d6a4f",sun:"#f2c14e",glow1:"rgba(45,106,79,.55)",glow2:"rgba(242,193,78,.25)"},
+    logo:{svg:"gorro",pos:"hat"},patron:["copo","estrella"],
+    kicker:"Navidad {año}",titulo:"Navidad para Armar",lema:"El regalo perfecto para chicos y grandes: rompecabezas de todas las piezas, 3D y accesorios.",cierre:"¡Feliz Navidad y próspero Año Nuevo!",
+    claves:["navidad","invierno","nieve","noche","3d","2x","1000","regalo"]}
+};
+
+/* ═══════════ UTILIDADES ═══════════ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtQ=n=>"Q"+Number(n).toLocaleString("es-GT",{minimumFractionDigits:2,maximumFractionDigits:2});
+const pad=n=>String(n).padStart(2,"0");
+const titleCase=s=>s.toLowerCase().replace(/(^|\s)\S/g,m=>m.toUpperCase());
+const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+const anio=()=>new Date().getFullYear();
+
+function parsearCSV(t){const L=[];let a=[],c="",q=false;for(let i=0;i<t.length;i++){const h=t[i],n=t[i+1];
+  if(h==='"'&&q&&n==='"'){c+='"';i++;}else if(h==='"'){q=!q;}else if(h===','&&!q){a.push(c.trim());c="";}
+  else if((h==='\r'||h==='\n')&&!q){if(c||a.length){a.push(c.trim());L.push(a);}a=[];c="";if(h==='\r'&&n==='\n')i++;}else c+=h;}
+  if(c||a.length){a.push(c.trim());L.push(a);}return L;}
+function driveImg(u,s=1000){if(!u)return"";const m=u.match(/[?&]id=([a-zA-Z0-9_-]+)/)||u.match(/\/d\/([a-zA-Z0-9_-]+)/);return m?`https://drive.google.com/thumbnail?id=${m[1]}&sz=w${s}`:u;}
+
+/* ═══════════ ESTADO ═══════════ */
+let productos=[],modo="todo",seleccion=new Set(),tema=TEMAS.marca;
+
+/* ═══════════ TEMA ═══════════ */
+function llenarTemas(){
+  $("#tema").innerHTML=Object.entries(TEMAS).map(([k,t])=>`<option value="${k}">${esc(t.nombre)} — ${esc(t.fecha)}</option>`).join("");
+  const hoy=new Date(),md=pad(hoy.getMonth()+1)+"-"+pad(hoy.getDate());
+  const dentro=(t)=>t.desde&&(t.desde<=t.hasta?(md>=t.desde&&md<=t.hasta):(md>=t.desde||md<=t.hasta));
+  const sugerida=Object.entries(TEMAS).find(([k,t])=>dentro(t));
+  $("#tema").value=sugerida?sugerida[0]:"marca";
+  aplicarTema();
+}
+function aplicarTema(){
+  tema=TEMAS[$("#tema").value];
+  const r=document.documentElement.style;
+  Object.entries(tema.c).forEach(([k,v])=>r.setProperty("--"+k,v));
+  $("#sw1").style.background=tema.c.ink;$("#sw2").style.background=tema.c.navy;$("#sw3").style.background=tema.c.sun;
+  $("#temaNom").textContent=tema.nombre;
+  $("#temaInfo").textContent=tema.claves.length?`Sugiere productos con: ${tema.claves.slice(0,8).join(", ")}…`:"Incluye todos los productos de tu selección.";
+  $("#descuento").value=tema.descuento||0;
+  $("#optSugeridos").disabled=!tema.claves.length;
+  actualizarVigencia();
+}
+function actualizarVigencia(){ $("#lblVig").textContent=Number($("#descuento").value)>0?"Oferta válida hasta":"Precios vigentes al"; }
+
+/* Logo con adorno de temporada */
+function logo(cls=""){
+  const d=tema.logo;
+  if(!d) return `<span class="logo ${cls}"><img src="${NEGOCIO.logo}" alt="${NEGOCIO.nombre}"></span>`;
+  const pos=d.pos==="hat"
+    ? "width:78%;height:78%;top:-46%;right:-26%;transform:rotate(18deg)"
+    : "width:62%;height:62%;top:-28%;right:-30%;transform:rotate(12deg)";
+  return `<span class="logo ring ${cls}"><img src="${NEGOCIO.logo}" alt="${NEGOCIO.nombre}"><span class="deco" style="${pos}">${SVG[d.svg]}</span></span>`;
+}
+/* Patrón de fondo (posiciones fijas, se ve igual cada vez) */
+function patron(intensidad=.16){
+  if(!tema.patron) return "";
+  const P=[[8,6,14,-12],[78,4,18,10],[52,14,10,25],[88,30,12,-20],[4,36,11,15],[30,48,9,-8],[90,60,15,18],[6,70,16,-15],[66,78,10,8],[40,88,13,-22],[82,90,11,30],[20,92,9,12]];
+  return `<div class="pattern">${P.map(([x,y,s,rot],i)=>`<span style="left:${x}%;top:${y}%;width:${s}mm;height:${s}mm;opacity:${intensidad};transform:rotate(${rot}deg) scale(${1+(i%3)*.35})">${SVG[tema.patron[i%tema.patron.length]]}</span>`).join("")}</div>`;
+}
+
+/* ═══════════ CARGA ═══════════ */
+async function cargar(){
+  const b=$("#btnCargar");b.disabled=true;estado("Cargando productos...");
+  try{
+    const txt=await(await fetch($("#csvUrl").value.trim())).text();
+    productos=parsearCSV(txt).slice(1).map(f=>({
+      id:f[0],titulo:(f[1]||"").trim(),imagen:driveImg(f[2]),
+      imagenes:f[3]?f[3].split('|').map(u=>driveImg(u.trim(),400)).filter(Boolean):[],
+      cat:(f[5]||f[4]||"OTROS").trim(),sub:(f[7]||"").trim(),desc:(f[8]||"").trim(),
+      precio:parseFloat((f[9]||"0").replace(/[^0-9.]/g,""))||0,estado:(f[10]||"DISPONIBLE").trim().toUpperCase()
+    })).filter(p=>p.id&&p.titulo);
+    const cats=[...new Set(productos.map(p=>p.cat))].sort((a,b)=>a.localeCompare(b,"es"));
+    $("#selCat").innerHTML=cats.map(c=>`<option>${esc(c)}</option>`).join("");
+    $("#selSub").innerHTML=[...new Set(productos.map(p=>p.cat+" › "+(p.sub||"(sin subcategoría)")))].sort((a,b)=>a.localeCompare(b,"es")).map(s=>`<option>${esc(s)}</option>`).join("");
+    pintarLista();
+    $("#fsSel").disabled=$("#fsOpt").disabled=false;$("#btnGenerar").disabled=false;
+    estado(`✅ ${productos.length} productos en ${cats.length} categorías.`);
+  }catch(e){console.error(e);estado("❌ No se pudo leer la hoja. Revisa que esté publicada como CSV.");}
+  b.disabled=false;
+}
+function pintarLista(){
+  const q=norm($("#buscar").value.trim());
+  const l=productos.filter(p=>!q||norm(p.titulo).includes(q)||norm(p.id).includes(q)).slice(0,300);
+  $("#lista-productos").innerHTML=l.map(p=>`<label class="check"><input type="checkbox" data-id="${esc(p.id)}" ${seleccion.has(p.id)?"checked":""}><span>${esc(p.titulo)} <small>${esc(p.cat)}</small></span></label>`).join("")||'<div style="padding:6px;color:#7f93ad">Sin resultados</div>';
+}
+function estado(t){$("#estado").textContent=t;}
+
+/* ═══════════ SELECCIÓN ═══════════ */
+let avisoSugeridos="";
+function productosElegidos(){
+  let l=productos;
+  if(modo==="cat")l=l.filter(p=>p.cat===$("#selCat").value);
+  if(modo==="sub"){const v=$("#selSub").value;l=l.filter(p=>(p.cat+" › "+(p.sub||"(sin subcategoría)"))===v);}
+  if(modo==="prod")l=l.filter(p=>seleccion.has(p.id));
+  if(!$("#optAgotados").checked)l=l.filter(p=>p.estado!=="AGOTADO");
+  avisoSugeridos="";
+  if(modo!=="prod"&&$("#optSugeridos").checked&&tema.claves.length){
+    const claves=tema.claves.map(norm);
+    const s=l.filter(p=>{const t=norm(p.titulo+" "+p.cat+" "+p.sub+" "+p.desc);return claves.some(k=>t.includes(k));});
+    if(s.length) l=s; else avisoSugeridos=" (ningún producto coincidió con la temporada; se incluyeron todos)";
+  }
+  return[...l].sort((a,b)=>a.cat.localeCompare(b.cat,"es")||a.sub.localeCompare(b.sub,"es")||a.titulo.localeCompare(b.titulo,"es"));
+}
+function tituloPortada(){
+  if($("#titulo").value.trim())return $("#titulo").value.trim();
+  if(tema!==TEMAS.marca)return tema.titulo;
+  if(modo==="cat")return titleCase($("#selCat").value);
+  if(modo==="sub"){const[c,s]=$("#selSub").value.split(" › ");return titleCase(s==="(sin subcategoría)"?c:s);}
+  if(modo==="prod")return "Selección Especial";
+  return tema.titulo;
+}
+
+/* ═══════════ PIEZAS ═══════════ */
+const desc=()=>Math.max(0,Math.min(90,Number($("#descuento").value)||0));
+const precioFinal=p=>Math.round(p.precio*(1-desc()/100)*100)/100;
+const waLink=p=>`https://wa.me/${NEGOCIO.whatsapp}?text=${encodeURIComponent(`Hola ${NEGOCIO.nombre}, me interesa: ${p.titulo} (${p.id})${desc()?` — promoción ${tema.titulo}`:""}`)}`;
+function vigenciaTxt(){const v=$("#vigencia").value;if(!v)return"Precios sujetos a cambio sin previo aviso.";const[y,m,d]=v.split("-");
+  return desc()?`Oferta válida hasta el ${d}/${m}/${y} o hasta agotar existencias.`:`Precios vigentes al ${d}/${m}/${y}. Sujetos a cambio y existencias.`;}
+function head(cat,sub){
+  return `<div class="page-head"><div class="cat"><small>${esc(sub?titleCase(sub):(tema===TEMAS.marca?"Catálogo":tema.nombre))}</small>${esc(titleCase(cat))}</div>
+    <div class="brand">${logo()}${NEGOCIO.nombre}</div></div><div class="rule"></div>
+    ${desc()?`<div class="promo-strip"><span><b>${esc(tema.titulo)}</b> · ${desc()}% de descuento ya aplicado</span><span>${esc(vigenciaTxt())}</span></div>`:""}`;
+}
+const foot=n=>`<div class="page-foot"><span><b>${NEGOCIO.web}</b> · WhatsApp ${NEGOCIO.whatsappVisible} · ${vigenciaTxt()}</span><span class="num">${pad(n)}</span></div>`;
+function precioHTML(p){
+  if(!$("#optPrecio").checked)return'<span class="price"><small>Precio por WhatsApp</small></span>';
+  return desc()?`<span class="price"><s>${fmtQ(p.precio)}</s>${fmtQ(precioFinal(p))}</span>`:`<span class="price">${fmtQ(p.precio)}</span>`;
+}
+function card(p){
+  const ag=p.estado==="AGOTADO";
+  return `<article class="card">
+    ${ag?'<span class="tag agot">Agotado</span>':(p.sub?`<span class="tag">${esc(titleCase(p.sub))}</span>`:"")}
+    ${desc()&&!ag&&$("#optPrecio").checked?`<span class="off">-${desc()}%</span>`:""}
+    <div class="ph">${p.imagen?`<img src="${esc(p.imagen)}" referrerpolicy="no-referrer" alt="">`:""}</div>
+    <div class="info"><div class="sku">${esc(p.id)}</div><h3>${esc(p.titulo)}</h3>
+      <div class="desc">${esc(p.desc.replace(/\s*\n+\s*/g," · "))}</div>
+      <div class="row">${precioHTML(p)}${$("#optWa").checked?`<a class="wa" href="${waLink(p)}">Pedir ›</a>`:""}</div></div></article>`;
+}
+function ficha(p){
+  const ag=p.estado==="AGOTADO",cp=$("#optPrecio").checked,extras=p.imagenes.filter(u=>u&&u!==p.imagen).slice(0,3);
+  return `<div class="ficha"><div class="hero">${p.imagen?`<img src="${esc(p.imagen)}" referrerpolicy="no-referrer" alt="">`:""}
+      ${desc()&&cp&&!ag?`<span class="off">-${desc()}%</span>`:""}
+      ${extras.length?`<div class="thumbs">${extras.map(u=>`<img src="${esc(u)}" referrerpolicy="no-referrer" alt="">`).join("")}</div>`:""}</div>
+    <div class="det"><div><div class="sku">${esc(p.id)}</div><h2>${esc(p.titulo)}</h2><div class="desc">${esc(p.desc)||"Consulta detalles por WhatsApp."}</div></div>
+      <div class="box"><div class="lbl">${cp?(desc()?"Precio de oferta":"Precio"):"Cotiza"}</div>
+        ${cp&&desc()?`<s>Antes ${fmtQ(p.precio)}</s>`:""}
+        <div class="price">${cp?fmtQ(desc()?precioFinal(p):p.precio):"Por WhatsApp"}</div>
+        <div class="st">${ag?"● Agotado":"● Disponible"}</div>
+        <a href="${waLink(p)}">Pedir por WhatsApp ›</a></div></div></div>`;
+}
+function portada(lista,titulo){
+  const conImg=lista.filter(p=>p.imagen);
+  const pick=[...conImg.filter(p=>p.estado!=="AGOTADO"),...conImg].filter((p,i,a)=>a.indexOf(p)===i);
+  const step=Math.max(1,Math.floor(pick.length/3));
+  const fotos=[0,1,2].map(i=>pick[i*step]).filter(Boolean);
+  const cats=new Set(lista.map(p=>p.cat)).size;
+  const w=titulo.split(" "),u=w.length>1?w.pop():null;
+  return `<section class="page cover"><div class="glow"></div><div class="glow2"></div>${patron(.18)}
+    <div class="top">${logo()}<div><b>${NEGOCIO.nombre}</b><span>${NEGOCIO.web.toUpperCase()}</span></div></div>
+    <div class="collage">${desc()?`<span class="bigoff"><span>Hasta</span><b>-${desc()}%</b><span>de descuento</span></span>`:""}${fotos.map(p=>`<div><img src="${esc(p.imagen)}" referrerpolicy="no-referrer" alt=""></div>`).join("")}</div>
+    <div class="title"><div class="kick">${esc(tema.kicker.replace("{año}",anio()))}</div>
+      <h1>${u?`${esc(w.join(" "))} <em>${esc(u)}</em>`:`<em>${esc(titulo)}</em>`}</h1>
+      <p>${esc(tema.lema||NEGOCIO.lema)}</p></div>
+    <div class="bar"><span><b>${lista.length}</b> productos${cats>1?` · <b>${cats}</b> categorías`:""}</span><span>WhatsApp <b>${NEGOCIO.whatsappVisible}</b></span><span class="pill">Pide por WhatsApp</span></div></section>`;
+}
+function separador(n,cat,items){
+  const subs=[...new Set(items.map(p=>p.sub).filter(Boolean))];
+  const fotos=items.filter(p=>p.imagen).filter((p,i,a)=>i%Math.max(1,Math.floor(a.length/3))===0).slice(0,3);
+  return `<section class="page divider">${patron(.12)}<div class="num">${pad(n)}</div><div class="inner">
+    <div class="kick">${tema===TEMAS.marca?"Categoría":esc(tema.nombre)} · ${pad(n)}</div><h2>${esc(titleCase(cat))}</h2>
+    <div class="meta">${items.length} producto${items.length===1?"":"s"}${desc()?` · ${desc()}% de descuento`:""}</div>
+    ${subs.length>1?`<div class="subs">${subs.map(s=>`<span>${esc(titleCase(s))}</span>`).join("")}</div>`:""}</div>
+    <div class="shots">${fotos.map(p=>`<div><img src="${esc(p.imagen)}" referrerpolicy="no-referrer" alt=""></div>`).join("")}</div></section>`;
+}
+const indice=(E,n)=>`<section class="page toc">${head("Contenido","Índice")}<div class="page-body"><h2>¿Qué buscas hoy?</h2><ol>
+  ${E.map((e,i)=>`<li><span class="n">${pad(i+1)}</span><span>${esc(titleCase(e.cat))} <span class="c">· ${e.total}</span></span><span class="dots"></span><span class="p">${pad(e.pagina)}</span></li>`).join("")}</ol></div>${foot(n)}</section>`;
+function contraportada(){
+  const[a,...b]=tema.cierre.split(" ");
+  return `<section class="page back">${patron(.1)}<div class="inner">
+    <div class="saludo">${esc(tema.cierre)}</div>
+    <h2>Pedir es <em>fácil.</em></h2>
+    <div class="steps">
+      <div><b>01</b><strong>Elige</strong><p>Anota el código del producto o toca el botón “Pedir” en este PDF.</p></div>
+      <div><b>02</b><strong>Escríbenos</strong><p>Por WhatsApp al ${NEGOCIO.whatsappVisible}. Confirmamos precio y existencia al momento.</p></div>
+      <div><b>03</b><strong>Recibe</strong><p>Entrega en 24 h en la capital y envíos a todos los departamentos.</p></div></div>
+    <div class="info2">
+      <div><h4>Formas de pago</h4><ul><li>Efectivo contra entrega</li><li>Transferencia bancaria</li><li>Contra entrega en departamentos (5% comisión)</li><li>Tarjetas Visa (aplican restricciones)</li></ul></div>
+      <div><h4>Para empresas</h4><ul><li>Empresas, colegios y regalos corporativos</li><li>Cotizaciones por volumen</li><li>Te ayudamos a elegir el rompecabezas ideal</li><li>Catálogo completo en ${NEGOCIO.web}</li>${NEGOCIO.email ? `<li>${NEGOCIO.email}</li>` : ""}</ul></div></div>
+    <div class="qrs">
+      <div class="qr"><div class="code" id="qrWeb"></div><div><b>Catálogo en línea</b><span>${NEGOCIO.web}<br>Precios y existencias al día</span></div></div>
+      <div class="qr"><div class="code" id="qrWa"></div><div><b>WhatsApp</b><span>${NEGOCIO.whatsappVisible}<br>Escanea y escríbenos</span></div></div></div></div>
+    <div class="legal"><span>© ${anio()} ${NEGOCIO.nombre} · ${NEGOCIO.ciudad} · facebook.com/rompecabezasdeguatemala</span><span>${esc(vigenciaTxt())}</span></div></section>`;
+}
+
+/* ═══════════ GENERAR ═══════════ */
+function generar(){
+  const lista=productosElegidos();
+  if(!lista.length){estado("⚠️ No hay productos con esa selección.");return;}
+  const layout=$("#layout").value,porPag={g6:6,g9:9,g12:12,ficha:1}[layout],titulo=tituloPortada();
+  const G=[];lista.forEach(p=>{let g=G.find(x=>x.cat===p.cat);if(!g)G.push(g={cat:p.cat,items:[]});g.items.push(p);});
+  const conIdx=$("#optIndice").checked&&G.length>1,conSep=$("#optSep").checked&&G.length>1;
+  let n=0;const P=[],E=[];
+  if($("#optPortada").checked){n++;P.push(()=>portada(lista,titulo));}
+  let ip=-1;if(conIdx){n++;ip=P.length;P.push(null);}const inum=n;
+  G.forEach((g,gi)=>{
+    if(conSep){n++;const nn=gi+1;P.push(()=>separador(nn,g.cat,g.items));}
+    E.push({cat:g.cat,total:g.items.length,pagina:n+1});
+    for(let i=0;i<g.items.length;i+=porPag){n++;const t=g.items.slice(i,i+porPag),num=n;
+      P.push(()=>`<section class="page">${head(g.cat,layout==="ficha"?t[0].sub:"")}<div class="page-body">${layout==="ficha"?ficha(t[0]):`<div class="grid ${layout}">${t.map(card).join("")}</div>`}</div>${foot(num)}</section>`);}
+  });
+  if(conIdx)P[ip]=()=>indice(E,inum);
+  if($("#optContra").checked){n++;P.push(contraportada);}
+  $("#preview").innerHTML=P.map(f=>f()).join("");
+  if(window.QRCode){const dark=getComputedStyle(document.documentElement).getPropertyValue("--ink").trim()||"#003772";
+    [["#qrWeb","https://"+NEGOCIO.web],["#qrWa",`https://wa.me/${NEGOCIO.whatsapp}`]].forEach(([s,t])=>{const el=$(s);if(el)new QRCode(el,{text:t,width:256,height:256,colorDark:dark,correctLevel:QRCode.CorrectLevel.M});});}
+  const slug=s=>s.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  document.title=`Catalogo-${NEGOCIO.nombre}-${slug(titulo)}-${new Date().toISOString().slice(0,10)}`;
+  $("#btnPDF").disabled=false;
+  estado(`✅ ${n} páginas · ${lista.length} productos${avisoSugeridos}. Cargando imágenes...`);
+  esperarImagenes().then(r=>estado(`✅ ${n} páginas · ${lista.length} productos${avisoSugeridos} · ${r.ok} imágenes listas${r.err?` (${r.err} no cargaron)`:""}.`));
+}
+function esperarImagenes(){const I=[...document.querySelectorAll("#preview img")];let ok=0,err=0;
+  return Promise.all(I.map(im=>im.complete&&im.naturalWidth?(ok++,1):new Promise(r=>{im.onload=()=>{ok++;r()};im.onerror=()=>{err++;im.style.visibility="hidden";r()}}))).then(()=>({ok,err}));}
+async function guardarPDF(){const b=$("#btnPDF");b.disabled=true;estado("Preparando imágenes para el PDF...");await esperarImagenes();b.disabled=false;estado("Abriendo ventana de impresión...");window.print();}
+
+/* ═══════════ EVENTOS ═══════════ */
+$("#btnCargar").onclick=cargar;$("#btnGenerar").onclick=generar;$("#btnPDF").onclick=guardarPDF;
+$("#buscar").oninput=pintarLista;
+$("#tema").onchange=()=>{aplicarTema();if($("#preview .page"))generar();};
+$("#descuento").oninput=actualizarVigencia;
+$("#lista-productos").onchange=e=>{const id=e.target.dataset.id;if(!id)return;e.target.checked?seleccion.add(id):seleccion.delete(id);$("#nSel").textContent=seleccion.size;};
+document.querySelectorAll("#modo button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#modo button").forEach(x=>x.classList.remove("on"));b.classList.add("on");modo=b.dataset.m;
+  $("#boxCat").hidden=modo!=="cat";$("#boxSub").hidden=modo!=="sub";$("#boxProd").hidden=modo!=="prod";});
+$("#vigencia").value=new Date().toISOString().slice(0,10);
+llenarTemas();
+</script>
+</body>
+</html>

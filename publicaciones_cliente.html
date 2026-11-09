@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Ads HD Pro | Edición Cliente</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3061/3061341.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1C3F60;
+            --dark: #1C3F60;
+            --bg: #eef2f7;
+            --accent: #F47C20;
+            --sidebar-w: 380px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); display: flex; height: 100vh; flex-direction: row; }
+
+        /* ---- SIDEBAR ---- */
+        .sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); background: #fff; border-right: 1px solid #dde3ee; display: flex; flex-direction: column; box-shadow: 3px 0 18px rgba(0,0,0,0.07); z-index: 10; }
+        .sidebar-header { padding: 20px 20px 16px; background: linear-gradient(135deg, #1C3F60 0%, #0f2942 100%); color: white; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .sidebar-header h2 { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.07em; }
+        .sidebar-header p { font-size: 0.67rem; opacity: 0.7; margin-top: 3px; letter-spacing: 0.04em; }
+        .edition-badge { display: inline-block; background: var(--accent); color: #fff; font-size: 0.6rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: 6px; letter-spacing: 0.05em; vertical-align: middle; }
+        .sidebar-content { padding: 16px 18px; overflow-y: auto; flex-grow: 1; }
+
+        /* Secciones colapsables */
+        .section-block { background: #f9fbff; border: 1px solid #e4eaf5; border-radius: 11px; margin-bottom: 10px; overflow: hidden; }
+        .section-block-header { padding: 10px 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--dark); user-select: none; }
+        .section-block-header:hover { background: #eef3fc; }
+        .section-block-body { padding: 12px 14px; border-top: 1px solid #e8edf5; display: none; }
+        .section-block-body.open { display: block; }
+        .section-block-header i.toggle-icon { transition: transform 0.2s; }
+        .section-block-header.open i.toggle-icon { transform: rotate(180deg); }
+        .new-tag { background: #6c3fd6; color: #fff; font-size: 0.55rem; padding: 1px 6px; border-radius: 8px; margin-left: 6px; }
+
+        label { display: block; font-weight: 700; font-size: 0.68rem; color: #666; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+        input[type=text], input[type=url], select, textarea { width: 100%; padding: 9px 12px; border: 1.5px solid #dde3ee; border-radius: 7px; font-size: 0.85rem; font-family: 'DM Sans', sans-serif; background: #fff; color: #222; outline: none; transition: border-color 0.2s; }
+        input:focus, select:focus, textarea:focus { border-color: var(--dark); }
+        .form-group { margin-bottom: 12px; }
+
+        /* Color picker */
+        .color-picker-row { display: flex; align-items: center; gap: 10px; }
+        .color-swatch-wrap { position: relative; width: 44px; height: 44px; border-radius: 8px; overflow: hidden; border: 2px solid #dde3ee; cursor: pointer; flex-shrink: 0; }
+        .color-swatch-wrap.sm { width: 36px; height: 36px; }
+        .color-swatch-wrap input[type=color] { position: absolute; top: -6px; left: -6px; width: 56px; height: 56px; border: none; cursor: pointer; opacity: 1; }
+        .color-hex-display { font-size: 0.85rem; font-weight: 600; color: var(--dark); font-family: 'Space Grotesk', sans-serif; }
+        .color-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .color-preset { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(0,0,0,0.08); transition: border-color 0.15s, transform 0.15s; }
+        .color-preset:hover { border-color: #555; transform: scale(1.15); }
+        .icon-btn { border: 1.5px solid #dde3ee; background: #fff; color: var(--dark); border-radius: 7px; padding: 6px 9px; font-size: 0.72rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-family: 'DM Sans', sans-serif; }
+        .icon-btn:hover { border-color: var(--dark); }
+
+        /* Degradado */
+        .grad-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .grad-row .grad-lbl { font-size: 0.72rem; font-weight: 600; color: #444; width: 62px; }
+        .grad-row .color-hex-display { font-size: 0.75rem; min-width: 64px; }
+        .grad-preview { height: 46px; border-radius: 8px; border: 1px solid #dde3ee; margin-bottom: 10px; }
+        .grad-presets { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+        .grad-preset { width: 30px; height: 30px; border-radius: 7px; cursor: pointer; border: 1.5px solid #dde3ee; transition: transform 0.15s; }
+        .grad-preset:hover { transform: scale(1.1); border-color: #555; }
+
+        /* Checkboxes pill */
+        .checkbox-group { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+        .chk-label { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; font-weight: 500; color: #444; background: #fff; border: 1.5px solid #dde3ee; border-radius: 20px; padding: 4px 10px; cursor: pointer; transition: all 0.15s; text-transform: none; letter-spacing: 0; }
+        .chk-label:hover { border-color: var(--dark); color: var(--dark); }
+        .chk-label input { display: none; }
+        .chk-label.active { background: var(--dark); color: #fff; border-color: var(--dark); }
+
+        /* Switch */
+        .switch-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem; font-weight: 600; color: #333; }
+        label.switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; display: inline-block; margin: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .switch .slider { position: absolute; inset: 0; background: #cfd8e3; border-radius: 24px; cursor: pointer; transition: .2s; }
+        .switch .slider:before { content: ""; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+        .switch input:checked + .slider { background: var(--accent); }
+        .switch input:checked + .slider:before { transform: translateX(18px); }
+        .sub-options { border-left: 3px solid #e4eaf5; padding-left: 10px; margin-top: 4px; transition: opacity 0.2s; }
+        .sub-options.disabled { opacity: .4; pointer-events: none; }
+
+        /* Segmentado */
+        .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+        .seg button { padding: 7px 6px; border-radius: 8px; border: 1.5px solid #dde3ee; background: #fff; color: #444; font-size: 0.72rem; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .seg button:hover { border-color: var(--dark); }
+        .seg button.active { background: var(--dark); color: #fff; border-color: var(--dark); }
+        .range-row { display: flex; align-items: center; gap: 8px; }
+        .range-row input[type=range] { flex: 1; }
+        .range-val { font-size: 0.75rem; font-weight: 600; color: var(--dark); min-width: 34px; text-align: right; }
+        .hint { font-size: 0.67rem; color: #888; line-height: 1.45; margin-top: 4px; }
+
+        /* Logo */
+        .logo-file-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .logo-preview, .bgimg-preview { width: 64px; height: 64px; border-radius: 8px; border: 1.5px dashed #cfd8e3; background: repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 50%/12px 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; font-size: 0.6rem; color: #999; text-align: center; }
+        .logo-preview img { max-width: 90%; max-height: 90%; }
+        .bgimg-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .logo-file-btns { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+        .logo-pos-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 4px; width: 90px; }
+        .logo-pos-btn { aspect-ratio: 1; border: 1.5px solid #dde3ee; border-radius: 5px; cursor: pointer; background: #f8fafc; transition: all 0.15s; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #888; }
+        .logo-pos-btn:hover, .logo-pos-btn.active { background: var(--dark); border-color: var(--dark); color: #fff; }
+        .logo-controls { display: flex; align-items: flex-start; gap: 12px; }
+        .logo-drag-tip { font-size: 0.7rem; color: #888; margin-top: 6px; line-height: 1.4; }
+
+        /* Disponibilidad */
+        .disp-filter-row { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+        .btn-disp { padding: 5px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; cursor: pointer; border: 1.5px solid #dde3ee; background: #f8fafc; color: #444; display: flex; align-items: center; gap: 5px; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+        .btn-disp:hover { border-color: var(--dark); color: var(--dark); }
+        .btn-disp.active-all  { background: var(--dark); color: white; border-color: var(--dark); }
+        .btn-disp.active-disp { background: #e8f5e9; color: #1a8a3d; border-color: #1a8a3d; }
+        .btn-disp.active-ago  { background: #ffebee; color: #c0392b; border-color: #c0392b; }
+        option.agotado-opt { color: #c0392b; }
+
+        /* Botones */
+        .btn { border: none; padding: 11px 14px; width: 100%; border-radius: 8px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 7px; font-family: 'DM Sans', sans-serif; transition: opacity 0.15s, transform 0.1s; }
+        .btn:active { transform: scale(0.98); }
+        .btn:hover { opacity: 0.9; }
+        .btn-primary { background: linear-gradient(135deg, #1C3F60, #163352); color: white; box-shadow: 0 3px 10px rgba(28,63,96,0.2); }
+        .btn-success { background: linear-gradient(135deg, #1a8a3d, #177535); color: white; box-shadow: 0 3px 10px rgba(26,138,61,0.2); }
+        .btn-ai      { background: linear-gradient(135deg, #6c3fd6, #5930b8); color: white; box-shadow: 0 3px 10px rgba(108,63,214,0.2); }
+        .btn-pdf     { background: linear-gradient(135deg, #c0392b, #a93226); color: white; box-shadow: 0 3px 10px rgba(192,57,43,0.2); }
+        .btn-zip     { background: linear-gradient(135deg, #007BC4, #005e97); color: white; box-shadow: 0 3px 10px rgba(0,123,196,0.2); }
+        .btn-copy { background: #555; color: white; }
+        .btn-light { background: #fff; color: var(--dark); border: 1.5px solid #dde3ee; box-shadow: none; }
+        .btn-sm { padding: 8px 12px; font-size: 0.7rem; }
+        .logo-file-btns .btn { margin-bottom: 0; }
+        .export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .export-grid .btn { margin-bottom: 0; }
+        .btn-full { grid-column: 1 / -1; }
+
+        /* Copy / hashtags */
+        #copyTextArea { height: 130px; font-size: 0.78rem; border: 1px solid #ddd; background: white; resize: vertical; margin-bottom: 8px; }
+        .hashtag-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; max-height: 90px; overflow-y: auto; }
+        .htag { background: #eef2f8; color: var(--dark); font-size: 0.7rem; border-radius: 12px; padding: 3px 9px; cursor: pointer; border: 1px solid #dde3ee; font-weight: 500; }
+        .htag:hover { background: var(--dark); color: #fff; }
+
+        /* Status */
+        .status-bar { font-size: 0.71rem; color: #888; text-align: center; padding: 6px 10px; min-height: 26px; background: #f0f4fa; border-radius: 8px; margin-bottom: 8px; border: 1px solid #e8edf5; transition: background 0.2s; }
+        .status-bar.ok { color: #1a8a3d; font-weight: 700; background: #f0faf4; border-color: #c3e6cb; }
+        .status-bar.err { color: #c0392b; font-weight: 700; background: #fff0f0; border-color: #f5c6cb; }
+        .status-bar.loading { color: var(--dark); font-weight: 600; background: #eef2fb; border-color: #c5d0e8; }
+
+        /* Búsqueda */
+        .search-wrap { position: relative; margin-bottom: 8px; }
+        .search-wrap .si { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #aaa; font-size: 0.82rem; pointer-events: none; }
+        .search-wrap input { padding-left: 30px !important; }
+        .btn-clear-srch { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #bbb; font-size: 0.82rem; padding: 0; line-height: 1; display: none; }
+        .btn-clear-srch:hover { color: #c0392b; }
+        #searchCount { font-size: 0.67rem; color: var(--accent); font-weight: 700; min-height: 13px; margin-bottom: 4px; }
+
+        /* Workspace */
+        .workspace { flex-grow: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 16px; background: linear-gradient(160deg, #1a2332 0%, #0f1923 100%); position: relative; }
+        .canvas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; width: 100%; }
+        .canvas-card { background: #1e293b; padding: 12px; border-radius: 16px; box-shadow: 0 12px 32px rgba(0,0,0,0.22); position: relative; border: 1px solid rgba(255,255,255,0.06); transition: transform 0.18s ease, box-shadow 0.18s ease; }
+        .canvas-card:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(0,0,0,0.28); }
+        .canvas-card canvas { width: 100%; height: auto; border-radius: 10px; display: block; cursor: crosshair; background: repeating-conic-gradient(#2a3546 0% 25%, #222c3b 0% 50%) 50%/20px 20px; }
+        .canvas-label { font-size: 0.68rem; color: #94a3b8; text-align: center; margin-top: 8px; font-family: 'Space Grotesk', sans-serif; letter-spacing: 0.04em; }
+        .card-actions { display: flex; gap: 6px; margin-top: 8px; }
+        .btn-dl-solo { flex: 1; padding: 7px 0; border: none; border-radius: 8px; font-size: 0.7rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; font-family: 'DM Sans', sans-serif; }
+        .btn-dl-png { background: #1a8a3d; color: white; }
+        .empty-state { color: #4a5568; text-align: center; padding: 80px 40px; }
+        .empty-state i { font-size: 3rem; opacity: 0.2; display: block; margin-bottom: 14px; }
+        .empty-state p { font-size: 0.9rem; line-height: 1.6; }
+
+        @media (max-width: 850px) {
+            body { flex-direction: column; overflow: auto; height: auto; }
+            .sidebar { width: 100%; min-width: unset; border-right: none; border-bottom: 1px solid #ddd; }
+            .workspace { width: 100%; padding: 16px 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h2><span id="js-brand-name">MARKETING TOOL HD</span><span class="edition-badge">CLIENTE</span></h2>
+        <p id="js-brand-tagline">OrganizaGT Business</p>
+    </div>
+
+    <div class="sidebar-content">
+        <div class="status-bar" id="statusBar">Listo.</div>
+
+        <!-- CATÁLOGO -->
+        <div class="section-block">
+            <div class="section-block-header open" onclick="toggleBlock(this)">
+                <span><i class="bi bi-cloud-download" style="margin-right:6px"></i>Catálogo CSV</span>
+                <i class="bi bi-chevron-up toggle-icon"></i>
+            </div>
+            <div class="section-block-body open">
+                <div class="form-group">
+                    <label>URL del CSV</label>
+                    <input type="text" id="csvUrl" value="">
+                </div>
+                <button class="btn btn-primary" onclick="cargarCatalogo()"><i class="bi bi-arrow-repeat"></i> Sincronizar</button>
+            </div>
+        </div>
+
+        <!-- FILTROS -->
+        <div class="section-block">
+            <div class="section-block-header open" onclick="toggleBlock(this)">
+                <span><i class="bi bi-funnel" style="margin-right:6px"></i>Filtros inteligentes</span>
+                <i class="bi bi-chevron-up toggle-icon"></i>
+            </div>
+            <div class="section-block-body open">
+                <div class="form-group">
+                    <label>Buscar producto</label>
+                    <div class="search-wrap">
+                        <i class="bi bi-search si"></i>
+                        <input type="text" id="searchInput" placeholder="Código, nombre, descripción..." oninput="onSearchInput(this)">
+                        <button class="btn-clear-srch" id="btnClearSrch" onclick="clearSearch()" title="Limpiar"><i class="bi bi-x-circle-fill"></i></button>
+                    </div>
+                    <div id="searchCount"></div>
+                </div>
+                <div class="form-group">
+                    <label>Disponibilidad</label>
+                    <div class="disp-filter-row">
+                        <button class="btn-disp active-all" id="dispTodos" onclick="setFiltroDisp('todos')"><i class="bi bi-grid"></i> Todos</button>
+                        <button class="btn-disp" id="dispDisponibles" onclick="setFiltroDisp('disponibles')"><i class="bi bi-check-circle"></i> Disponibles</button>
+                        <button class="btn-disp" id="dispAgotados" onclick="setFiltroDisp('agotados')"><i class="bi bi-x-circle"></i> Agotados</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="catFilter" onchange="aplicarFiltros()"><option value="">— Todas —</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Subcategoría</label>
+                    <select id="subCatFilter" onchange="aplicarFiltros()"><option value="">— Todas —</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Producto</label>
+                    <select id="productSelect" onchange="actualizarInterfaz()"><option value="">— Selecciona —</option></select>
+                </div>
+                <div id="batchInfo" style="display:none; font-size:0.72rem; color:#555; background:#eef2f8; border-radius:7px; padding:8px 10px; margin-bottom:8px; line-height:1.5;">
+                    <i class="bi bi-info-circle"></i> <span id="batchInfoText"></span>
+                </div>
+                <button class="btn btn-primary btn-sm" id="btnGenerarTodos" style="display:none;" onclick="generarTodosLosProductos()">
+                    <i class="bi bi-images"></i> Generar imágenes de todos
+                </button>
+            </div>
+        </div>
+
+        <!-- FORMATO -->
+        <div class="section-block">
+            <div class="section-block-header open" onclick="toggleBlock(this)">
+                <span><i class="bi bi-aspect-ratio" style="margin-right:6px"></i>Plataforma y formato</span>
+                <i class="bi bi-chevron-up toggle-icon"></i>
+            </div>
+            <div class="section-block-body open">
+                <select id="platformSelect" onchange="actualizarInterfaz()">
+                    <option value="ig_post">Instagram / Facebook (1:1)</option>
+                    <option value="tiktok">TikTok / Reels / Stories (9:16)</option>
+                    <option value="fb_ads">Facebook Ads (16:9)</option>
+                    <option value="ig_portrait">Instagram Portrait (4:5)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- FONDO DE IMAGEN (NUEVO) -->
+        <div class="section-block">
+            <div class="section-block-header open" onclick="toggleBlock(this)">
+                <span><i class="bi bi-magic" style="margin-right:6px"></i>Fondo del producto<span class="new-tag">NUEVO</span></span>
+                <i class="bi bi-chevron-up toggle-icon"></i>
+            </div>
+            <div class="section-block-body open">
+                <div class="switch-row">
+                    <span><i class="bi bi-eraser"></i> Quitar fondo de la foto</span>
+                    <label class="switch"><input type="checkbox" id="bgRemove"><span class="slider"></span></label>
+                </div>
+
+                <div class="sub-options disabled" id="bgOptions">
+                    <div class="form-group">
+                        <label>Método</label>
+                        <select id="bgMethod">
+                            <option value="rapido">Rápido — fondos lisos (blanco / gris)</option>
+                            <option value="ia">IA precisa — cualquier fondo</option>
+                        </select>
+                        <div class="hint" id="bgMethodHint">Ideal para fotos de producto sobre fondo blanco o de un solo color.</div>
+                    </div>
+                    <div class="form-group" id="tolGroup">
+                        <label>Tolerancia</label>
+                        <div class="range-row">
+                            <input type="range" id="bgTol" min="5" max="120" value="40">
+                            <span class="range-val" id="bgTolVal">40</span>
+                        </div>
+                        <div class="hint">Súbela si queda fondo; bájala si se borra parte del producto.</div>
+                    </div>
+
+                    <label>Nuevo fondo</label>
+                    <div class="seg" id="bgFillSeg">
+                        <button data-fill="degradado" class="active"><i class="bi bi-circle-half"></i> Degradado</button>
+                        <button data-fill="solido"><i class="bi bi-square-fill"></i> Color sólido</button>
+                        <button data-fill="imagen"><i class="bi bi-image"></i> Imagen</button>
+                        <button data-fill="transparente"><i class="bi bi-transparency"></i> Transparente</button>
+                    </div>
+
+                    <!-- Degradado -->
+                    <div id="fillDegradado">
+                        <div class="grad-preview" id="gradPreview"></div>
+                        <div class="grad-row">
+                            <span class="grad-lbl">Arriba</span>
+                            <div class="color-swatch-wrap sm" id="gradTopSwatch"><input type="color" id="gradTop" value="#D1DDD4"></div>
+                            <span class="color-hex-display" id="gradTopHex">#D1DDD4</span>
+                            <button class="icon-btn eyedrop-btn" title="Tomar color de la pantalla" onclick="gotero(c => setGrad('top', c))"><i class="bi bi-eyedropper"></i></button>
+                        </div>
+                        <div class="grad-row">
+                            <span class="grad-lbl">Abajo</span>
+                            <div class="color-swatch-wrap sm" id="gradBotSwatch"><input type="color" id="gradBot" value="#FFFFFF"></div>
+                            <span class="color-hex-display" id="gradBotHex">#FFFFFF</span>
+                            <button class="icon-btn eyedrop-btn" title="Tomar color de la pantalla" onclick="gotero(c => setGrad('bot', c))"><i class="bi bi-eyedropper"></i></button>
+                        </div>
+                        <label style="margin-top:4px;">Combinaciones rápidas</label>
+                        <div class="grad-presets" id="gradPresets"></div>
+                        <button class="icon-btn" onclick="degradadoDesdeMarca()"><i class="bi bi-palette"></i> Generar desde color de marca</button>
+                    </div>
+
+                    <!-- Sólido -->
+                    <div id="fillSolido" style="display:none;">
+                        <div class="grad-row">
+                            <span class="grad-lbl">Color</span>
+                            <div class="color-swatch-wrap sm" id="bgColorSwatch"><input type="color" id="bgColor" value="#F4F6F3"></div>
+                            <span class="color-hex-display" id="bgColorHex">#F4F6F3</span>
+                            <button class="icon-btn eyedrop-btn" title="Tomar color de la pantalla" onclick="gotero(c => setBgColor(c))"><i class="bi bi-eyedropper"></i></button>
+                        </div>
+                        <button class="icon-btn" onclick="setBgColor(document.getElementById('accentColor').value)"><i class="bi bi-palette"></i> Usar color de marca</button>
+                    </div>
+
+                    <!-- Imagen -->
+                    <div id="fillImagen" style="display:none;">
+                        <div class="logo-file-row">
+                            <div class="bgimg-preview" id="bgImgPreview">Sin imagen</div>
+                            <div class="logo-file-btns">
+                                <button class="btn btn-light btn-sm" onclick="document.getElementById('bgImgFile').click()"><i class="bi bi-upload"></i> Subir fondo</button>
+                                <button class="btn btn-light btn-sm" onclick="quitarImagenFondo()"><i class="bi bi-trash"></i> Quitar</button>
+                            </div>
+                        </div>
+                        <input type="file" id="bgImgFile" accept="image/*" style="display:none" onchange="onBgImageFile(this)">
+                        <div class="hint">Al subir la imagen también se copian sus colores (arriba/abajo) al degradado.</div>
+                    </div>
+
+                    <div class="form-group" style="margin-top:10px;">
+                        <label>Tamaño del producto</label>
+                        <div class="range-row">
+                            <input type="range" id="prodScale" min="50" max="100" value="85">
+                            <span class="range-val" id="prodScaleVal">85%</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Color del texto</label>
+                        <select id="textMode">
+                            <option value="auto">Automático (según el fondo)</option>
+                            <option value="oscuro">Oscuro</option>
+                            <option value="claro">Claro</option>
+                        </select>
+                    </div>
+                    <div class="checkbox-group">
+                        <label class="chk-label active" data-id="bgShadow"><input type="checkbox" id="bgShadow" checked> Sombra suave</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ELEMENTOS VISIBLES -->
+        <div class="section-block">
+            <div class="section-block-header open" onclick="toggleBlock(this)">
+                <span><i class="bi bi-eye" style="margin-right:6px"></i>Elementos visibles</span>
+                <i class="bi bi-chevron-up toggle-icon"></i>
+            </div>
+            <div class="section-block-body open">
+                <div class="checkbox-group" id="chkGroup">
+                    <label class="chk-label active" data-id="showTitle"><input type="checkbox" id="showTitle" checked> Título</label>
+                    <label class="chk-label active" data-id="showCat"><input type="checkbox" id="showCat" checked> Categoría</label>
+                    <label class="chk-label active" data-id="showSub"><input type="checkbox" id="showSub" checked> SubCat</label>
+                    <label class="chk-label active" data-id="showPrice"><input type="checkbox" id="showPrice" checked> Precio</label>
+                    <label class="chk-label" data-id="showWeb"><input type="checkbox" id="showWeb"> Web</label>
+                    <label class="chk-label" data-id="showWA"><input type="checkbox" id="showWA"> WhatsApp</label>
+                </div>
+                <div class="form-group">
+                    <label>Link Web / Catálogo</label>
+                    <input type="text" id="userWeb" placeholder="www.tuweb.com" oninput="actualizarInterfaz()">
+                </div>
+                <div class="form-group">
+                    <label>WhatsApp</label>
+                    <input type="text" id="userWA" placeholder="502XXXXXXXX" oninput="actualizarInterfaz()">
+                </div>
+            </div>
+        </div>
+
+        <!-- COLOR DE MARCA -->
+        <div class="section-block">
+            <div class="section-block-header open" onclick="toggleBlock(this)">
+                <span><i class="bi bi-palette" style="margin-right:6px"></i>Color de marca</span>
+                <i class="bi bi-chevron-up toggle-icon"></i>
+            </div>
+            <div class="section-block-body open">
+                <div class="color-picker-row">
+                    <div class="color-swatch-wrap" id="colorSwatch">
+                        <input type="color" id="accentColor" value="#F47C20">
+                    </div>
+                    <div style="flex:1">
+                        <div class="color-hex-display" id="colorHexDisplay">#F47C20</div>
+                        <div style="font-size:0.68rem;color:#888;margin-top:2px;">Clic en el cuadro para elegir</div>
+                    </div>
+                </div>
+                <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+                    <button class="icon-btn eyedrop-btn" onclick="gotero(c => { syncColor(c); actualizarInterfaz(); })"><i class="bi bi-eyedropper"></i> Gotero</button>
+                    <button class="icon-btn" onclick="extraerColorLogo()"><i class="bi bi-stars"></i> Extraer del logo</button>
+                </div>
+                <div class="color-presets" id="colorPresets"></div>
+                <div class="hint">Se usa en el precio, la barra lateral y el degradado de marca.</div>
+            </div>
+        </div>
+
+        <!-- LOGO -->
+        <div class="section-block">
+            <div class="section-block-header open" onclick="toggleBlock(this)">
+                <span><i class="bi bi-image" style="margin-right:6px"></i>Logo</span>
+                <i class="bi bi-chevron-up toggle-icon"></i>
+            </div>
+            <div class="section-block-body open">
+                <div class="switch-row">
+                    <span>Mostrar logo</span>
+                    <label class="switch"><input type="checkbox" id="showLogo" checked><span class="slider"></span></label>
+                </div>
+                <div class="sub-options" id="logoOptions">
+                    <div class="logo-file-row">
+                        <div class="logo-preview" id="logoPreview"></div>
+                        <div class="logo-file-btns">
+                            <button class="btn btn-light btn-sm" onclick="document.getElementById('logoFile').click()"><i class="bi bi-upload"></i> Elegir archivo</button>
+                            <button class="btn btn-light btn-sm" onclick="restaurarLogo()"><i class="bi bi-arrow-counterclockwise"></i> Predeterminado</button>
+                        </div>
+                    </div>
+                    <input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none" onchange="onLogoFile(this)">
+                    <div class="hint" style="margin-bottom:10px;">Recomendado: PNG con fondo transparente.</div>
+                    <div class="logo-controls">
+                        <div>
+                            <div style="font-size:0.68rem;color:#888;margin-bottom:6px;font-weight:700;text-transform:uppercase;">Posición</div>
+                            <div class="logo-pos-grid" id="logoPosGrid">
+                                <div class="logo-pos-btn" data-pos="tl" title="Arriba Izq">↖</div>
+                                <div class="logo-pos-btn" data-pos="tc" title="Arriba Centro">↑</div>
+                                <div class="logo-pos-btn" data-pos="tr" title="Arriba Der">↗</div>
+                                <div class="logo-pos-btn" data-pos="ml" title="Medio Izq">←</div>
+                                <div class="logo-pos-btn" data-pos="mc" title="Centro">⊙</div>
+                                <div class="logo-pos-btn" data-pos="mr" title="Medio Der">→</div>
+                                <div class="logo-pos-btn" data-pos="bl" title="Abajo Izq">↙</div>
+                                <div class="logo-pos-btn" data-pos="bc" title="Abajo Centro">↓</div>
+                                <div class="logo-pos-btn" data-pos="br" title="Abajo Der">↘</div>
+                            </div>
+                        </div>
+                        <div style="flex:1">
+                            <div style="font-size:0.68rem;color:#888;margin-bottom:4px;font-weight:700;text-transform:uppercase;">Tamaño</div>
+                            <div class="range-row">
+                                <input type="range" id="logoSize" min="5" max="40" value="14">
+                                <span class="range-val" id="logoSizeVal">14%</span>
+                            </div>
+                            <div class="logo-drag-tip"><i class="bi bi-hand-index"></i> También puedes arrastrar el logo sobre la imagen.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COPY Y HASHTAGS -->
+        <div class="section-block">
+            <div class="section-block-header open" onclick="toggleBlock(this)">
+                <span><i class="bi bi-chat-quote" style="margin-right:6px"></i>Copy y hashtags</span>
+                <i class="bi bi-chevron-up toggle-icon"></i>
+            </div>
+            <div class="section-block-body open">
+                <textarea id="copyTextArea" readonly></textarea>
+                <button class="btn btn-ai btn-sm" onclick="buscarHashtags()"><i class="bi bi-tags"></i> Sugerir 10 hashtags relacionados</button>
+                <div class="hashtag-tags" id="hashtagTags"></div>
+                <button class="btn btn-copy btn-sm" style="margin-top:8px;" onclick="copiarAlPortapapeles()"><i class="bi bi-clipboard"></i> Copiar texto completo</button>
+            </div>
+        </div>
+
+        <!-- EXPORTAR -->
+        <div class="section-block">
+            <div class="section-block-header open" onclick="toggleBlock(this)">
+                <span><i class="bi bi-download" style="margin-right:6px"></i>Exportar</span>
+                <i class="bi bi-chevron-up toggle-icon"></i>
+            </div>
+            <div class="section-block-body open">
+                <div class="export-grid">
+                    <button class="btn btn-zip" onclick="descargarTodo()"><i class="bi bi-file-zip"></i> ZIP</button>
+                    <button class="btn btn-pdf" onclick="exportarPDF()"><i class="bi bi-file-earmark-pdf"></i> PDF</button>
+                    <button class="btn btn-success btn-full" onclick="descargarIndividual()"><i class="bi bi-download"></i> Descargar imagen visible</button>
+                </div>
+                <div style="font-size:0.67rem;color:#aaa;margin-top:6px;text-align:center;">ZIP = todas · Individual = imagen activa</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="workspace" id="previewArea">
+    <div class="empty-state">
+        <i class="bi bi-grid-3x3-gap"></i>
+        <p>Sincroniza tu catálogo y selecciona un producto para generar las imágenes.</p>
+    </div>
+</div>
+
+<script>
+// ===================== CONFIG =====================
+const COMERCIAL_CONFIG = {
+    tituloPagina: "Social Ads HD Pro | Rompecabezas de Guatemala",
+    favicon: "/img/RompecabezasDeGuatemala-v1.ico",
+    nombreHeader: "MARKETING TOOL HD",
+    tagline: "Rompecabezas de Guatemala Business",
+    logoParaImagen: "/img/RompecabezasDeGuatemala-v1.png",
+    csvDefault: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSF1IBRN7QT8W2CsR8MvcW9x-Psy3R61mePJ0UvLEbL0GQMOAYNenr3BvYwzGKfue7x4Rc17Qzpvv8D/pub?output=csv",
+    colorDefault: "#007BC4",
+    gradTopDefault: "#D1DDD4",   // verde salvia (referencia)
+    gradBotDefault: "#FFFFFF"
+};
+
+const COLOR_PRESETS = ["#007BC4","#F47C20","#E91E63","#4CAF50","#9C27B0","#FF5722","#009688","#F44336","#1C3F60","#FFD600","#00BCD4","#FF9800"];
+const GRAD_PRESETS = [
+    ["#D1DDD4","#FFFFFF"], // salvia (referencia)
+    ["#D6E4F0","#FFFFFF"], // azul niebla
+    ["#F3E3D3","#FFFFFF"], // arena
+    ["#EADCF0","#FFFFFF"], // lavanda
+    ["#F6D9DC","#FFFFFF"], // rosa
+    ["#E8E8E8","#FFFFFF"], // gris estudio
+    ["#2B3A4A","#0F1923"], // noche
+    ["#1C3F60","#0B1E30"]  // marino
+];
+const PROXY = "https://images.weserv.nl/?url=";
+const PREFS_KEY = "socialads_cliente_prefs_v1";
+const LOGO_KEY  = "socialads_cliente_logo_v1";
+const BGIMG_KEY = "socialads_cliente_bgimg_v1";
+
+let productosGlobal = [];
+let filtroDisp = "todos";
+let logoPos = { x: null, y: null, preset: "br" };
+let logoSizeRatio = 0.14;
+let isDraggingLogo = false;
+let dragOffsetX = 0, dragOffsetY = 0;
+let activeCanvasForDrag = null;
+let bgFill = "degradado";
+let logoCustomSrc = null;
+let bgImageSrc = null;
+let bgImageBottomColor = null;
+let renderGen = 0;
+
+const $ = id => document.getElementById(id);
+
+// ===================== INIT =====================
+window.onload = () => {
+    document.title = COMERCIAL_CONFIG.tituloPagina + " · Cliente";
+    try { document.querySelector("link[rel='icon']").href = COMERCIAL_CONFIG.favicon; } catch(e){}
+    $('js-brand-name').innerText = COMERCIAL_CONFIG.nombreHeader;
+    $('js-brand-tagline').innerText = COMERCIAL_CONFIG.tagline;
+    $('csvUrl').value = COMERCIAL_CONFIG.csvDefault;
+    syncColor(COMERCIAL_CONFIG.colorDefault);
+    setGrad('top', COMERCIAL_CONFIG.gradTopDefault, true);
+    setGrad('bot', COMERCIAL_CONFIG.gradBotDefault, true);
+    setBgColor($('bgColor').value, true);
+
+    buildColorPresets();
+    buildGradPresets();
+    setupCheckboxes();
+    setupLogoPosGrid();
+    setupFondoControls();
+    setupLogoControls();
+    cargarPrefs();
+    if (!('EyeDropper' in window)) {
+        document.querySelectorAll('.eyedrop-btn').forEach(b => { b.title = "Gotero no disponible en este navegador (usa Chrome o Edge)"; b.style.opacity = .5; });
+    }
+    actualizarLogoPreview();
+};
+
+// ===================== PREFERENCIAS =====================
+function guardarPrefs() {
+    try {
+        localStorage.setItem(PREFS_KEY, JSON.stringify({
+            color: $('accentColor').value,
+            bgRemove: $('bgRemove').checked, bgMethod: $('bgMethod').value, bgTol: $('bgTol').value,
+            bgFill, gradTop: $('gradTop').value, gradBot: $('gradBot').value, bgColor: $('bgColor').value,
+            prodScale: $('prodScale').value, textMode: $('textMode').value, bgShadow: $('bgShadow').checked,
+            showLogo: $('showLogo').checked, logoSize: $('logoSize').value, preset: logoPos.preset,
+            userWeb: $('userWeb').value, userWA: $('userWA').value
+        }));
+    } catch(e) {}
+}
+function cargarPrefs() {
+    let p = null;
+    try { p = JSON.parse(localStorage.getItem(PREFS_KEY) || "null"); } catch(e) {}
+    try { logoCustomSrc = localStorage.getItem(LOGO_KEY) || null; } catch(e) {}
+    try {
+        const bi = JSON.parse(localStorage.getItem(BGIMG_KEY) || "null");
+        if (bi) { bgImageSrc = bi.src; bgImageBottomColor = bi.bottom; }
+    } catch(e) {}
+    actualizarBgImgPreview();
+    if (!p) return;
+    if (p.color) syncColor(p.color);
+    $('bgRemove').checked = !!p.bgRemove;
+    if (p.bgMethod) $('bgMethod').value = p.bgMethod;
+    if (p.bgTol) { $('bgTol').value = p.bgTol; $('bgTolVal').textContent = p.bgTol; }
+    if (p.gradTop) setGrad('top', p.gradTop, true);
+    if (p.gradBot) setGrad('bot', p.gradBot, true);
+    if (p.bgColor) setBgColor(p.bgColor, true);
+    if (p.prodScale) { $('prodScale').value = p.prodScale; $('prodScaleVal').textContent = p.prodScale + '%'; }
+    if (p.textMode) $('textMode').value = p.textMode;
+    if (typeof p.bgShadow === 'boolean') { $('bgShadow').checked = p.bgShadow; refreshChk('bgShadow'); }
+    if (typeof p.showLogo === 'boolean') $('showLogo').checked = p.showLogo;
+    if (p.logoSize) { $('logoSize').value = p.logoSize; $('logoSizeVal').textContent = p.logoSize + '%'; logoSizeRatio = p.logoSize / 100; }
+    if (p.preset) setPreset(p.preset);
+    if (p.userWeb) $('userWeb').value = p.userWeb;
+    if (p.userWA) $('userWA').value = p.userWA;
+    setBgFill(p.bgFill || 'degradado', true);
+    aplicarEstadoUI();
+}
+function aplicarEstadoUI() {
+    $('bgOptions').classList.toggle('disabled', !$('bgRemove').checked);
+    $('logoOptions').classList.toggle('disabled', !$('showLogo').checked);
+    const ia = $('bgMethod').value === 'ia';
+    $('tolGroup').style.display = ia ? 'none' : 'block';
+    $('bgMethodHint').textContent = ia
+        ? "Usa inteligencia artificial en tu navegador. La primera vez descarga el modelo (~40 MB) y puede tardar; luego es más rápido."
+        : "Ideal para fotos de producto sobre fondo blanco o de un solo color.";
+}
+
+// ===================== UI BÁSICA =====================
+function setFiltroDisp(val) {
+    filtroDisp = val;
+    $('dispTodos').className       = 'btn-disp' + (val === 'todos'       ? ' active-all'  : '');
+    $('dispDisponibles').className = 'btn-disp' + (val === 'disponibles' ? ' active-disp' : '');
+    $('dispAgotados').className    = 'btn-disp' + (val === 'agotados'    ? ' active-ago'  : '');
+    aplicarFiltros();
+}
+function toggleBlock(header) {
+    const body = header.nextElementSibling;
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    header.classList.toggle('open', !isOpen);
+}
+
+// ---- Colores ----
+function syncColor(val) {
+    val = val.toUpperCase();
+    $('colorSwatch').style.background = val;
+    $('colorHexDisplay').textContent = val;
+    $('accentColor').value = val.toLowerCase();
+    document.documentElement.style.setProperty('--accent', val);
+}
+function setGrad(which, val, silent) {
+    val = val.toUpperCase();
+    const inp = which === 'top' ? $('gradTop') : $('gradBot');
+    inp.value = val.toLowerCase();
+    $(which === 'top' ? 'gradTopHex' : 'gradBotHex').textContent = val;
+    $(which === 'top' ? 'gradTopSwatch' : 'gradBotSwatch').style.background = val;
+    $('gradPreview').style.background = `linear-gradient(180deg, ${$('gradTop').value}, ${$('gradBot').value})`;
+    if (!silent) actualizarInterfaz();
+}
+function setBgColor(val, silent) {
+    val = val.toUpperCase();
+    $('bgColor').value = val.toLowerCase();
+    $('bgColorHex').textContent = val;
+    $('bgColorSwatch').style.background = val;
+    if (!silent) actualizarInterfaz();
+}
+function buildColorPresets() {
+    const wrap = $('colorPresets');
+    COLOR_PRESETS.forEach(c => {
+        const d = document.createElement('div');
+        d.className = 'color-preset';
+        d.style.background = c; d.title = c;
+        d.onclick = () => { syncColor(c); actualizarInterfaz(); };
+        wrap.appendChild(d);
+    });
+    $('accentColor').addEventListener('input', e => { syncColor(e.target.value); });
+    $('accentColor').addEventListener('change', e => { syncColor(e.target.value); actualizarInterfaz(); });
+}
+function buildGradPresets() {
+    const wrap = $('gradPresets');
+    GRAD_PRESETS.forEach(([a, b]) => {
+        const d = document.createElement('div');
+        d.className = 'grad-preset';
+        d.style.background = `linear-gradient(180deg, ${a}, ${b})`;
+        d.title = `${a} → ${b}`;
+        d.onclick = () => { setGrad('top', a, true); setGrad('bot', b); };
+        wrap.appendChild(d);
+    });
+}
+function degradadoDesdeMarca() {
+    const brand = $('accentColor').value;
+    setGrad('top', mezclar(brand, '#ffffff', 0.78), true);
+    setGrad('bot', '#FFFFFF');
+}
+async function gotero(cb) {
+    if (!('EyeDropper' in window)) { setStatus("⚠️ El gotero solo funciona en Chrome o Edge de escritorio", "err"); return; }
+    try {
+        const r = await new EyeDropper().open();
+        cb(r.sRGBHex.startsWith('#') ? r.sRGBHex : rgbStrToHex(r.sRGBHex));
+    } catch(e) { /* cancelado */ }
+}
+
+// ---- Checkboxes pill ----
+function refreshChk(id) {
+    const lbl = document.querySelector(`.chk-label[data-id="${id}"]`);
+    if (lbl) lbl.classList.toggle('active', $(id).checked);
+}
+function setupCheckboxes() {
+    document.querySelectorAll('.chk-label').forEach(lbl => {
+        const chk = lbl.querySelector('input');
+        lbl.classList.toggle('active', chk.checked);
+        chk.addEventListener('change', () => { lbl.classList.toggle('active', chk.checked); actualizarInterfaz(); });
+    });
+}
+
+// ---- Controles de fondo ----
+function setBgFill(val, silent) {
+    bgFill = val;
+    document.querySelectorAll('#bgFillSeg button').forEach(b => b.classList.toggle('active', b.dataset.fill === val));
+    $('fillDegradado').style.display = val === 'degradado' ? 'block' : 'none';
+    $('fillSolido').style.display    = val === 'solido'    ? 'block' : 'none';
+    $('fillImagen').style.display    = val === 'imagen'    ? 'block' : 'none';
+    if (!silent) actualizarInterfaz();
+}
+function setupFondoControls() {
+    $('bgRemove').addEventListener('change', () => { aplicarEstadoUI(); actualizarInterfaz(); });
+    $('bgMethod').addEventListener('change', () => { aplicarEstadoUI(); actualizarInterfaz(); });
+    $('bgTol').addEventListener('input', e => $('bgTolVal').textContent = e.target.value);
+    $('bgTol').addEventListener('change', () => actualizarInterfaz());
+    $('prodScale').addEventListener('input', e => { $('prodScaleVal').textContent = e.target.value + '%'; actualizarInterfaz(); });
+    $('textMode').addEventListener('change', () => actualizarInterfaz());
+    $('gradTop').addEventListener('input', e => setGrad('top', e.target.value, true));
+    $('gradTop').addEventListener('change', e => setGrad('top', e.target.value));
+    $('gradBot').addEventListener('input', e => setGrad('bot', e.target.value, true));
+    $('gradBot').addEventListener('change', e => setGrad('bot', e.target.value));
+    $('bgColor').addEventListener('input', e => setBgColor(e.target.value, true));
+    $('bgColor').addEventListener('change', e => setBgColor(e.target.value));
+    document.querySelectorAll('#bgFillSeg button').forEach(b => b.addEventListener('click', () => setBgFill(b.dataset.fill)));
+}
+
+// ---- Imagen de fondo personalizada ----
+function onBgImageFile(input) {
+    const f = input.files[0]; input.value = '';
+    if (!f || !f.type.startsWith('image/')) { setStatus("⚠️ Selecciona un archivo de imagen", "err"); return; }
+    const reader = new FileReader();
+    reader.onload = async () => {
+        try {
+            const im = await cargarImgDirecta(reader.result);
+            const c = imgACanvas(im, 2000);
+            bgImageSrc = c.toDataURL('image/jpeg', 0.9);
+            // Copiar colores arriba/abajo al degradado
+            const top = colorPromedioFila(c, 0.06, true);
+            const bot = colorPromedioFila(c, 0.06, false);
+            bgImageBottomColor = bot;
+            setGrad('top', top, true); setGrad('bot', bot, true);
+            try { localStorage.setItem(BGIMG_KEY, JSON.stringify({ src: bgImageSrc, bottom: bot })); } catch(e) {}
+            actualizarBgImgPreview();
+            setBgFill('imagen');
+            setStatus(`✅ Fondo cargado · degradado ${top} → ${bot}`, "ok");
+        } catch(e) { setStatus("❌ No se pudo leer la imagen", "err"); }
+    };
+    reader.readAsDataURL(f);
+}
+function quitarImagenFondo() {
+    bgImageSrc = null; bgImageBottomColor = null;
+    try { localStorage.removeItem(BGIMG_KEY); } catch(e) {}
+    actualizarBgImgPreview();
+    setBgFill('degradado');
+}
+function actualizarBgImgPreview() {
+    const box = $('bgImgPreview');
+    box.innerHTML = bgImageSrc ? `<img src="${bgImageSrc}" alt="">` : 'Sin imagen';
+}
+
+// ---- Logo ----
+function getLogoSrc() { return logoCustomSrc || COMERCIAL_CONFIG.logoParaImagen; }
+function setPreset(pos) {
+    logoPos.preset = pos; logoPos.x = null; logoPos.y = null;
+    document.querySelectorAll('.logo-pos-btn').forEach(b => b.classList.toggle('active', b.dataset.pos === pos));
+}
+function setupLogoPosGrid() {
+    setPreset(logoPos.preset);
+    document.querySelectorAll('.logo-pos-btn').forEach(btn => {
+        btn.addEventListener('click', () => { setPreset(btn.dataset.pos); actualizarInterfaz(); });
+    });
+    $('logoSize').addEventListener('input', e => {
+        logoSizeRatio = parseInt(e.target.value) / 100;
+        $('logoSizeVal').textContent = e.target.value + '%';
+        actualizarInterfaz();
+    });
+}
+function setupLogoControls() {
+    $('showLogo').addEventListener('change', () => { aplicarEstadoUI(); actualizarInterfaz(); });
+}
+function onLogoFile(input) {
+    const f = input.files[0]; input.value = '';
+    if (!f || !f.type.startsWith('image/')) { setStatus("⚠️ Selecciona un archivo de imagen", "err"); return; }
+    const reader = new FileReader();
+    reader.onload = async () => {
+        try {
+            const im = await cargarImgDirecta(reader.result);
+            const c = imgACanvas(im, 1000, 600, 300);
+            logoCustomSrc = c.toDataURL('image/png');
+            try { localStorage.setItem(LOGO_KEY, logoCustomSrc); } catch(e) {}
+            $('showLogo').checked = true;
+            aplicarEstadoUI();
+            actualizarLogoPreview();
+            actualizarInterfaz();
+            setStatus("✅ Logo actualizado", "ok");
+        } catch(e) { setStatus("❌ No se pudo leer el logo", "err"); }
+    };
+    reader.readAsDataURL(f);
+}
+function restaurarLogo() {
+    logoCustomSrc = null;
+    try { localStorage.removeItem(LOGO_KEY); } catch(e) {}
+    actualizarLogoPreview();
+    actualizarInterfaz();
+    setStatus("Logo predeterminado restaurado", "ok");
+}
+function actualizarLogoPreview() {
+    const box = $('logoPreview');
+    box.innerHTML = '';
+    const im = document.createElement('img');
+    im.onerror = () => { box.textContent = 'Sin logo'; };
+    im.src = getLogoSrc();
+    box.appendChild(im);
+}
+async function extraerColorLogo() {
+    try {
+        const logo = await cargarImg(getLogoSrc());
+        const c = imgACanvas(logo, 80, 80, 40);
+        const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+        const buckets = new Map();
+        for (let i = 0; i < d.length; i += 4) {
+            if (d[i+3] < 128) continue;
+            const r = d[i], g = d[i+1], b = d[i+2];
+            const mx = Math.max(r,g,b), mn = Math.min(r,g,b);
+            const sat = mx ? (mx - mn) / mx : 0;
+            if (mx < 40 || sat < 0.25) continue;
+            const key = (r >> 5) + '-' + (g >> 5) + '-' + (b >> 5);
+            const e = buckets.get(key) || { n: 0, r: 0, g: 0, b: 0 };
+            e.n++; e.r += r; e.g += g; e.b += b;
+            buckets.set(key, e);
+        }
+        let best = null;
+        buckets.forEach(e => { if (!best || e.n > best.n) best = e; });
+        if (!best) { setStatus("⚠️ El logo no tiene un color dominante claro", "err"); return; }
+        const hex = rgbToHex(best.r / best.n, best.g / best.n, best.b / best.n);
+        syncColor(hex);
+        actualizarInterfaz();
+        setStatus(`🎨 Color de marca: ${hex}`, "ok");
+    } catch(e) { setStatus("❌ No se pudo leer el logo", "err"); }
+}
+
+// ===================== CSV =====================
+function csvToArray(str) {
+    const pat = new RegExp("(\\,|\\r?\\n|\\r|^)(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|([^\\,\\r\\n]*))", "gi");
+    let data = [[]], m;
+    while ((m = pat.exec(str))) {
+        if (m[1].length && m[1] !== ",") data.push([]);
+        data[data.length-1].push(m[2] ? m[2].replace(/""/g,'"') : m[3]);
+    }
+    return data;
+}
+
+async function cargarCatalogo() {
+    const url = $('csvUrl').value;
+    setStatus("Cargando catálogo...", "loading");
+    try {
+        const res = await fetch(`${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`);
+        const text = await res.text();
+        const rawRows = csvToArray(text);
+        productosGlobal = rawRows.slice(1).filter(r => r.length > 1 && r[0] !== "").map(r => {
+            const nombre = r[1] || "";
+            const partes = nombre.split('|');
+            return {
+                id: r[0],
+                tituloDisplay: partes[0].trim(),
+                tituloGancho: partes[1] ? partes[1].trim() : partes[0].trim(),
+                imgP: r[2], imgG: r[3],
+                cat: r[5] || "", subCat: r[7] || "",
+                desc: r[8] || "", precio: r[9] || "",
+                estado: (r[10] || "DISPONIBLE").toUpperCase().trim()
+            };
+        });
+        productosGlobal.sort((a,b) => a.subCat.localeCompare(b.subCat));
+        poblarFiltros();
+        setStatus(`✅ ${productosGlobal.length} productos cargados`, "ok");
+    } catch(e) { setStatus("❌ Error al cargar el CSV", "err"); }
+}
+
+function poblarFiltros() {
+    const cats = [...new Set(productosGlobal.map(p => p.cat).filter(Boolean))].sort();
+    const subCats = [...new Set(productosGlobal.map(p => p.subCat).filter(Boolean))].sort();
+    fillSelect('catFilter', cats);
+    fillSelect('subCatFilter', subCats);
+    aplicarFiltros();
+}
+
+function fillSelect(id, options) {
+    const sel = $(id);
+    const prev = sel.value;
+    sel.innerHTML = '<option value="">— Todas —</option>';
+    options.forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o; opt.textContent = o;
+        sel.appendChild(opt);
+    });
+    if (prev) sel.value = prev;
+}
+
+function aplicarFiltros() {
+    const cat = $('catFilter').value;
+    const sub = $('subCatFilter').value;
+
+    if (cat) {
+        const filtSubs = [...new Set(productosGlobal.filter(p => p.cat === cat).map(p => p.subCat).filter(Boolean))].sort();
+        fillSelect('subCatFilter', filtSubs);
+    }
+
+    let filtrados = productosGlobal;
+    if (cat) filtrados = filtrados.filter(p => p.cat === cat);
+    if (sub) filtrados = filtrados.filter(p => p.subCat === sub);
+    if (filtroDisp === 'disponibles') filtrados = filtrados.filter(p => p.estado !== 'AGOTADO');
+    if (filtroDisp === 'agotados')    filtrados = filtrados.filter(p => p.estado === 'AGOTADO');
+    const q = ($('searchInput')?.value || '').toLowerCase().trim();
+    if (q) {
+        filtrados = filtrados.filter(p =>
+            p.id.toLowerCase().includes(q) ||
+            p.tituloDisplay.toLowerCase().includes(q) ||
+            p.tituloGancho.toLowerCase().includes(q) ||
+            p.desc.toLowerCase().includes(q) ||
+            p.subCat.toLowerCase().includes(q) ||
+            p.cat.toLowerCase().includes(q)
+        );
+        $('searchCount').textContent = `${filtrados.length} resultado${filtrados.length !== 1 ? 's' : ''}`;
+    } else {
+        $('searchCount').textContent = '';
+    }
+
+    const select = $('productSelect');
+    const prevVal = select.value;
+    select.innerHTML = '<option value="">— Ver todos (' + filtrados.length + ') —</option>';
+    let currentSub = null, group = null;
+    filtrados.forEach(p => {
+        if (p.subCat !== currentSub) {
+            currentSub = p.subCat;
+            group = document.createElement('optgroup');
+            group.label = (currentSub || 'Sin subcategoría').toUpperCase();
+            select.appendChild(group);
+        }
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.estado === 'AGOTADO' ? `⛔ ${p.tituloDisplay}` : p.tituloDisplay;
+        if (p.estado === 'AGOTADO') opt.className = 'agotado-opt';
+        (group || select).appendChild(opt);
+    });
+    if (prevVal) select.value = prevVal;
+
+    actualizarBatchUI(filtrados, cat, sub);
+    actualizarInterfaz();
+}
+
+function getFiltradosBatch() {
+    const cat = $('catFilter').value, sub = $('subCatFilter').value;
+    let f = productosGlobal;
+    if (cat) f = f.filter(p => p.cat === cat);
+    if (sub) f = f.filter(p => p.subCat === sub);
+    return { f, cat, sub };
+}
+
+function actualizarBatchUI(filtrados, cat, sub) {
+    const btnBatch = $('btnGenerarTodos');
+    const batchInfo = $('batchInfo');
+    const productoSeleccionado = $('productSelect').value;
+    if ((cat || sub) && filtrados.length > 1 && !productoSeleccionado) {
+        const scope = sub ? `subcategoría "${sub}"` : `categoría "${cat}"`;
+        $('batchInfoText').textContent = `${filtrados.length} productos en ${scope}. Puedes generar todas las imágenes a la vez.`;
+        batchInfo.style.display = 'block';
+        btnBatch.style.display = 'flex';
+        btnBatch.innerHTML = `<i class="bi bi-images"></i> Generar ${filtrados.length} productos`;
+    } else {
+        batchInfo.style.display = 'none';
+        btnBatch.style.display = 'none';
+    }
+}
+
+// ===================== RENDER =====================
+function actualizarInterfaz() {
+    const { f, cat, sub } = getFiltradosBatch();
+    actualizarBatchUI(f, cat, sub);
+    guardarPrefs();
+    renderizarPublicidad();
+    generarCopyCompleto();
+}
+
+function setStatus(msg, type="") {
+    const bar = $('statusBar');
+    bar.textContent = msg;
+    bar.className = "status-bar " + type;
+}
+
+function leerOpciones() {
+    return {
+        bgRemove: $('bgRemove').checked,
+        bgMethod: $('bgMethod').value,
+        bgTol: parseInt($('bgTol').value),
+        bgFill,
+        gradTop: $('gradTop').value,
+        gradBot: $('gradBot').value,
+        bgColor: $('bgColor').value,
+        prodScale: parseInt($('prodScale').value) / 100,
+        textMode: $('textMode').value,
+        shadow: $('bgShadow').checked,
+        showLogo: $('showLogo').checked
+    };
+}
+
+function getImagenes(p) {
+    let imagenes = [p.imgP];
+    if (p.imgG) imagenes = [...imagenes, ...p.imgG.split('|').map(u => u.trim()).filter(u => u)];
+    return imagenes.filter(u => u && u.trim());
+}
+
+async function renderizarPublicidad() {
+    const gen = ++renderGen;
+    const id = $('productSelect').value;
+    const platform = $('platformSelect').value;
+    const color = $('accentColor').value;
+    const area = $('previewArea');
+    const p = productosGlobal.find(x => x.id === id);
+
+    area.innerHTML = "";
+    if (!p) {
+        area.innerHTML = '<div class="empty-state"><i class="bi bi-grid-3x3-gap"></i><p>Sincroniza tu catálogo y selecciona un producto para generar las imágenes.</p></div>';
+        return;
+    }
+
+    const imagenes = getImagenes(p);
+    const grid = document.createElement('div');
+    grid.className = "canvas-grid";
+    area.appendChild(grid);
+
+    const quitando = $('bgRemove').checked;
+    if (quitando) setStatus("✂️ Quitando fondo...", "loading");
+
+    for (let [index, url] of imagenes.entries()) {
+        if (gen !== renderGen) return;
+        const card = document.createElement('div');
+        card.className = "canvas-card";
+        const canvas = document.createElement('canvas');
+        card.appendChild(canvas);
+        const lbl = document.createElement('div');
+        lbl.className = "canvas-label";
+        lbl.textContent = `Img ${index+1}/${imagenes.length} · ${getPlatformLabel(platform)}`;
+        card.appendChild(lbl);
+        const actions = document.createElement('div');
+        actions.className = 'card-actions';
+        const btnDl = document.createElement('button');
+        btnDl.className = 'btn-dl-solo btn-dl-png';
+        btnDl.innerHTML = '<i class="bi bi-download"></i> Descargar PNG';
+        btnDl.onclick = () => bajarCanvas(canvas, `img${index+1}_${p.tituloDisplay}`);
+        actions.appendChild(btnDl);
+        card.appendChild(actions);
+        grid.appendChild(card);
+        await dibujarArte(canvas, url, p, platform, color);
+        setupLogoInteraction(canvas, p, platform, color);
+    }
+    if (quitando && gen === renderGen) {
+        setStatus(`✅ Fondo reemplazado en ${imagenes.length} imagen${imagenes.length !== 1 ? 'es' : ''}`, "ok");
+        setTimeout(() => { if (gen === renderGen) setStatus("Listo.", ""); }, 2500);
+    }
+}
+
+function getPlatformLabel(p) {
+    return { ig_post:"Instagram 1:1", tiktok:"TikTok 9:16", fb_ads:"Facebook Ads 16:9", ig_portrait:"Portrait 4:5" }[p] || p;
+}
+
+function getLogoCoords(w, h, logoW, logoH) {
+    if (logoPos.x !== null && logoPos.y !== null) return { x: logoPos.x, y: logoPos.y };
+    const pad = 40;
+    const map = {
+        tl: { x: pad, y: pad },
+        tc: { x: (w-logoW)/2, y: pad },
+        tr: { x: w-logoW-pad, y: pad },
+        ml: { x: pad, y: (h-logoH)/2 },
+        mc: { x: (w-logoW)/2, y: (h-logoH)/2 },
+        mr: { x: w-logoW-pad, y: (h-logoH)/2 },
+        bl: { x: pad, y: h-logoH-pad },
+        bc: { x: (w-logoW)/2, y: h-logoH-pad },
+        br: { x: w-logoW-pad, y: h-logoH-pad },
+    };
+    return map[logoPos.preset] || map.br;
+}
+
+// Pinta el fondo nuevo (cuando se quitó el fondo original)
+async function pintarFondo(ctx, w, h, o) {
+    if (o.bgFill === 'transparente') { ctx.clearRect(0, 0, w, h); return; }
+    if (o.bgFill === 'imagen' && bgImageSrc) {
+        try {
+            const bi = await cargarImg(bgImageSrc);
+            const s = Math.max(w / bi.width, h / bi.height);
+            ctx.drawImage(bi, (w - bi.width*s)/2, (h - bi.height*s)/2, bi.width*s, bi.height*s);
+            return;
+        } catch(e) {}
+    }
+    if (o.bgFill === 'solido') { ctx.fillStyle = o.bgColor; ctx.fillRect(0, 0, w, h); return; }
+    // Degradado vertical (arriba → abajo), como la referencia
+    const g = ctx.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, o.gradTop);
+    g.addColorStop(0.15, o.gradTop);
+    g.addColorStop(1, o.gradBot);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+    // Ruido sutil para evitar bandas
+    agregarGrano(ctx, w, h);
+}
+
+// Determina si el texto debe ir oscuro
+function fondoEsClaro(o) {
+    if (o.textMode === 'oscuro') return true;
+    if (o.textMode === 'claro') return false;
+    if (o.bgFill === 'transparente') return true;
+    let ref = o.gradBot;
+    if (o.bgFill === 'solido') ref = o.bgColor;
+    if (o.bgFill === 'imagen' && bgImageSrc) ref = bgImageBottomColor || o.gradBot;
+    return luminancia(ref) > 0.6;
+}
+
+async function dibujarArte(canvas, imgUrl, p, platform, color) {
+    canvas._srcUrl = imgUrl;
+    const token = (canvas._tok || 0) + 1;
+    canvas._tok = token;
+    const o = leerOpciones();
+
+    const showTitle = $('showTitle').checked, showCat = $('showCat').checked, showSub = $('showSub').checked;
+    const showWeb = $('showWeb').checked, showWA = $('showWA').checked, showPrice = $('showPrice').checked;
+    const userWeb = $('userWeb').value, userWA = $('userWA').value;
+
+    let w = 1080, h = 1080;
+    if (platform === 'tiktok')      { w = 1080; h = 1920; }
+    if (platform === 'fb_ads')      { w = 1200; h = 630; }
+    if (platform === 'ig_portrait') { w = 1080; h = 1350; }
+
+    // ---- Preparar recursos (asíncrono) ----
+    let img = null, cut = null, logo = null;
+    try { img = await cargarImg(imgUrl); } catch(e) {}
+    if (img && o.bgRemove) {
+        try { cut = await obtenerSinFondo(img, imgUrl, o); }
+        catch(e) { console.warn(e); setStatus("⚠️ No se pudo quitar el fondo de una imagen", "err"); }
+    }
+    if (o.showLogo) { try { logo = await cargarImg(getLogoSrc()); } catch(e) {} }
+    if (canvas._tok !== token) return;
+
+    // ---- Dibujar ----
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    const modoFondo = !!cut;
+    const claro = modoFondo && fondoEsClaro(o);
+
+    if (modoFondo) {
+        await pintarFondo(ctx, w, h, o);
+        if (canvas._tok !== token) return;
+        const s = o.prodScale;
+        const landscape = w > h;
+        const box = landscape
+            ? { cx: w*0.66, cy: h*0.48, mw: w*0.6*s, mh: h*0.86*s }
+            : { cx: w*0.5,  cy: h*0.44, mw: w*0.9*s, mh: h*0.68*s };
+        const fit = Math.min(box.mw / cut.width, box.mh / cut.height);
+        const dw = cut.width * fit, dh = cut.height * fit;
+        const dx = box.cx - dw/2, dy = box.cy - dh/2;
+        if (o.shadow && o.bgFill !== 'transparente') {
+            // sombra de piso
+            ctx.save();
+            const sg = ctx.createRadialGradient(box.cx, dy + dh, 0, box.cx, dy + dh, dw*0.55);
+            sg.addColorStop(0, "rgba(0,0,0,0.22)");
+            sg.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.fillStyle = sg;
+            ctx.translate(0, dy + dh); ctx.scale(1, 0.14); ctx.translate(0, -(dy + dh));
+            ctx.fillRect(box.cx - dw*0.6, dy + dh - dw*0.6, dw*1.2, dw*1.2);
+            ctx.restore();
+            ctx.save();
+            ctx.shadowColor = "rgba(0,0,0,0.18)";
+            ctx.shadowBlur = w * 0.03;
+            ctx.shadowOffsetY = w * 0.012;
+            ctx.drawImage(cut, dx, dy, dw, dh);
+            ctx.restore();
+        } else {
+            ctx.drawImage(cut, dx, dy, dw, dh);
+        }
+    } else {
+        ctx.fillStyle = "#1a1a2e";
+        ctx.fillRect(0, 0, w, h);
+        if (img) {
+            const scale = Math.max(w/img.width, h/img.height);
+            ctx.drawImage(img, (w/2)-(img.width*scale/2), (h/2)-(img.height*scale/2), img.width*scale, img.height*scale);
+        }
+    }
+
+    // Gradientes oscuros solo cuando el texto va en blanco
+    if (!claro && !(modoFondo && o.bgFill === 'transparente')) {
+        const gradBot = ctx.createLinearGradient(0, h, 0, h*0.45);
+        gradBot.addColorStop(0, "rgba(0,0,0,0.88)");
+        gradBot.addColorStop(1, "transparent");
+        ctx.fillStyle = gradBot; ctx.fillRect(0, h*0.35, w, h*0.65);
+        const gradTop = ctx.createLinearGradient(0, 0, 0, 260);
+        gradTop.addColorStop(0, "rgba(0,0,0,0.45)");
+        gradTop.addColorStop(1, "transparent");
+        ctx.fillStyle = gradTop; ctx.fillRect(0, 0, w, 260);
+    }
+
+    const txtMain = claro ? "#17212B" : "white";
+    const txtSub  = claro ? "rgba(23,33,43,0.9)" : "rgba(255,255,255,0.95)";
+    const txtSoft = claro ? "rgba(23,33,43,0.6)" : "rgba(255,255,255,0.65)";
+
+    // Barra de color de marca
+    ctx.fillStyle = color;
+    ctx.fillRect(0, h*0.6, 8, h*0.4);
+
+    // Categorías arriba derecha
+    ctx.textAlign = "right";
+    let offsetTop = 55;
+    if (showSub && p.subCat) {
+        ctx.fillStyle = txtSub;
+        ctx.font = `bold ${Math.round(w*0.03)}px Arial`;
+        ctx.fillText(p.subCat.toUpperCase(), w-45, offsetTop);
+        offsetTop += Math.round(w*0.035);
+    }
+    if (showCat && p.cat) {
+        ctx.fillStyle = txtSoft;
+        ctx.font = `italic ${Math.round(w*0.026)}px Arial`;
+        ctx.fillText(p.cat, w-45, offsetTop);
+    }
+
+    // Título y precio
+    ctx.textAlign = "left";
+    const pad = 55;
+    let yBot = h - 55;
+    if (showPrice && p.precio) {
+        ctx.fillStyle = color;
+        ctx.font = `bold ${Math.round(w*0.093)}px Arial`;
+        ctx.fillText("Q" + p.precio, pad, yBot);
+        yBot -= Math.round(w*0.1);
+    }
+    if (showTitle && p.tituloGancho) {
+        ctx.fillStyle = txtMain;
+        let txt = p.tituloGancho.toUpperCase();
+        let fs = Math.round(w*0.056);
+        ctx.font = `bold ${fs}px Arial`;
+        while (ctx.measureText(txt).width > w*0.58 && fs > 18) { fs -= 2; ctx.font = `bold ${fs}px Arial`; }
+        ctx.fillText(txt, pad, yBot);
+    }
+
+    // Contacto abajo derecha
+    ctx.textAlign = "right";
+    let offsetBot = 55;
+    const fsCont = Math.round(w * 0.028);
+    if (showWA && userWA) {
+        ctx.fillStyle = claro ? "#128C4A" : "#25D366";
+        ctx.font = `bold ${fsCont}px Arial`;
+        ctx.fillText("📲 " + userWA, w-45, h-offsetBot);
+        offsetBot += fsCont + 10;
+    }
+    if (showWeb && userWeb) {
+        ctx.fillStyle = txtMain;
+        ctx.font = `${fsCont}px Arial`;
+        ctx.fillText("🛒 " + userWeb, w-45, h-offsetBot);
+    }
+
+    // Logo
+    canvas._logoMeta = null;
+    if (logo) {
+        const lw0 = logo.naturalWidth || logo.width || 1, lh0 = logo.naturalHeight || logo.height || 1;
+        const logoW = Math.round(w * logoSizeRatio);
+        const logoH = Math.round(logoW * (lh0 / lw0));
+        const { x, y } = getLogoCoords(w, h, logoW, logoH);
+        ctx.drawImage(logo, x, y, logoW, logoH);
+        canvas._logoMeta = { x, y, logoW, logoH };
+    }
+
+    // Badge AGOTADO
+    if (p.estado === 'AGOTADO') {
+        const bw = Math.round(w * 0.38), bh = Math.round(w * 0.092);
+        const bx = Math.round((w - bw) / 2), by = Math.round((h - bh) / 2);
+        const r = bh / 2;
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(bx + r, by);
+        ctx.arcTo(bx + bw, by, bx + bw, by + bh, r);
+        ctx.arcTo(bx + bw, by + bh, bx, by + bh, r);
+        ctx.arcTo(bx, by + bh, bx, by, r);
+        ctx.arcTo(bx, by, bx + bw, by, r);
+        ctx.closePath();
+        ctx.fillStyle = "rgba(192,57,43,0.88)";
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,0.6)";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.textAlign = "center";
+        ctx.fillStyle = "white";
+        ctx.font = `bold ${Math.round(w * 0.052)}px Arial`;
+        ctx.fillText("⛔  AGOTADO", bx + bw / 2, by + bh * 0.67);
+        ctx.restore();
+    }
+}
+
+// ===================== QUITAR FONDO =====================
+const bgCache = new Map();
+let bgLibPromise = null;
+
+function obtenerSinFondo(img, url, o) {
+    const key = `${url}|${o.bgMethod}|${o.bgMethod === 'rapido' ? o.bgTol : ''}`;
+    if (!bgCache.has(key)) {
+        const pr = o.bgMethod === 'ia'
+            ? quitarFondoIA(img).catch(err => {
+                console.warn("IA falló, usando modo rápido:", err);
+                setStatus("⚠️ IA no disponible, se usó el modo rápido", "err");
+                return quitarFondoRapido(img, o.bgTol);
+              })
+            : new Promise(res => setTimeout(() => res(quitarFondoRapido(img, o.bgTol)), 0));
+        pr.catch(() => bgCache.delete(key));
+        bgCache.set(key, pr);
+    }
+    return bgCache.get(key);
+}
+
+// Modo rápido: relleno desde los bordes con el color de fondo dominante
+function quitarFondoRapido(img, tol) {
+    const c = imgACanvas(img, 1400);
+    const w = c.width, h = c.height, n = w * h;
+    const x = c.getContext('2d', { willReadFrequently: true });
+    const d = x.getImageData(0, 0, w, h), px = d.data;
+
+    const R = [], G = [], B = [];
+    const addB = i => { const k = i*4; if (px[k+3] < 20) return; R.push(px[k]); G.push(px[k+1]); B.push(px[k+2]); };
+    for (let xx = 0; xx < w; xx += 2) { addB(xx); addB((h-1)*w + xx); }
+    for (let yy = 0; yy < h; yy += 2) { addB(yy*w); addB(yy*w + w - 1); }
+    if (!R.length) return recortarAlpha(c); // ya era transparente
+    const med = a => { a.sort((p, q) => p - q); return a[a.length >> 1]; };
+    const rr = med(R), rg = med(G), rb = med(B);
+
+    const dist = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+        const k = i*4;
+        if (px[k+3] < 20) { dist[i] = 0; continue; }
+        const dr = px[k]-rr, dg = px[k+1]-rg, db = px[k+2]-rb;
+        dist[i] = Math.sqrt(dr*dr + dg*dg + db*db);
+    }
+    const mask = new Uint8Array(n), stack = new Int32Array(n);
+    let sp = 0;
+    const push = i => { if (!mask[i] && dist[i] <= tol) { mask[i] = 1; stack[sp++] = i; } };
+    for (let xx = 0; xx < w; xx++) { push(xx); push((h-1)*w + xx); }
+    for (let yy = 0; yy < h; yy++) { push(yy*w); push(yy*w + w - 1); }
+    while (sp) {
+        const i = stack[--sp], xx = i % w;
+        if (xx > 0) push(i-1);
+        if (xx < w-1) push(i+1);
+        if (i >= w) push(i-w);
+        if (i < n-w) push(i+w);
+    }
+    const soft = Math.max(8, tol * 0.6);
+    for (let i = 0; i < n; i++) {
+        const k = i*4;
+        if (mask[i]) { px[k+3] = 0; continue; }
+        const xx = i % w;
+        if ((xx > 0 && mask[i-1]) || (xx < w-1 && mask[i+1]) || (i >= w && mask[i-w]) || (i < n-w && mask[i+w])) {
+            const t = Math.min(1, (dist[i] - tol) / soft);
+            px[k+3] = Math.round(px[k+3] * Math.max(0.2, t));
+        }
+    }
+    x.putImageData(d, 0, 0);
+    return recortarAlpha(c);
+}
+
+// Modo IA: @imgly/background-removal (corre en el navegador)
+function cargarLibIA() {
+    if (!bgLibPromise) {
+        bgLibPromise = import('https://esm.sh/@imgly/background-removal@1.4.5')
+            .catch(() => import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/+esm'))
+            .catch(e => { bgLibPromise = null; throw e; });
+    }
+    return bgLibPromise;
+}
+async function quitarFondoIA(img) {
+    setStatus("🧠 Cargando modelo de IA (solo la primera vez)...", "loading");
+    const lib = await cargarLibIA();
+    const fn = lib.removeBackground || (lib.default && (lib.default.removeBackground || lib.default));
+    if (typeof fn !== 'function') throw new Error("Librería IA no válida");
+    const src = imgACanvas(img, 1600);
+    const blob = await new Promise(r => src.toBlob(r, 'image/png'));
+    const out = await fn(blob, {
+        progress: (k, cur, total) => { if (total) setStatus(`🧠 Descargando modelo IA ${Math.round(cur/total*100)}%`, "loading"); }
+    });
+    setStatus("✂️ Quitando fondo con IA...", "loading");
+    const outImg = await cargarImgDirecta(URL.createObjectURL(out));
+    return recortarAlpha(imgACanvas(outImg));
+}
+
+// Recorta al área visible del producto
+function recortarAlpha(c) {
+    const w = c.width, h = c.height;
+    const d = c.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, w, h).data;
+    let x0 = w, y0 = h, x1 = -1, y1 = -1;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        if (d[(y*w + x)*4 + 3] > 12) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    }
+    if (x1 < 0) return c;
+    const pad = 2;
+    x0 = Math.max(0, x0 - pad); y0 = Math.max(0, y0 - pad);
+    x1 = Math.min(w - 1, x1 + pad); y1 = Math.min(h - 1, y1 + pad);
+    const out = document.createElement('canvas');
+    out.width = x1 - x0 + 1; out.height = y1 - y0 + 1;
+    out.getContext('2d').drawImage(c, x0, y0, out.width, out.height, 0, 0, out.width, out.height);
+    return out;
+}
+
+// ===================== UTILIDADES =====================
+function imgACanvas(img, max = 4000, fw = 600, fh = 300) {
+    let w = img.naturalWidth || img.width || fw, h = img.naturalHeight || img.height || fh;
+    const s = Math.min(1, max / Math.max(w, h));
+    w = Math.max(1, Math.round(w * s)); h = Math.max(1, Math.round(h * s));
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    c.getContext('2d').drawImage(img, 0, 0, w, h);
+    return c;
+}
+function colorPromedioFila(c, frac, arriba) {
+    const rows = Math.max(1, Math.round(c.height * frac));
+    const y = arriba ? 0 : c.height - rows;
+    const d = c.getContext('2d').getImageData(0, y, c.width, rows).data;
+    let r = 0, g = 0, b = 0, n = 0;
+    for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i+1]; b += d[i+2]; n++; }
+    return rgbToHex(r/n, g/n, b/n);
+}
+function agregarGrano(ctx, w, h) {
+    if (!agregarGrano._pat) {
+        const t = document.createElement('canvas'); t.width = t.height = 128;
+        const tx = t.getContext('2d'), id = tx.createImageData(128, 128);
+        for (let i = 0; i < id.data.length; i += 4) {
+            const v = Math.random() * 255;
+            id.data[i] = id.data[i+1] = id.data[i+2] = v; id.data[i+3] = 6;
+        }
+        tx.putImageData(id, 0, 0);
+        agregarGrano._pat = t;
+    }
+    ctx.save();
+    ctx.fillStyle = ctx.createPattern(agregarGrano._pat, 'repeat');
+    ctx.fillRect(0, 0, w, h);
+    ctx.restore();
+}
+function hexToRgb(hex) {
+    let h = hex.replace('#', '');
+    if (h.length === 3) h = h.split('').map(c => c + c).join('');
+    const n = parseInt(h, 16);
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
+function rgbToHex(r, g, b) {
+    return '#' + [r, g, b].map(v => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+function rgbStrToHex(s) {
+    const m = s.match(/\d+/g) || [0, 0, 0];
+    return rgbToHex(+m[0], +m[1], +m[2]);
+}
+function mezclar(a, b, t) {
+    const A = hexToRgb(a), B = hexToRgb(b);
+    return rgbToHex(A.r + (B.r - A.r)*t, A.g + (B.g - A.g)*t, A.b + (B.b - A.b)*t);
+}
+function luminancia(hex) {
+    const { r, g, b } = hexToRgb(hex);
+    return (0.299*r + 0.587*g + 0.114*b) / 255;
+}
+
+// ===================== DRAG LOGO =====================
+function setupLogoInteraction(canvas, p, platform, color) {
+    function getCanvasCoords(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: (clientX - rect.left) * canvas.width / rect.width, y: (clientY - rect.top) * canvas.height / rect.height };
+    }
+    function isOnLogo(cx, cy) {
+        const m = canvas._logoMeta;
+        return !!m && cx >= m.x && cx <= m.x + m.logoW && cy >= m.y && cy <= m.y + m.logoH;
+    }
+    function onDown(e) {
+        const { x, y } = getCanvasCoords(e);
+        if (isOnLogo(x, y)) {
+            isDraggingLogo = true;
+            activeCanvasForDrag = canvas;
+            dragOffsetX = x - canvas._logoMeta.x;
+            dragOffsetY = y - canvas._logoMeta.y;
+            canvas.style.cursor = "grabbing";
+            e.preventDefault();
+        }
+    }
+    function onMove(e) {
+        if (!isDraggingLogo || activeCanvasForDrag !== canvas) {
+            if (!e.touches) { const { x, y } = getCanvasCoords(e); canvas.style.cursor = isOnLogo(x, y) ? "grab" : "crosshair"; }
+            return;
+        }
+        const { x, y } = getCanvasCoords(e);
+        const m = canvas._logoMeta;
+        if (!m) return;
+        logoPos.x = Math.max(0, Math.min(canvas.width - m.logoW, x - dragOffsetX));
+        logoPos.y = Math.max(0, Math.min(canvas.height - m.logoH, y - dragOffsetY));
+        dibujarArte(canvas, canvas._srcUrl, p, platform, color);
+        e.preventDefault();
+    }
+    function onUp() {
+        if (isDraggingLogo) { isDraggingLogo = false; canvas.style.cursor = "crosshair"; }
+    }
+    canvas.addEventListener('mousedown', onDown);
+    canvas.addEventListener('mousemove', onMove);
+    canvas.addEventListener('mouseup', onUp);
+    canvas.addEventListener('mouseleave', onUp);
+    canvas.addEventListener('touchstart', onDown, { passive: false });
+    canvas.addEventListener('touchmove', onMove, { passive: false });
+    canvas.addEventListener('touchend', onUp);
+}
+
+// ===================== CARGA DE IMÁGENES =====================
+const imgCache = new Map();
+function cargarImgDirecta(src) {
+    return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+}
+function cargarImg(url) {
+    if (!url) return Promise.reject("URL vacía");
+    url = url.trim();
+    if (imgCache.has(url)) return imgCache.get(url);
+    const pr = new Promise((res, rej) => {
+        if (/^(data:|blob:)/.test(url)) { cargarImgDirecta(url).then(res, rej); return; }
+        const direct = () => {
+            const i = new Image(); i.crossOrigin = "anonymous";
+            i.onload = () => res(i); i.onerror = rej; i.src = url;
+        };
+        if (!/^https?:\/\//i.test(url)) { direct(); return; } // ruta local (ej. /img/logo.png)
+        const i = new Image(); i.crossOrigin = "anonymous";
+        i.onload = () => res(i); i.onerror = direct;
+        i.src = PROXY + encodeURIComponent(url.replace(/^https?:\/\//, ''));
+    });
+    pr.catch(() => imgCache.delete(url));
+    imgCache.set(url, pr);
+    return pr;
+}
+
+// ===================== COPY / HASHTAGS =====================
+function generarCopyCompleto() {
+    const id = $('productSelect').value;
+    const p = productosGlobal.find(x => x.id === id);
+    const userWeb = $('userWeb').value || "Visita nuestra tienda";
+    const userWA  = $('userWA').value || "";
+    if (!p) return;
+
+    const waLink = userWA ? `https://wa.me/${userWA.replace(/\D/g,'')}` : "Contáctanos";
+    const tituloMP = `${p.tituloDisplay} | Nuevo | Envíos a toda Guatemala | Pago Contra Entrega`;
+    const palabrasClave = p.tituloDisplay.toLowerCase()
+        .replace(/[^\w\s]/gi,'').split(' ')
+        .filter(w => w.length > 3)
+        .map(w => `#${w.charAt(0).toUpperCase()+w.slice(1)}`);
+    const extraTags = [...new Set(palabrasClave)].slice(0,10).join(' ');
+    const hashtagsBase = `${extraTags} #Guatemala #Ventas #TiendaOnline #EnviosGuate #PagoContraEntrega #MarketplaceGT`;
+
+    $('copyTextArea').value =
+        `📌 ${tituloMP}\n\n⭐ ¡${p.tituloGancho.toUpperCase()}! ⭐\n\n🔹 ${p.tituloDisplay.toUpperCase()}\n\n📝 DESCRIPCIÓN:\n${p.desc}\n\n🚚 ENVÍOS A TODA GUATEMALA 🇬🇹\n💳 PAGOS: Efectivo, Transferencia y VISA.\n*(Aplican restricciones)\n\n🛒 COMPRA AQUÍ: ${userWeb}\n📲 WHATSAPP: ${waLink}\n\n${hashtagsBase}`;
+
+    renderHashtagPills(hashtagsBase.split(' ').filter(h => h.startsWith('#')));
+}
+
+// ===================== BATCH =====================
+async function generarTodosLosProductos() {
+    const gen = ++renderGen;
+    const { f: filtrados } = getFiltradosBatch();
+    const platform = $('platformSelect').value;
+    const color = $('accentColor').value;
+    const area = $('previewArea');
+    if (!filtrados.length) return;
+
+    area.innerHTML = "";
+    const total = filtrados.length;
+    for (let [i, p] of filtrados.entries()) {
+        if (gen !== renderGen) return;
+        setStatus(`⏳ Generando ${i+1} de ${total}: ${p.tituloDisplay}`, "loading");
+        const sep = document.createElement('div');
+        sep.style.cssText = "width:100%;text-align:left;font-size:0.72rem;font-weight:700;color:#1C3F60;background:#eef2f8;padding:7px 14px;border-radius:8px;letter-spacing:0.04em;border-left:3px solid #1C3F60;";
+        sep.textContent = `${i+1}. ${p.tituloDisplay.toUpperCase()}  ·  ${p.subCat}`;
+        const grid = document.createElement('div');
+        grid.className = "canvas-grid";
+        area.appendChild(sep);
+        area.appendChild(grid);
+
+        for (let [idx, url] of getImagenes(p).entries()) {
+            if (gen !== renderGen) return;
+            const card = document.createElement('div');
+            card.className = "canvas-card";
+            const canvas = document.createElement('canvas');
+            card.appendChild(canvas);
+            const lbl = document.createElement('div');
+            lbl.className = "canvas-label";
+            lbl.textContent = `Img ${idx+1} · ${getPlatformLabel(platform)}`;
+            card.appendChild(lbl);
+            grid.appendChild(card);
+            await dibujarArte(canvas, url, p, platform, color);
+            setupLogoInteraction(canvas, p, platform, color);
+        }
+    }
+    setStatus(`✅ ${total} productos generados`, "ok");
+}
+
+// ===================== HASHTAGS (LOCAL) =====================
+const HASHTAG_BANCO = {
+    general:    ["#Guatemala","#Ventas","#TiendaOnline","#EnviosGuate","#PagoContraEntrega","#MarketplaceGT","#CompraLocal","#NegocioGuatemala","#Emprendimiento","#ProductosGT","#GuatemalaCity","#OfertasGT","#PreciosBajos","#CalidadGT","#VentasOnline"],
+    cocina:     ["#CocinaGuatemala","#Gastronomia","#Restaurantes","#ComidaGT","#Hoteles","#Comedores","#Bar","#MenuDelDia","#CocinaLatina","#FoodLovers","#GastronomiaGT","#RecetasFaciles","#CocinaCreativa","#ChefGT","#FoodGram"],
+    tecnologia: ["#Tecnologia","#Tech","#Electronica","#Gadgets","#Computadoras","#TechGuatemala","#MovilesGT","#Smartphones","#Accesorios","#TiendaTech","#DigitalGT","#InnovacionGT","#SolucionesTech","#TecnologiaLatam","#TechLife"],
+    ropa:       ["#Moda","#Fashion","#Ropa","#Estilo","#Tendencias","#ModaGT","#FashionLovers","#OOTD","#OutfitDelDia","#RopaGuatemala","#ModaLatina","#Clothes","#StyleGT","#Accesorios","#LookDelDia"],
+    hogar:      ["#Hogar","#Decoracion","#CasaGT","#Muebles","#InterioresGT","#HomeDecor","#DecoracionHogar","#Living","#Furniture","#CasaBonita","#HomeStyle","#AmbienteHogar","#Remodelacion","#TuHogar","#EspaciosBonitos"],
+    salud:      ["#Salud","#Bienestar","#SaludGT","#Wellness","#Fitness","#VidaSana","#NutricionGT","#Suplementos","#FitnessGT","#SaludyBelleza","#NaturalGT","#BienEstar","#VidaSaludable","#CuidadoPersonal","#SaludIntegral"],
+    belleza:    ["#Belleza","#Beauty","#MaquilajeGT","#CuidadoPiel","#SkinCare","#MakeupLovers","#BeautyGT","#CosmeticosGT","#NailArt","#BeautyTips","#GlamourGT","#BellezaLatina","#MakeupArtist","#SkinRoutine","#BeautyBlogger"],
+    deportes:   ["#Deportes","#Sport","#FitnessGT","#Gym","#Atletismo","#DeportesGT","#GymLife","#Entrenamiento","#Workout","#SportStyle","#ActiveLife","#FitLife","#DeporteYSalud","#RunningGT"],
+    alimentos:  ["#Alimentos","#Comida","#FoodGT","#Snacks","#ProductosNaturales","#AlimentosSanos","#FoodPhotography","#Nutricion","#Organico","#MercadoGT","#FoodBlogger","#DeliciasGT","#SaboresGT","#ComidaRica","#ProductosLocales"],
+};
+
+function generarHashtagsLocales(p) {
+    const texto = `${p.tituloDisplay} ${p.desc} ${p.cat} ${p.subCat}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const matches = {
+        cocina:     /cocina|restaurante|hotel|comedor|bar|gastronomia|menu|chef|plato|bebida|cafeteria/,
+        tecnologia: /tecnolog|electr|comput|movil|smartphone|gadget|tablet|accesorio|laptop|red|wifi/,
+        ropa:       /ropa|moda|fashion|camiset|pantalon|vestido|camisa|uniforme|calzado|zapato|bolso/,
+        hogar:      /hogar|casa|decoracion|mueble|sala|dormitorio|cocina|bano|jardin|furniture/,
+        salud:      /salud|medicina|farmacia|bienestar|suplemento|vitamina|nutricion|fitness|gym/,
+        belleza:    /belleza|cosmet|maquillaje|skincare|piel|cabello|una|perfume|crema|serum/,
+        deportes:   /deporte|futbol|basket|gym|atletismo|running|ciclismo|natacion|entrenamiento/,
+        alimentos:  /alimento|comida|snack|dulce|chocolate|cafe|refresco|jugo|fruta|verdura|organico/,
+    };
+    let categoriaDetectada = "general", maxScore = 0;
+    for (const [cat, regex] of Object.entries(matches)) {
+        const score = (texto.match(new RegExp(regex.source, 'g')) || []).length;
+        if (score > maxScore) { maxScore = score; categoriaDetectada = cat; }
+    }
+    const todosTags = [...(HASHTAG_BANCO[categoriaDetectada] || []), ...HASHTAG_BANCO.general];
+    const palabras = (p.tituloDisplay + " " + p.desc).toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+        .replace(/[^\w\s]/gi,'').split(/\s+/)
+        .filter(w => w.length > 3 && !/^(para|como|este|esta|esos|esas|unos|unas|pero|todo|toda|cada|solo|entre|sobre|bajo|desde|hasta)$/.test(w));
+    const especificos = [...new Set(palabras)].slice(0, 5).map(w => `#${w.charAt(0).toUpperCase()}${w.slice(1)}`);
+    const final = [], seen = new Set();
+    const agregar = tag => { if (!seen.has(tag.toLowerCase()) && final.length < 10) { seen.add(tag.toLowerCase()); final.push(tag); } };
+    especificos.forEach(agregar);
+    todosTags.sort(() => Math.random() - 0.5).forEach(agregar);
+    return final;
+}
+
+// ===================== BÚSQUEDA =====================
+function onSearchInput(inp) {
+    $('btnClearSrch').style.display = inp.value ? 'block' : 'none';
+    aplicarFiltros();
+}
+function clearSearch() {
+    $('searchInput').value = '';
+    $('btnClearSrch').style.display = 'none';
+    $('searchCount').textContent = '';
+    aplicarFiltros();
+}
+
+// ===================== DESCARGAS =====================
+function descargarIndividual() {
+    const canvases = document.querySelectorAll('#previewArea canvas');
+    if (!canvases.length) { setStatus("⚠️ Genera las imágenes primero", "err"); return; }
+    const areaRect = $('previewArea').getBoundingClientRect();
+    let target = null;
+    for (const c of canvases) { if (c.getBoundingClientRect().top >= areaRect.top - 10) { target = c; break; } }
+    bajarCanvas(target || canvases[0]);
+}
+function bajarCanvas(canvas, nombre) {
+    const pSelect = $('productSelect');
+    const base = nombre || (pSelect.value ? pSelect.options[pSelect.selectedIndex].text : 'imagen');
+    const clean = base.replace(/[^a-z0-9]/gi,'_').toLowerCase();
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = clean + '.png';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setStatus('✅ Imagen descargada', 'ok');
+    setTimeout(() => setStatus('Listo.',''), 2000);
+}
+
+function buscarHashtags() {
+    const id = $('productSelect').value;
+    const p = productosGlobal.find(x => x.id === id);
+    if (!p) { setStatus("⚠️ Selecciona un producto primero", "err"); return; }
+    const tags = generarHashtagsLocales(p);
+    const copyLimpio = $('copyTextArea').value.replace(/\n#[\w#\s]+$/, '').trimEnd();
+    $('copyTextArea').value = copyLimpio + "\n\n" + tags.join(' ');
+    renderHashtagPills(tags);
+    setStatus(`✅ ${tags.length} hashtags sugeridos`, "ok");
+    setTimeout(() => setStatus("Listo.", ""), 2500);
+}
+
+function renderHashtagPills(tags) {
+    const wrap = $('hashtagTags');
+    wrap.innerHTML = "";
+    tags.forEach(tag => {
+        const pill = document.createElement('span');
+        pill.className = 'htag';
+        pill.textContent = tag;
+        pill.title = "Clic para copiar";
+        pill.onclick = () => {
+            navigator.clipboard.writeText(tag).then(() => {
+                pill.style.background = "#1C3F60"; pill.style.color = "#fff";
+                setTimeout(() => { pill.style.background = ""; pill.style.color = ""; }, 800);
+            });
+        };
+        wrap.appendChild(pill);
+    });
+}
+
+function copiarAlPortapapeles() {
+    const area = $('copyTextArea');
+    area.select();
+    (navigator.clipboard ? navigator.clipboard.writeText(area.value) : Promise.resolve(document.execCommand("copy")))
+        .then(() => setStatus("📋 Texto copiado al portapapeles", "ok"));
+    setTimeout(() => setStatus("Listo.", ""), 2000);
+}
+
+async function cargarScript(src) {
+    await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = src; s.onload = resolve; s.onerror = reject;
+        document.head.appendChild(s);
+    });
+}
+
+async function descargarTodo() {
+    const canvases = document.querySelectorAll('#previewArea canvas');
+    if (!canvases.length) { alert("Primero genera las imágenes."); return; }
+    const pSelect = $('productSelect');
+    const baseName = pSelect.value ? pSelect.options[pSelect.selectedIndex].text : ($('subCatFilter').value || $('catFilter').value || "productos");
+    const name = baseName.replace(/[^a-z0-9]/gi,'_').toLowerCase();
+    setStatus("🗜️ Empaquetando imágenes...", "loading");
+    try {
+        if (!window.JSZip) await cargarScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js");
+        const zip = new JSZip();
+        canvases.forEach((canvas, i) => zip.file(`${name}_${i+1}.png`, canvas.toDataURL("image/png").split(',')[1], { base64: true }));
+        const blob = await zip.generateAsync({ type: "blob" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `${name}.zip`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setStatus(`✅ ${canvases.length} imágenes descargadas en ${name}.zip`, "ok");
+    } catch (err) {
+        console.error(err);
+        setStatus("⚠️ Error al generar el ZIP", "err");
+    }
+    setTimeout(() => setStatus("Listo.", ""), 3000);
+}
+
+async function exportarPDF() {
+    const canvases = document.querySelectorAll('#previewArea canvas');
+    const pSelect = $('productSelect');
+    if (!pSelect.value || !canvases.length) { alert("Selecciona un producto y sincroniza."); return; }
+    setStatus("📄 Generando PDF...", "loading");
+    try {
+        if (!window.jspdf) await cargarScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+    } catch(e) { setStatus("⚠️ No se pudo cargar el generador de PDF", "err"); return; }
+    const { jsPDF } = window.jspdf;
+    const name = pSelect.options[pSelect.selectedIndex].text;
+    canvases.forEach((canvas, i) => {
+        // Aplana sobre blanco (por si el fondo es transparente)
+        const flat = document.createElement('canvas');
+        flat.width = canvas.width; flat.height = canvas.height;
+        const fx = flat.getContext('2d');
+        fx.fillStyle = "#ffffff"; fx.fillRect(0, 0, flat.width, flat.height);
+        fx.drawImage(canvas, 0, 0);
+        const doc = new jsPDF({ orientation: canvas.width > canvas.height ? 'l' : 'p', unit: 'px', format: [canvas.width, canvas.height] });
+        doc.addImage(flat.toDataURL("image/jpeg", 0.92), 'JPEG', 0, 0, canvas.width, canvas.height);
+        doc.save(`${name.replace(/[^a-z0-9]/gi,'_').toLowerCase()}_${i+1}.pdf`);
+    });
+    setStatus("✅ PDF exportado", "ok");
+    setTimeout(() => setStatus("Listo.", ""), 2500);
+}
+</script>
+</body>
+</html>

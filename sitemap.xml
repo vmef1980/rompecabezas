@@ -1,21 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
- 
-  <!-- Página principal -->
-  <url>
-    <loc>https://shop.rompecabezas.online/</loc>
-    <lastmod>2026-06-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
- 
-  <!-- Carrito -->
-  <url>
-    <loc>https://shop.rompecabezas.online/carrito.html</loc>
-    <lastmod>2026-06-27</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
- 
+  <url><loc>https://shop.rompecabezas.online/</loc><lastmod>2026-11-09</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://shop.rompecabezas.online/politicas</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://shop.rompecabezas.online/privacidad</loc><lastmod>2026-11-09</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=1000-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=100-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=12-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=1500-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=150-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=2000-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=200-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=3000-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=300-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=322-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=4000-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=48-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=5000-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=500-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=50-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=6000-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=60-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=9000-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=98-piezas</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=general</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://shop.rompecabezas.online/?cat=rompecabezas-3d</loc><lastmod>2026-11-09</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
 </urlset>
- 

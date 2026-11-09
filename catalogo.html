@@ -5,12 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="referrer" content="no-referrer-when-downgrade" />
-  <meta name="robots" content="index, follow, noimageindex" />
+  <meta name="robots" content="noindex, follow" />
   <meta name="theme-color" id="meta-theme-color" content="#003772" />
   
-  <title id="page-title">Cargando Catálogo Profesional...</title>
-  <meta name="description" id="meta-desc" content="Tu aliado en suministros para Cocinas, Restaurantes, Hoteles y Bares en Guatemala." />
+  <title id="page-title">Rompecabezas de Guatemala | Puzzles de 100 a 9000 piezas</title>
+  <meta name="description" id="meta-desc" content="Rompecabezas de Guatemala: puzzles de 100 a 9000 piezas, rompecabezas 3D y accesorios. Entrega en 24 h en la capital, envíos a todo el país y pago contra entrega." />
   
+  <link rel="canonical" href="https://shop.rompecabezas.online/" />
+  <meta property="og:url" content="https://shop.rompecabezas.online/catalogo.html" />
+  <meta property="og:image" content="https://shop.rompecabezas.online/img/og-rompecabezas.jpg" />
+
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="format-detection" content="telephone=no" />
@@ -297,14 +301,15 @@
   <script type="module">
     const CONFIG = {
       nombreNegocio: "Rompecabezas de Guatemala",
-      tituloPagina: "Rompecabezas de Guatemala | Catálogo Oficial 2026",
-      eslogan: "De todo para Cocinas, Restaurantes, Hoteles y Bares",
-      metaDescripcion: "Tu aliado en suministros para Cocinas, Restaurantes, Hoteles y Bares en Guatemala.",
+      tituloPagina: "Rompecabezas de Guatemala | Puzzles de 100 a 9000 piezas",
+      eslogan: "La tienda online más completa de rompecabezas y accesorios de Guatemala",
+      metaDescripcion: "Rompecabezas de Guatemala: puzzles de 100 a 9000 piezas, rompecabezas 3D y accesorios. Entrega en 24 h en la capital, envíos a todo el país y pago contra entrega.",
       copyright: "© 2026 Rompecabezas de Guatemala",
       developer: "Puzzle Solutions",
       ubicacion: "Ciudad de Guatemala, GT",
       telefonoWhatsApp: "50241084481",
-      mensajeWhatsApp: "Hola, deseo solicitar más información sobre los productos del catálogo.", 
+      email: "",
+      mensajeWhatsApp: "Hola, deseo solicitar más información sobre los productos del catálogo de Rompecabezas de Guatemala.", 
       simboloMoneda: "Q",
       logoImg: "img/RompecabezasDeGuatemala-v1.png",
       faviconImg: "img/RompecabezasDeGuatemala-v1.ico",
@@ -316,8 +321,8 @@
         fondoGradiente: "linear-gradient(135deg, #fff8f0 0%, #e6f7ff 100%)"
       },
       redesSociales: [
-        { icon: "bi-facebook", url: "https://www.facebook.com/RompecabezasDeGuatemala", label: "Facebook" },
-        { icon: "bi-instagram", url: "https://www.instagram.com/RompecabezasDeGuatemala", label: "Instagram" },
+        { icon: "bi-facebook", url: "https://www.facebook.com/rompecabezasdeguatemala", label: "Facebook" },
+        { icon: "bi-instagram", url: "https://www.instagram.com/rompecabezasdeguatemala/", label: "Instagram" },
         { icon: "bi-tiktok", url: "https://www.tiktok.com/@rompecabezasdeguatemala", label: "TikTok" }
       ],
       badges: [
@@ -431,6 +436,7 @@
         <div class="social-icons">
           ${CONFIG.redesSociales.map(r => `<a href="${r.url}" target="_blank"><i class="${r.icon}"></i></a>`).join('')}
           <a href="${whatsappURL}" target="_blank"><i class="bi bi-whatsapp"></i></a>
+          ${CONFIG.email ? `<a href="mailto:${CONFIG.email}"><i class="bi bi-envelope"></i></a>` : ""}
         </div>
         <p><strong>${CONFIG.nombreNegocio}</strong></p>
         <p style="opacity:0.7">${CONFIG.copyright}</p>
@@ -439,6 +445,7 @@
       document.getElementById("footer-social-links").innerHTML = `
         ${CONFIG.redesSociales.map(r => `<a href="${r.url}" target="_blank" style="font-size:0.75rem;"><i class="${r.icon}"></i> ${r.label}</a>`).join('')}
         <a href="${whatsappURL}" target="_blank" style="font-size:0.75rem;"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+        ${CONFIG.email ? `<a href="mailto:${CONFIG.email}" style="font-size:0.75rem;"><i class="bi bi-envelope"></i> ${CONFIG.email}</a>` : ""}
       `;
       
       document.getElementById("f-copy").textContent = CONFIG.copyright;
