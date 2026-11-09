@@ -16,10 +16,21 @@ const CONFIG = {
       // v9: ícono del menú lateral según palabras del nombre de la categoría (gana la primera que coincida).
       // Íconos disponibles: https://icons.getbootstrap.com  — si ninguna coincide se usa "iconoCategoriaDefault".
       iconosCategorias: [
-        { palabras: ["3D"],                                    icono: "bi-box" },
-        { palabras: ["GENERAL", "ACCESORIO", "PEGAMENTO", "TAPETE", "MARCO"], icono: "bi-stars" },
-        { palabras: ["JUEGO", "MESA"],                         icono: "bi-dice-5" },
-        { palabras: ["PIEZAS"],                                icono: "bi-puzzle" }
+        { palabras: ["3D"],                               icono: "bi-box" },
+        { palabras: ["ANIMALES", "ANIMAL"],               icono: "bi-feather" },
+        { palabras: ["ARTE", "PINTURA"],                  icono: "bi-palette" },
+        { palabras: ["FANTASIA"],                         icono: "bi-magic" },
+        { palabras: ["MAPAS", "ESPACIO"],                 icono: "bi-globe-americas" },
+        { palabras: ["ESCENAS", "VINTAGE"],               icono: "bi-camera" },
+        { palabras: ["PAISAJES", "NATURALEZA"],           icono: "bi-image-alt" },
+        { palabras: ["CIUDADES", "LUGARES"],              icono: "bi-buildings" },
+        { palabras: ["INFANTIL", "NINOS"],                icono: "bi-balloon-heart" },
+        { palabras: ["VEHICULOS"],                        icono: "bi-car-front" },
+        { palabras: ["ABSTRACTOS", "RETOS"],              icono: "bi-hurricane" },
+        { palabras: ["JUEGOS", "DIDACTICOS"],             icono: "bi-dice-5" },
+        { palabras: ["PELICULAS", "PERSONAJES"],          icono: "bi-film" },
+        { palabras: ["GUATEMALA"],                        icono: "bi-flag" },
+        { palabras: ["ACCESORIOS", "ACCESORIO"],          icono: "bi-stars" }
       ],
       iconoCategoriaDefault: "bi-puzzle-fill",
       // v9: productos frágiles. En este Sheet la columna L es "precio_original", por eso "columnaFragil" es null
@@ -47,19 +58,47 @@ const CONFIG = {
         { icon: "bi-instagram", url: "https://www.instagram.com/rompecabezasdeguatemala/", label: "Instagram" },
         { icon: "bi-tiktok", url: "https://www.tiktok.com/@rompecabezasdeguatemala", label: "TikTok" }
       ],
-      // v9: portada del Inicio. "enlace" puede ser una categoría (?cat=1000-piezas), una búsqueda (?q=dinosaurios) o una página.
-      // Fotos: guárdalas en img/ con estos nombres (formato horizontal, ~1600×800, .webp). Si una foto no existe,
-      // la diapositiva se muestra igual con fondo oscuro y el texto.
+      // v9.2: PORTADA DINÁMICA. Se arma sola con las categorías reales del Google Sheet: cada diapositiva muestra
+      // 3 fotos de productos disponibles de una categoría, y en cada visita del cliente aparecen categorías
+      // diferentes (rotan en orden hasta pasar por todas). Si agregas o cambias categorías en el Sheet,
+      // la portada se ajusta sola; no hay enlaces que se rompan.
+      //   textos: frase según palabras del nombre de la categoría. Variables:
+      //           {categoria} {disponibles} {precio}  (precio = el más bajo de los disponibles)
+      //   excluir: categorías que nunca deben salir en la portada (ej. ["general"])
       portada: {
+        dinamica: true,
         segundos: 5,
+        cantidadDiapositivas: 4,
+        // principales: la 1ª diapositiva rota entre estas categorías (vacío = las 3 más grandes)
+        principales: ["ciudades-y-lugares", "infantil", "peliculas-y-personajes", "paisajes-y-naturaleza"],
+        excluir: ["otros"],
+        textos: [
+          { palabras: ["CIUDADES", "LUGARES"],     titulo: "Viaja por el mundo pieza a pieza",  desc: "{disponibles} ciudades y lugares icónicos · desde {precio}" },
+          { palabras: ["PAISAJES", "NATURALEZA"],  titulo: "Paisajes para armar con calma",     desc: "{disponibles} paisajes y escenas naturales · desde {precio}" },
+          { palabras: ["INFANTIL"],                titulo: "Para los más pequeños",             desc: "Piezas grandes, ideales para niños · desde {precio}" },
+          { palabras: ["PELICULAS", "PERSONAJES"], titulo: "Tus personajes favoritos",          desc: "Películas, series y caricaturas · desde {precio}" },
+          { palabras: ["ANIMALES"],                titulo: "El mundo animal",                   desc: "{disponibles} rompecabezas de animales · desde {precio}" },
+          { palabras: ["ESCENAS", "VINTAGE"],      titulo: "Escenas con encanto vintage",       desc: "{disponibles} diseños llenos de detalle · desde {precio}" },
+          { palabras: ["ARTE", "PINTURA"],         titulo: "Obras maestras para armar",         desc: "Arte y pintura clásica · desde {precio}" },
+          { palabras: ["FANTASIA"],                titulo: "Mundos de fantasía",                desc: "{disponibles} diseños mágicos · desde {precio}" },
+          { palabras: ["MAPAS", "ESPACIO"],        titulo: "Mapas y el universo",               desc: "Aprende geografía y astronomía armando · desde {precio}" },
+          { palabras: ["JUEGOS", "DIDACTICOS"],    titulo: "Aprender jugando",                  desc: "{disponibles} juegos y didácticos · desde {precio}" },
+          { palabras: ["3D"],                      titulo: "Arma en tres dimensiones",          desc: "{disponibles} modelos 3D · desde {precio}" },
+          { palabras: ["VEHICULOS"],               titulo: "Autos, trenes y aviones",           desc: "{disponibles} rompecabezas de vehículos · desde {precio}" },
+          { palabras: ["ABSTRACTOS", "RETOS"],     titulo: "¿Te atreves con un reto?",          desc: "Abstractos y desafíos · desde {precio}" },
+          { palabras: ["GUATEMALA"],               titulo: "Hecho para chapines",               desc: "{disponibles} diseños de nuestro país · desde {precio}" },
+          { palabras: ["ACCESORIOS"],              titulo: "Accesorios para armadores",         desc: "Pegamento y más para tu rompecabezas · desde {precio}", boton: "Ver accesorios" }
+        ],
+        textoGenerico: { titulo: "Descubre {categoria}", desc: "{disponibles} modelos disponibles · desde {precio}" },
+        // Si dinamica = false (o el catálogo no carga) se usan estas diapositivas fijas:
         diapositivas: [
-          { foto: "img/portada-1000.webp", enfoque: "60% 40%", etiqueta: "1000 piezas",     titulo: "El clásico para armar en familia", desc: "Paisajes, arte, animales y ciudades del mundo.",        boton: "Ver 1000 piezas", enlace: "?cat=1000-piezas" },
-          { foto: "img/portada-500.webp",  enfoque: "55% 40%", etiqueta: "500 piezas",      titulo: "Tu primer reto",                   desc: "Ideales para empezar o para una tarde tranquila.",      boton: "Ver 500 piezas",  enlace: "?cat=500-piezas" },
-          { foto: "img/portada-3d.webp",   enfoque: "50% 40%", etiqueta: "Rompecabezas 3D", titulo: "Arma en tres dimensiones",         desc: "Vehículos, edificios y criaturas para construir.",      boton: "Ver 3D",          enlace: "?cat=rompecabezas-3d" }
+          { foto: "img/portada-ciudades.webp", etiqueta: "Catálogo", titulo: "Cientos de rompecabezas para armar", desc: "Ciudades, paisajes, animales, infantiles y más.", boton: "Ver todo", enlace: "?ver=todos" }
         ],
         promos: [
-          { icon: "bi-trophy",   titulo: "Retos para expertos",   desc: "1500, 2000, 3000 piezas y más",  boton: "Ver 1500 piezas", enlace: "?cat=1500-piezas", color: "linear-gradient(135deg,#ee7c12,#b85a06)" },
-          { icon: "bi-whatsapp", titulo: "¿Buscas un regalo?",    desc: "Te ayudamos a elegir el ideal",   boton: "WhatsApp",        enlace: "https://wa.me/50241084481?text=Hola%2C%20busco%20un%20rompecabezas%20para%20regalar.%20%C2%BFMe%20ayudan%20a%20elegir%3F", color: "linear-gradient(135deg,#2b2b2e,#111113)" }
+          // categoria: "auto" = toma otra categoría de la rotación (cambia en cada visita)
+          { categoria: "auto", color: "linear-gradient(135deg,#ee7c12,#b85a06)",
+            respaldo: { icon: "bi-grid-3x3-gap", titulo: "Todo el catálogo", desc: "Cientos de rompecabezas", boton: "Ver todo", enlace: "?ver=todos", color: "linear-gradient(135deg,#ee7c12,#b85a06)" } },
+          { icon: "bi-whatsapp", titulo: "¿Buscas un regalo?", desc: "Te ayudamos a elegir el ideal", boton: "WhatsApp", enlace: "https://wa.me/50241084481?text=Hola%2C%20busco%20un%20rompecabezas%20para%20regalar.%20%C2%BFMe%20ayudan%20a%20elegir%3F", color: "linear-gradient(135deg,#1fae5b,#0b6b4f)" }
         ]
       },
       // v9: barra de confianza arriba del encabezado. En PC se ven todos; en celular rotan uno por uno.
@@ -94,7 +133,7 @@ const CONFIG = {
 
     // ── v9: navegación con URL propia (para que el botón Regresar funcione) ──
     // Vistas: "inicio" (collage de categorías), "categoria", "busqueda", "todos".
-    // URLs:  ?cat=1000-piezas  ·  ?cat=rompecabezas-3d  ·  ?q=dinosaurios  ·  ?ver=todos  ·  &p=ID (producto abierto)
+    // URLs:  ?cat=animales  ·  ?cat=animales&sub=1000-a-1499-piezas  ·  ?q=dinosaurios  ·  ?ver=todos  ·  &p=ID (producto abierto)
     let categorias = [];          // [{ id, nombre, slug, items }]
     let vistaActual = "inicio";
     let ultimaVistaKey = null;    // URL sin el producto abierto, para no redibujar al solo abrir/cerrar la ventana
@@ -337,11 +376,110 @@ const CONFIG = {
     }
 
 
-    // ── v9: portada del Inicio (carrusel + banners de promoción) ──
+    // ── v9.2: portada del Inicio (carrusel + banners) ──
+    // Con CONFIG.portada.dinamica = true se arma sola con las categorías reales del Google Sheet:
+    // cada diapositiva muestra fotos de productos disponibles de esa categoría, y en cada visita
+    // del cliente se presentan categorías diferentes (rotan en orden hasta pasar por todas).
+    const portadaEstado = { timer: null, pausa: false, listo: false, seleccion: null };
+    const escP = (s) => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+    function numeroVisita() {
+      // Cuenta visitas (no recargas): se suma 1 la primera vez que se abre la página en cada sesión del navegador
+      try {
+        let n = parseInt(localStorage.getItem(CLAVE_CATALOGO + "-visitas") || "0", 10) || 0;
+        if (!sessionStorage.getItem(CLAVE_CATALOGO + "-sesion")) {
+          n++; localStorage.setItem(CLAVE_CATALOGO + "-visitas", n); sessionStorage.setItem(CLAVE_CATALOGO + "-sesion", "1");
+        }
+        return n;
+      } catch (e) { return Math.floor(Math.random() * 1000); }
+    }
+
+    function textoPortada(cat) {
+      const cfg = CONFIG.portada;
+      const palabras = slugify(cat.nombre).toUpperCase().split("-");
+      const num = (cat.nombre.match(/\d+/) || [])[0];
+      const piezas = num ? parseInt(num, 10) : null;
+      const frase = " " + palabras.join(" ") + " ";
+      const regla = (cfg.textos || []).find(r =>
+        (r.palabras && r.palabras.some(k => k.includes(" ")
+          ? frase.includes(" " + slugify(k).toUpperCase().replace(/-/g, " ") + " ")
+          : palabras.some(p => p === k || (k.length > 3 && p.startsWith(k))))) ||
+        (r.piezas && piezas !== null && piezas >= r.piezas[0] && piezas <= r.piezas[1]));
+      return regla || cfg.textoGenerico || { titulo: "Descubre {categoria}", desc: "{disponibles} modelos disponibles · desde {precio}" };
+    }
+    // Nombres escritos TODO EN MAYÚSCULAS en el Sheet se muestran en la portada como "Accesorios de Maletas"
+    const nombreBonito = (s) => s && s === s.toUpperCase() && /\p{L}{3}/u.test(s)
+      ? s.toLowerCase().replace(/(^|[\s(/-])(\p{L})/gu, (m, a, b) => a + b.toUpperCase()).replace(/ (De|Del|Y|E|Tu|Para|La|El|Los|Las|En|A) /g, m => m.toLowerCase())
+      : s;
+    function rellenar(txt, cat) {
+      const disp = cat.items.filter(p => p.estado !== "AGOTADO");
+      const precios = (disp.length ? disp : cat.items).map(p => p.precio).filter(x => x > 0);
+      const min = precios.length ? Math.min(...precios) : 0;
+      return String(txt || "")
+        .replace(/\{categoria\}/g, nombreBonito(cat.nombre))
+        .replace(/\{disponibles\}/g, disp.length || cat.items.length)
+        .replace(/\{precio\}/g, min ? `${CONFIG.simboloMoneda}${min.toFixed(2)}` : "")
+        .replace(/\s*·\s*desde\s*$/, "");
+    }
+
+    function elegirCategoriasPortada() {
+      const cfg = CONFIG.portada;
+      const excluir = new Set((cfg.excluir || []).map(slugify));
+      const nFotos = (c) => new Set(c.items.filter(p => p.imagen && p.estado !== "AGOTADO").map(p => p.imagen)).size;
+      // Solo categorías con fotos de productos disponibles; las más grandes primero
+      const candidatas = categorias
+        .filter(c => !excluir.has(c.slug) && !excluir.has(slugify(c.id)) && nFotos(c) > 0)
+        .sort((a, b) => b.items.length - a.items.length || a.slug.localeCompare(b.slug));
+      // Se prefieren categorías con 3 fotos o más (el collage se ve completo); las demás solo si faltan
+      const conTres = candidatas.filter(c => nFotos(c) >= 3);
+      const aptas = conTres.length >= 2 ? conTres : candidatas;
+      if (!aptas.length) return { slides: [], promo: [] };
+      const nPromo = (cfg.promos || []).filter(p => p.categoria === "auto").length;
+      const total = Math.min(aptas.length, (cfg.cantidadDiapositivas || 3) + nPromo);
+      const v = Math.max(0, numeroVisita() - 1);
+      // 1ª diapositiva: rota entre las "principales" de CONFIG (o, si no hay, las 3 categorías más grandes)
+      const principales = (cfg.principales || []).map(slugify)
+        .map(s => aptas.find(c => c.slug === s || slugify(c.id) === s)).filter(Boolean);
+      const top = principales.length ? principales : aptas.slice(0, Math.min(3, aptas.length));
+      const primera = top[v % top.length];
+      // Las demás rotan por todo el catálogo, sin repetir el mismo tipo de mensaje si se puede
+      const otras = aptas.filter(c => c !== primera);
+      const desde = otras.length ? (v * (total - 1)) % otras.length : 0;
+      const ronda = otras.map((_, i) => otras[(desde + i) % otras.length]);
+      const elegidas = [primera], usados = new Set([textoPortada(primera)]);
+      for (const c of ronda) { if (elegidas.length >= total) break; const t = textoPortada(c); if (!usados.has(t)) { elegidas.push(c); usados.add(t); } }
+      for (const c of ronda) { if (elegidas.length >= total) break; if (!elegidas.includes(c)) elegidas.push(c); }
+      const nSlides = Math.max(1, elegidas.length - nPromo);
+      return { slides: elegidas.slice(0, nSlides), promo: elegidas.slice(nSlides) };
+    }
+
+    function diapositivasDinamicas(cats) {
+      return cats.map(cat => {
+        const t = textoPortada(cat);
+        return {
+          etiqueta: nombreBonito(cat.nombre),
+          titulo: rellenar(t.titulo, cat),
+          desc: rellenar(t.desc || (CONFIG.portada.textoGenerico || {}).desc, cat),
+          boton: rellenar(t.boton || "Ver {categoria}", cat),
+          enlace: "?cat=" + cat.slug,
+          fotos: fotosCollage(cat, 3).map(p => miniatura(p.imagen, 500))
+        };
+      });
+    }
+
     function renderPortada() {
       const cfg = CONFIG.portada, pista = document.getElementById("pt-pista");
       if (!cfg || !pista) return;
-      const esc = (s) => String(s || "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+      const dinamica = cfg.dinamica && categorias.length;
+      if (cfg.dinamica && !categorias.length) {   // aún no llega el catálogo: esqueleto sin enlaces
+        pista.innerHTML = '<div class="pt-slide pt-cargando"></div>';
+        document.getElementById("pt-promos").innerHTML = (cfg.promos || []).map(() => '<div class="pt-promo pt-cargando"></div>').join("");
+        return;
+      }
+      if (dinamica && !portadaEstado.seleccion) portadaEstado.seleccion = elegirCategoriasPortada();
+      const sel = portadaEstado.seleccion || { slides: [], promo: [] };
+      const diapositivas = dinamica && sel.slides.length ? diapositivasDinamicas(sel.slides) : (cfg.diapositivas || []);
+
       const enlazar = (a) => {
         if (!a.getAttribute("href").startsWith("?")) return;
         a.addEventListener("click", (ev) => {
@@ -351,44 +489,62 @@ const CONFIG = {
           renderDesdeURL(); irArribaCatalogo();
         });
       };
-      const n = cfg.diapositivas.length;
-      pista.innerHTML = cfg.diapositivas.map((d, i) => `
-        <a class="pt-slide" href="${esc(d.enlace)}">
-          <img src="${esc(d.foto)}" alt="" style="object-position:${esc(d.enfoque || "center 30%")};${d.enfoqueMovil ? "--enfoque-movil:" + esc(d.enfoqueMovil) : ""}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} onerror="this.remove()">
+      const n = diapositivas.length;
+      pista.innerHTML = diapositivas.map((d, i) => `
+        <a class="pt-slide${d.fotos ? " pt-con-collage" : ""}" href="${escP(d.enlace)}">
+          ${d.fotos ? `<div class="pt-collage" aria-hidden="true">${d.fotos.map((u, k) => `<img src="${escP(u)}" alt="" ${i === 0 && k === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} onerror="this.remove()">`).join("")}</div>`
+            : `<img src="${escP(d.foto)}" alt="" style="object-position:${escP(d.enfoque || "center 30%")};${d.enfoqueMovil ? "--enfoque-movil:" + escP(d.enfoqueMovil) : ""}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} onerror="this.remove()">`}
           <div class="pt-texto">
-            <div class="pt-etiqueta">${esc(d.etiqueta)}</div>
-            <${i === 0 ? "h2" : "p"} class="pt-titulo">${esc(d.titulo)}</${i === 0 ? "h2" : "p"}>
-            <p class="pt-desc">${esc(d.desc)}</p>
-            <span class="pt-boton">${esc(d.boton)} <i class="bi bi-arrow-right"></i></span>
+            <div class="pt-etiqueta">${escP(d.etiqueta)}</div>
+            <${i === 0 ? "h2" : "p"} class="pt-titulo">${escP(d.titulo)}</${i === 0 ? "h2" : "p"}>
+            <p class="pt-desc">${escP(d.desc)}</p>
+            <span class="pt-boton">${escP(d.boton)} <i class="bi bi-arrow-right"></i></span>
           </div>
         </a>`).join("");
       pista.querySelectorAll("a").forEach(enlazar);
-      document.getElementById("pt-promos").innerHTML = (cfg.promos || []).map(p => `
-        <a class="pt-promo" href="${esc(p.enlace)}"${/^https?:/i.test(p.enlace) ? ' target="_blank" rel="noopener"' : ""} style="background:${esc(p.color)}">
-          <i class="bi ${esc(p.icon)} pt-promo-icono" aria-hidden="true"></i>
-          <strong>${esc(p.titulo)}</strong><span class="pt-promo-desc">${esc(p.desc)}</span>
-          <span class="pt-boton">${esc(p.boton)}</span>
+      pista.scrollTo({ left: 0, behavior: "instant" });
+
+      // Banners: los que dicen categoria:"auto" toman otra categoría de la rotación; los demás son fijos
+      let k = 0;
+      const promos = (cfg.promos || []).map(p => {
+        if (p.categoria !== "auto") return p;
+        const cat = dinamica ? sel.promo[k++] : null;
+        if (!cat) return p.respaldo || null;
+        const t = textoPortada(cat);
+        return { ...p, icon: iconoCategoria(cat.nombre), titulo: rellenar(t.promoTitulo || "{categoria}", cat),
+                 desc: rellenar(t.promoDesc || "{disponibles} modelos · desde {precio}", cat), boton: cat.nombre.length <= 14 ? "Ver " + nombreBonito(cat.nombre) : "Ver más", enlace: "?cat=" + cat.slug };
+      }).filter(Boolean);
+      document.getElementById("pt-promos").innerHTML = promos.map(p => `
+        <a class="pt-promo" href="${escP(p.enlace)}"${/^https?:/i.test(p.enlace) ? ' target="_blank" rel="noopener"' : ""} style="background:${escP(p.color)}">
+          <i class="bi ${escP(p.icon)} pt-promo-icono" aria-hidden="true"></i>
+          <strong>${escP(p.titulo)}</strong><span class="pt-promo-desc">${escP(p.desc)}</span>
+          <span class="pt-boton">${escP(p.boton)}</span>
         </a>`).join("");
       document.querySelectorAll("#pt-promos a").forEach(enlazar);
 
       const puntos = document.getElementById("pt-puntos");
-      puntos.innerHTML = cfg.diapositivas.map((d, i) => `<button type="button" role="tab" aria-label="${esc(d.etiqueta)}"></button>`).join("");
+      puntos.innerHTML = diapositivas.map(d => `<button type="button" role="tab" aria-label="${escP(d.etiqueta)}"></button>`).join("");
+      puntos.hidden = n < 2;
+      document.querySelectorAll(".pt-flecha").forEach(b => b.hidden = n < 2);
       const actual = () => Math.round(pista.scrollLeft / Math.max(1, pista.clientWidth));
       const ir = (i) => pista.scrollTo({ left: ((i + n) % n) * pista.clientWidth });
       const marcar = () => { const a = actual(); puntos.querySelectorAll("button").forEach((b, i) => b.setAttribute("aria-selected", i === a)); };
+      const reducir = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const reiniciar = () => { clearInterval(portadaEstado.timer); if (reducir || n < 2) return;
+        portadaEstado.timer = setInterval(() => { if (!portadaEstado.pausa && !document.hidden && document.body.classList.contains("vista-inicio")) ir(actual() + 1); }, (cfg.segundos || 5) * 1000); };
       puntos.querySelectorAll("button").forEach((b, i) => b.onclick = () => { ir(i); reiniciar(); });
       document.querySelector(".pt-prev").onclick = () => { ir(actual() - 1); reiniciar(); };
       document.querySelector(".pt-next").onclick = () => { ir(actual() + 1); reiniciar(); };
-      let t = 0; pista.addEventListener("scroll", () => { clearTimeout(t); t = setTimeout(marcar, 60); }, { passive: true });
       marcar();
-      // Avance automático: se pausa con el mouse encima, al tocar, o si la pestaña no está visible
-      const reducir = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      let timer = null, pausa = false;
-      const reiniciar = () => { clearInterval(timer); if (reducir) return;
-        timer = setInterval(() => { if (!pausa && !document.hidden && document.body.classList.contains("vista-inicio")) ir(actual() + 1); }, (cfg.segundos || 5) * 1000); };
-      const carrusel = pista.parentElement;
-      carrusel.addEventListener("mouseenter", () => pausa = true); carrusel.addEventListener("mouseleave", () => pausa = false);
-      carrusel.addEventListener("touchstart", () => { pausa = true; setTimeout(() => pausa = false, 8000); }, { passive: true });
+      if (!portadaEstado.listo) {   // estos eventos se registran una sola vez
+        portadaEstado.listo = true;
+        let t = 0; pista.addEventListener("scroll", () => { clearTimeout(t); t = setTimeout(() => {
+          const a = Math.round(pista.scrollLeft / Math.max(1, pista.clientWidth));
+          document.querySelectorAll("#pt-puntos button").forEach((b, i) => b.setAttribute("aria-selected", i === a)); }, 60); }, { passive: true });
+        const carrusel = pista.parentElement;
+        carrusel.addEventListener("mouseenter", () => portadaEstado.pausa = true); carrusel.addEventListener("mouseleave", () => portadaEstado.pausa = false);
+        carrusel.addEventListener("touchstart", () => { portadaEstado.pausa = true; setTimeout(() => portadaEstado.pausa = false, 8000); }, { passive: true });
+      }
       reiniciar();
     }
 
@@ -929,6 +1085,24 @@ const CONFIG = {
     }
 
     // v9: dibuja la vista que indica la URL. Se llama al cargar, al navegar y al presionar Regresar/Adelante.
+    // v9.1: encuentra la categoría aunque el enlace no coincida exacto con el Sheet
+    // (ej. ?cat=1000-piezas encuentra "1000 Piezas", "1000_piezas" o "Rompecabezas 1000 piezas").
+    function buscarCategoria(valor) {
+        if (!valor || !categorias.length) return null;
+        const v = slugify(valor);
+        const exacta = categorias.find(c => c.slug === v) || categorias.find(c => slugify(c.id) === v);
+        if (exacta) return exacta;
+        const palabras = v.split("-").filter(Boolean);
+        const numeros = palabras.filter(w => /^\d+$/.test(w));
+        const candidatas = categorias.filter(c => {
+            const ps = new Set([...c.slug.split("-"), ...slugify(c.id).split("-")]);
+            return numeros.length ? numeros.every(n => ps.has(n)) : palabras.every(w => ps.has(w) || c.slug.includes(w));
+        });
+        if (candidatas.length) return candidatas.sort((x, y) => x.slug.length - y.slug.length)[0];
+        console.warn(`[v9] La categoría "${valor}" no existe en el Sheet. Disponibles:`, categorias.map(c => "?cat=" + c.slug).join("  "));
+        return null;
+    }
+
     function renderDesdeURL({ restaurarScroll = null } = {}) {
         const e = leerURL();
         const busqueda = document.getElementById("buscar-producto-central");
@@ -937,7 +1111,7 @@ const CONFIG = {
         const vistaKey = construirURL({ ...e, p: "" });
         if (vistaKey !== ultimaVistaKey) {
             ultimaVistaKey = vistaKey;
-            const cat = categorias.find(c => c.slug === e.cat);
+            const cat = buscarCategoria(e.cat);
             categoriaActual = cat || null;
             if (cat) {
                 categoriaActualProductos = cat.items;
@@ -950,6 +1124,10 @@ const CONFIG = {
                 else generarSubfiltros(cat, subcategoriaSeleccionada);
                 document.title = `${grupo ? nombreSub(grupo.sub) + " · " : ""}${cat.nombre} | ${CONFIG.nombreNegocio}`;
             } else {
+                if (e.cat && categorias.length && !e.q) {   // v9.1: categoría inexistente → buscar por su nombre
+                    e.q = e.cat.replace(/-/g, " ");
+                    if (busqueda.value !== e.q) busqueda.value = e.q;
+                }
                 vistaActual = e.q ? "busqueda" : (e.ver === "todos" ? "todos" : "inicio");
                 categoriaActualProductos = [...productos];
                 subcategoriaSeleccionada = "Todas";
@@ -1143,6 +1321,8 @@ const CONFIG = {
 
         const st = history.state || {};
         history.replaceState({ ...st, gc: true, scrollY: st.scrollY || 0 }, "", location.href);
+        renderPortada();          // v9.2: portada con las categorías reales del Sheet
+        ultimaVistaKey = null;   // v9.1: si el usuario tocó un botón antes de que cargara el catálogo, volver a dibujar
         renderDesdeURL({ restaurarScroll: st.scrollY || null });
         updateCart();
     }

@@ -4,7 +4,7 @@ GenerarSitemap.py  (Rompecabezas de Guatemala v9)
 Lee el catálogo publicado de Google Sheets (o un CSV local) y
 genera ../sitemap.xml con:
   • la página de inicio y la de privacidad
-  • una URL por categoría       → https://shop.rompecabezas.online/?cat=1000-piezas
+  • una URL por categoría       → https://shop.rompecabezas.online/?cat=animales
   • una URL por subcategoría    → https://shop.rompecabezas.online/?cat=<categoria>&sub=<subcategoria> (solo si la categoría tiene varias)
 
 Los nombres en la URL ("slugs") se calculan EXACTAMENTE igual que en
@@ -97,7 +97,9 @@ def main():
 
         subs = sorted(cat["subs"])
         # Igual que el sitio: si la única subcategoría se llama como la categoría, no tiene página propia
-        if INCLUIR_SUBCATEGORIAS and not (len(subs) == 1 and slugify(subs[0]) == slug):
+        # Solo vale la pena una URL por subcategoría si la categoría tiene 2 o más (si tiene una sola,
+        # como "No aplica", es la misma página que la categoría)
+        if INCLUIR_SUBCATEGORIAS and len(subs) > 1:
             for sub in subs:
                 urls.append((f"{URL_SITIO}?cat={slug}&sub={slugify(sub)}", "weekly", "0.6"))
                 total_subs += 1
