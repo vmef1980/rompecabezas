@@ -1,0 +1,86 @@
+{
+  "_instrucciones": "Cada grupo es una lista de palabras que significan lo mismo. Si un producto contiene cualquiera de ellas (en nombre, subcategoría o descripción), el buscador lo encuentra con cualquier otra del grupo, y su página muestra las demás como 'También lo buscan como'. Escribe en minúsculas; los acentos no importan. Agrega grupos o palabras cuando quieras.",
+  "grupos": [
+    [
+      "rompecabezas",
+      "puzzle",
+      "puzle",
+      "rompecabeza"
+    ],
+    [
+      "piezas",
+      "pzs",
+      "pz"
+    ],
+    [
+      "niños",
+      "infantil",
+      "niñas",
+      "kids"
+    ],
+    [
+      "3d",
+      "tridimensional"
+    ],
+    [
+      "mapa",
+      "mapamundi",
+      "mundo"
+    ],
+    [
+      "paisaje",
+      "naturaleza"
+    ],
+    [
+      "tapete",
+      "alfombra",
+      "portapuzzle",
+      "puzzle mat",
+      "organizador de rompecabezas"
+    ],
+    [
+      "pegamento",
+      "goma",
+      "fijador",
+      "puzzle glue",
+      "conservador"
+    ],
+    [
+      "marco",
+      "cuadro"
+    ],
+    [
+      "animales",
+      "fauna"
+    ],
+    [
+      "arte",
+      "pintura",
+      "cuadros famosos"
+    ],
+    [
+      "madera",
+      "wooden"
+    ],
+    [
+      "vintage",
+      "retro",
+      "antiguo"
+    ],
+    [
+      "ciudades",
+      "lugares",
+      "viajes"
+    ],
+    [
+      "películas",
+      "personajes",
+      "disney",
+      "caricaturas"
+    ],
+    [
+      "navidad",
+      "navideño"
+    ]
+  ]
+}

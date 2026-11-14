@@ -13,6 +13,9 @@ const CONFIG = {
       logoImg: "img/RompecabezasDeGuatemala-300.webp",
       seoImage: "https://shop.rompecabezas.online/img/og-rompecabezas.jpg",
       urlSitio: "https://shop.rompecabezas.online/",   // v9: base para la etiqueta canonical de cada categoría
+      // v10: marcas y siglas que se escriben siempre igual en los nombres (el resto va en "tipo oración")
+      marcas: ["Ravensburger", "Clementoni", "Novelty", "Paw", "Patrol", "Spin", "Master", "Mattel", "Trefl", "Disney", "Marvel", "Stitch", "Klimt", "Santorini", "Mordillo", "GraviTrax", "Lofoten", "Braies", "Dolomitas", "Tatras", "Cinque", "Terre", "Koco", "Krypt", "Mindblow", "Educa", "Castorland", "Lego", "Pokémon", "Harry", "Potter", "Frozen", "Mickey", "Minnie", "Barbie", "Hallstatt", "Monet", "Gogh", "Guatemala", "Antigua", "Venecia", "París", "Londres", "Roma", "Escocia", "Irlanda", "Japón", "Italia", "Francia", "España", "Grecia", "Noruega", "Suiza", "Alemania", "Holanda", "Navidad", "Halloween", "Kasperle", "Demuseo", "Nueva", "York"],
+      siglas: ["FSC", "JCA", "HQC", "UFT", "DPZ", "SPZ"],
       // v9: ícono del menú lateral según palabras del nombre de la categoría (gana la primera que coincida).
       // Íconos disponibles: https://icons.getbootstrap.com  — si ninguna coincide se usa "iconoCategoriaDefault".
       iconosCategorias: [
@@ -92,7 +95,7 @@ const CONFIG = {
         textoGenerico: { titulo: "Descubre {categoria}", desc: "{disponibles} modelos disponibles · desde {precio}" },
         // Si dinamica = false (o el catálogo no carga) se usan estas diapositivas fijas:
         diapositivas: [
-          { foto: "img/portada-ciudades.webp", etiqueta: "Catálogo", titulo: "Cientos de rompecabezas para armar", desc: "Ciudades, paisajes, animales, infantiles y más.", boton: "Ver todo", enlace: "?ver=todos" }
+          { foto: "img/og-rompecabezas.jpg", etiqueta: "Catálogo", titulo: "Cientos de rompecabezas para armar", desc: "Ciudades, paisajes, animales, infantiles y más.", boton: "Ver todo", enlace: "?ver=todos" }
         ],
         promos: [
           // categoria: "auto" = toma otra categoría de la rotación (cambia en cada visita)
@@ -214,12 +217,40 @@ const CONFIG = {
     // v9: búsqueda sin importar acentos ni mayúsculas; con varias palabras, todas deben aparecer
     // (en nombre, código, categoría, subcategoría o descripción). "cafe termico" encuentra "DISPENSADOR DE CAFÉ TÉRMICO".
     const normalizar = (s) => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    // v10: nombres alternativos. data/sinonimos.json tiene grupos de palabras equivalentes ("bandeja, charola,
+    // azafate"); si un producto contiene una, el buscador también lo encuentra con las otras. La columna
+    // opcional "nombres_alternativos" del Sheet agrega nombres propios de cada producto.
+    let gruposSinonimos = [];
+    const contieneTermino = (texto, t) => new RegExp("(^|[^a-z0-9])" + t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(s|es)?([^a-z0-9]|$)").test(texto);
+    fetch("data/sinonimos.json").then(r => r.ok ? r.json() : null).then(d => {
+      if (!d) return;
+      gruposSinonimos = (d.grupos || []).map(g => g.map(normalizar).map(s => s.trim()).filter(Boolean));
+      productos.forEach(p => { delete p._busqueda; });
+      const q = document.getElementById("buscar-producto-central");
+      if (q && q.value.trim()) procesarYRenderizarCatalogo();
+    }).catch(() => {});
     function coincideBusqueda(p, texto) {
       const terminos = normalizar(texto).split(/\s+/).filter(Boolean);
       if (!terminos.length) return true;
-      if (!p._busqueda) p._busqueda = normalizar([p.titulo, p.id, p.categoria.nombre, p.subcategoria, p.descripcion].join(" "));
+      if (!p._busqueda) {
+        const base = normalizar([p.titulo, p.tituloOriginal, p.id, p.categoria.nombre, p.subcategoria, p.descripcion, p.alternos].join(" "));
+        const extra = gruposSinonimos.filter(g => g.some(t => contieneTermino(base, t))).flat();
+        p._busqueda = base + " " + extra.join(" ");
+      }
       return terminos.every(t => p._busqueda.includes(t));
     }
+
+    // v10: cada producto tiene su propia página (p/<producto>/), generada por process/GenerarPaginas.py.
+    // p/indice.json dice qué dirección tiene cada código; con eso las tarjetas y la ventana enlazan a la página.
+    let paginasProducto = {};
+    const urlPagina = (id) => paginasProducto[id] ? "p/" + paginasProducto[id] + "/" : "";
+    fetch("p/indice.json").then(r => r.ok ? r.json() : {}).then(d => {
+      paginasProducto = d || {};
+      document.querySelectorAll(".producto h3[data-id]").forEach(h => {
+        const u = urlPagina(h.dataset.id);
+        if (u && !h.querySelector("a")) h.innerHTML = `<a class="titulo-enlace" href="${u}">${h.innerHTML}</a>`;
+      });
+    }).catch(() => {});
     // Pide a Drive una miniatura más pequeña (más rápida y con menos riesgo de bloqueo)
     const miniatura = (url, size = 300) => url ? url.replace(/([?&]sz=w)\d+/, `$1${size}`) : url;
 
@@ -322,22 +353,135 @@ const CONFIG = {
         }
     }
 
+    // ═══ v10: TEXTO COHERENTE ═══════════════════════════════════════════════════════════
+    // Regla única del sitio: "tipo oración" (solo la primera letra en mayúscula), como Google, Apple o Shopify.
+    // Se aplica al MOSTRAR; el Sheet no se toca. Marcas, siglas y medidas se respetan.
+    // Si agregás una marca nueva, ponela aquí (y en process/GenerarPaginas.py → MARCAS).
+    // Las marcas de cada tienda van en CONFIG.marcas (arriba); estas listas son comunes a todos los sitios.
+    const MARCAS = CONFIG.marcas || [];
+    const SIGLAS = ["NSF", "PVC", "LED", "USB", "GN", "PP", "PET", "PS", "EPS", "XL", "XXL", "XS", "BPA", "II", "III", "IV", "FIFO", "IPA", "BBQ", "CO2", "V60",
+        "HDMI", "RGB", "HD", "UV", "TV", "PC", "NFC", "GPS", "DVD", "MDF", "PVA", "ABS", "PLA", "DIY", "LCD", "AC", "DC", "SPF", "MDF", "3D", "4K", "8K", ...(CONFIG.siglas || [])];
+    const ACENTOS = { metodos: "métodos", espatulas: "espátulas", cafe: "café", zepelin: "zepelín", tulipan: "tulipán", division: "división", maquina: "máquina",
+        souffle: "soufflé", lampara: "lámpara", decoracion: "decoración", organizacion: "organización", tecnologia: "tecnología", vehiculos: "vehículos",
+        rotulos: "rótulos", rotulacion: "rotulación", bano: "baño", banos: "baños", audifonos: "audífonos", movil: "móvil", articulos: "artículos",
+        medicos: "médicos", nino: "niño", ninos: "niños", libreria: "librería", jardin: "jardín", carpinteria: "carpintería", iluminacion: "iluminación",
+        electrico: "eléctrico", electrica: "eléctrica", plastico: "plástico", plastica: "plástica", ceramica: "cerámica", bambu: "bambú", fantasia: "fantasía",
+        didacticos: "didácticos", peliculas: "películas", vehiculo: "vehículo",
+        galon: "galón", metalico: "metálico", metalica: "metálica", magnetico: "magnético", magnetica: "magnética", inalambrico: "inalámbrico", inalambrica: "inalámbrica", locion: "loción", termico: "térmico", termica: "térmica", tonico: "tónico", colageno: "colágeno", capsulas: "cápsulas", maletin: "maletín", compresion: "compresión", botiquin: "botiquín", digitos: "dígitos", rigida: "rígida", rigido: "rígido", arnes: "arnés", telefono: "teléfono", simbolos: "símbolos", zoologico: "zoológico", emblematicos: "emblemáticos", mediterranea: "mediterránea", termometro: "termómetro", pizarron: "pizarrón", acrilico: "acrílico", acrilicos: "acrílicos", ortopedica: "ortopédica", higienico: "higiénico", audifono: "audífono", proteina: "proteína", cuadricula: "cuadrícula", lineas: "líneas", mensula: "ménsula", niquel: "níquel", formula: "fórmula", hungara: "húngara", opticas: "ópticas", pajaro: "pájaro", arbol: "árbol", musica: "música", pagina: "página", camara: "cámara", bateria: "batería", energia: "energía", fotografico: "fotográfico", electronica: "electrónica", electronico: "electrónico", automatico: "automático", automatica: "automática", ...(CONFIG.acentos || {}) };
+    const UNIDADES = { oz: "oz", onz: "oz", ml: "ml", l: "L", lt: "L", lts: "L", ltr: "L", cm: "cm", cms: "cm", mm: "mm",
+        plg: "″", pulg: "″", qt: "qt", w: "W", kg: "kg", g: "g", gr: "g", grs: "g", grms: "g", m: "m", mts: "m",
+        gb: "GB", tb: "TB", mb: "MB", mah: "mAh", hz: "Hz", ghz: "GHz", v: "V", mp: "MP", pzs: "pzs", pz: "pz", lb: "lb", lbs: "lb" };
+    const mapaMarcas = new Map(MARCAS.map(m => [m.toLowerCase(), m]));
+    const LETRA_DESPUES = new Set(["vitamina", "vitaminas", "talla", "tipo", "letra", "clase", "grado", "modelo", "serie"]);
+    const setSiglas = new Set(SIGLAS);
+    const NUM = String.raw`\d+(?:[.,]\d+)?`;
+    const reMedida = new RegExp(`^(${NUM})(${Object.keys(UNIDADES).join("|")})\\.?$`, "i");
+    const reDimension = new RegExp(`^(${NUM})[xX×](${NUM})(?:[xX×](${NUM}))?(cm|cms|mm|plg|m|″)?$`, "i");
+    const conUnidad = (n, u) => { const x = UNIDADES[u.toLowerCase()]; return x === "″" ? n + "″" : `${n} ${x}`; };
+
+    function palabraBonita(p, primera, anterior) {
+        const m = p.match(/^([("“¿¡#]*)(.*?)([)"”.,;:!?]*)$/);
+        const [, pre, base, post] = m || ["", "", p, ""];
+        if (!base) return p;
+        const sinAc = base.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+        let r;
+        if (setSiglas.has(base.toUpperCase())) r = base.toUpperCase();
+        else if (mapaMarcas.has(base.toLowerCase())) r = mapaMarcas.get(base.toLowerCase());
+        else if (reMedida.test(base)) r = base.replace(reMedida, (_, n, u) => conUnidad(n, u));
+        else if (reDimension.test(base)) r = base.replace(reDimension, (_, a, b, c, u) => [a, b, c].filter(Boolean).join(" x ") + (u ? (u === "″" || UNIDADES[u.toLowerCase()] === "″" ? "″" : " " + UNIDADES[u.toLowerCase()]) : ""));
+        else if (UNIDADES[sinAc] && /\d$/.test(anterior || "")) r = UNIDADES[sinAc] === "″" ? "″" : UNIDADES[sinAc];
+        else if (/\d/.test(base)) r = base;                                   // códigos: Q75, #2, 3101…
+        else if (/^[A-ZÁÉÍÓÚÑÜ]$/.test(base) && (!/^[YAOEXUP]$/.test(base) || LETRA_DESPUES.has((anterior || "").toLowerCase()))) r = base;   // tallas: S, M, L; vitamina E
+        else r = (ACENTOS[base.toLowerCase()] || base.toLowerCase());
+        if (primera && r === r.toLowerCase()) r = r.charAt(0).toUpperCase() + r.slice(1);
+        return pre + r + post;
+    }
+    // "OLLA DE ACERO INOXIDABLE DE 12LTS" / "Olla de Acero Inoxidable de 12 Litros" → "Olla de acero inoxidable de 12 L"
+    function textoBonito(t) {
+        const pal = String(t || "").replace(/ /g, " ").replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
+        const out = [];
+        pal.forEach((p, i) => {
+            const r = palabraBonita(p, i === 0, pal[i - 1]);
+            if (r === "″" && out.length) out[out.length - 1] += "″"; else out.push(r);
+        });
+        return out.join(" ");
+    }
+    // Descripción: separa "CARACTERÍSTICAS ⇥ BENEFICIOS" y la ficha "CLAVE: valor".
+    const RE_FICHA = /\s{2,}(?=[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ ]{2,}:)/;
+    const claveBonita = (k) => { k = k.trim().toLowerCase(); return k.charAt(0).toUpperCase() + k.slice(1); };
+    function separarDescripcion(texto) {
+        const t = String(texto || "").replace(/ /g, " ").trim();
+        const beneficios = [], ficha = []; let libre = "";
+        let partes = t.split(RE_FICHA), cuerpo = partes[0], resto = partes.slice(1);
+        if (/^[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ ]{2,}:/.test(cuerpo)) { resto = [cuerpo, ...resto]; cuerpo = ""; }
+        resto.forEach(b => b.split(/\s{2,}/).forEach(s => {
+            const i = s.indexOf(":");
+            if (i > 0 && s.slice(i + 1).trim()) ficha.push([claveBonita(s.slice(0, i)), s.slice(i + 1).trim()]);
+            else if (s.trim()) ficha.push(["", s.trim()]);
+        }));
+        const m = cuerpo.match(/^CARACTER[IÍ]STICAS\s*\t\s*BENEFICIOS\s*/i);
+        if (m) {
+            const seg = cuerpo.slice(m[0].length).split("\t");
+            if (seg.length >= 2) {
+                let caract = seg[0].trim();
+                seg.slice(1, -1).forEach(s => {
+                    s = s.trim();
+                    let corte = /([\w)”"%.,]) (?=[A-ZÁÉÍÓÚÑ])/.exec(s), pos = corte ? corte.index + corte[1].length : -1;
+                    if (pos < 0) { const todos = [...s.matchAll(/[a-záéíóúñ] (?=\d)/g)]; if (todos.length) pos = todos[todos.length - 1].index + 1; }
+                    if (pos >= 0) { beneficios.push([caract, s.slice(0, pos).trim()]); caract = s.slice(pos + 1).trim(); }
+                    else { beneficios.push([caract, s]); caract = ""; }
+                });
+                beneficios.push([caract, seg[seg.length - 1].trim()]);
+            } else libre = cuerpo.replace(/^CARACTER[IÍ]STICAS\s*\t\s*BENEFICIOS\s*/i, "");
+        } else libre = cuerpo.trim();
+        return { beneficios: beneficios.filter(([a, b]) => a || b), ficha, libre };
+    }
+    // Texto corto para la tarjeta: "Material: silicón · Medidas: 24 x 7 cm"
+    function resumenDescripcion(texto) {
+        const d = separarDescripcion(texto);
+        if (d.libre) return d.libre.replace(/\s+/g, " ");
+        if (d.beneficios.length) return d.beneficios.map(([a, b]) => a || b).join(" · ");
+        return d.ficha.map(([k, v]) => k ? `${k}: ${v}` : v).join(" · ");
+    }
+    // HTML ordenado para la ventana del producto
+    function descripcionHTML(texto) {
+        const d = separarDescripcion(texto);
+        let h = "";
+        if (d.libre) h += `<p>${esc(d.libre)}</p>`;
+        if (d.beneficios.length) h += `<ul class="desc-lista">${d.beneficios.map(([a, b]) =>
+            `<li>${a ? `<strong>${esc(a)}</strong>` : ""}${a && b ? " — " : ""}${esc(b)}</li>`).join("")}</ul>`;
+        if (d.ficha.length) h += `<dl class="desc-ficha">${d.ficha.map(([k, v]) =>
+            k ? `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>` : `<div><dd>${esc(v)}</dd></div>`).join("")}</dl>`;
+        return h;
+    }
+
     function procesarCSV(rawText) {
             const filas = parsearCSV(rawText);
-            
+            // v10: las columnas se buscan por su NOMBRE en la fila 1 del Sheet (no por posición), así agregar o
+            // mover columnas no rompe el sitio. Si un nombre no existe se usa la posición de siempre.
+            const cab = (filas[0] || []).map(c => slugify(c).replace(/-/g, "_"));
+            const col = (nombre, porDefecto) => { const i = cab.indexOf(nombre); return i >= 0 ? i : porDefecto; };
+            const C = { id: col("id", 0), titulo: col("titulo", 1), imagen: col("imagen", 2), imagenes: col("imagenes", 3),
+                        catId: col("categoria_id", 4), catNombre: col("categoria_nombre", 5), sub: col("subcategoria_nombre", 7),
+                        desc: col("producto_descripcion", 8), precio: col("precio", 9), estado: col("estado", 10),
+                        fragil: col("fragil", -1), alternos: col("nombres_alternativos", -1) };
+            const v = (f, i) => (i >= 0 ? f[i] || "" : "");
+
             productos = filas.slice(1).map(f => {
-                let precioLimpio = f[9] ? f[9].replace(/[^0-9.]/g, '') : "0";
+                let precioLimpio = v(f, C.precio).replace(/[^0-9.]/g, '') || "0";
                 return {
-                    id: f[0],
-                    titulo: f[1],
-                    imagen: driveThumb(f[2]),
-                    imagenes: f[3] ? f[3].split('|').map(i => driveThumb(i.trim())) : [],
-                    categoria: { id: f[4], nombre: f[5] },
-                    subcategoria: f[7] || "", 
-                    descripcion: f[8] || "",
+                    id: v(f, C.id),
+                    titulo: textoBonito(v(f, C.titulo)),
+                    tituloOriginal: v(f, C.titulo),
+                    imagen: driveThumb(v(f, C.imagen)),
+                    imagenes: v(f, C.imagenes) ? v(f, C.imagenes).split('|').map(i => driveThumb(i.trim())).filter(Boolean) : [],
+                    categoria: { id: v(f, C.catId), nombre: textoBonito(v(f, C.catNombre)) },
+                    subcategoria: textoBonito(v(f, C.sub)),
+                    descripcion: v(f, C.desc),
                     precio: parseFloat(precioLimpio) || 0,
-                    estado: (f[10] || "DISPONIBLE").toUpperCase(),
-                    fragil: esFragil(CONFIG.columnaFragil != null ? f[CONFIG.columnaFragil] : "", f[1])
+                    estado: (v(f, C.estado) || "DISPONIBLE").toUpperCase(),
+                    fragil: esFragil(CONFIG.columnaFragil === null ? "" : v(f, C.fragil), v(f, C.titulo)),
+                    alternos: v(f, C.alternos)
                 };
             }).filter(p => p.id);
 
@@ -654,8 +798,10 @@ const CONFIG = {
       
       document.getElementById("modal-titulo").textContent = p.titulo;
       document.getElementById("modal-titulo").dataset.id = p.id;
-      document.getElementById("modal-descripcion").textContent = p.descripcion || "Sin descripción disponible.";
+      document.getElementById("modal-descripcion").innerHTML = descripcionHTML(p.descripcion) || "<p>Sin descripción disponible.</p>";
       document.getElementById("modal-precio").textContent = `Q${p.precio.toFixed(2)}`;
+      const enlacePagina = document.getElementById("modal-pagina");
+      if (enlacePagina) { const u = urlPagina(p.id); enlacePagina.hidden = !u; if (u) enlacePagina.href = u; }
       
       document.getElementById("modal-badge-estado").innerHTML = `
         <span class="badge-estado ${isAgotado ? 'estado-agotado' : 'estado-disponible'}">
@@ -716,25 +862,50 @@ const CONFIG = {
       if (vistaActual === "subcategorias" && categoriaActual) { renderSubcategorias(categoriaActual); return; }
       const busquedaCentral = document.getElementById("buscar-producto-central").value;
       const criterioOrden = document.getElementById("ordenar-productos").value;
-
-      let resultado = categoriaActualProductos.filter(p => {
-        const cumpleSub = (subcategoriaSeleccionada === "Todas" || p.subcategoria === subcategoriaSeleccionada);
-        const cumpleTxt = coincideBusqueda(p, busquedaCentral);
+      const cumpleDisponibilidad = (p) => {
         const isAgotado = p.estado === "AGOTADO";
-        const cumpleDisponibilidad = filtroDisponibilidad === "todos" ||
-                                     (filtroDisponibilidad === "disponibles" && !isAgotado) ||
-                                     (filtroDisponibilidad === "agotados" && isAgotado);
-        return cumpleSub && cumpleTxt && cumpleDisponibilidad;
-      });
+        return filtroDisponibilidad === "todos" ||
+               (filtroDisponibilidad === "disponibles" && !isAgotado) ||
+               (filtroDisponibilidad === "agotados" && isAgotado);
+      };
+      const ordenar = (lista) => {
+        if (criterioOrden === "precio-asc") lista.sort((a, b) => a.precio - b.precio);
+        else if (criterioOrden === "precio-desc") lista.sort((a, b) => b.precio - a.precio);
+        else if (criterioOrden === "alfa-asc") lista.sort((a, b) => a.titulo.localeCompare(b.titulo));
+        else if (criterioOrden === "alfa-desc") lista.sort((a, b) => b.titulo.localeCompare(a.titulo));
+        return lista;
+      };
 
-      if (criterioOrden === "precio-asc") {
-        resultado.sort((a, b) => a.precio - b.precio);
-      } else if (criterioOrden === "precio-desc") {
-        resultado.sort((a, b) => b.precio - a.precio);
-      } else if (criterioOrden === "alfa-asc") {
-        resultado.sort((a, b) => a.titulo.localeCompare(b.titulo));
-      } else if (criterioOrden === "alfa-desc") {
-        resultado.sort((a, b) => b.titulo.localeCompare(a.titulo));
+      let resultado = ordenar(categoriaActualProductos.filter(p => {
+        const cumpleSub = (subcategoriaSeleccionada === "Todas" || p.subcategoria === subcategoriaSeleccionada);
+        return cumpleSub && coincideBusqueda(p, busquedaCentral) && cumpleDisponibilidad(p);
+      }));
+
+      // v10: la búsqueda SIEMPRE es en todo el catálogo. Si el cliente está dentro de una categoría,
+      // esa categoría sale primero; el resto aparece debajo, agrupado por categoría con su contador.
+      const q = busquedaCentral.trim();
+      if (q && categoriaActual) {
+        const aqui = resultado;   // ya filtrado por la categoría (y la pestaña, si el cliente eligió una)
+        const enDonde = subcategoriaSeleccionada !== "Todas" ? nombreSub(subcategoriaSeleccionada) : categoriaActual.nombre;
+        const fuera = ordenar(productos.filter(p => !aqui.includes(p) && coincideBusqueda(p, q) && cumpleDisponibilidad(p)));
+        const total = aqui.length + fuera.length;
+        txtContadorResultados.textContent = `${total} resultado${total === 1 ? "" : "s"} en total`;
+        renderProductos([...aqui, ...fuera], { agrupar: true, primero: aqui.length ? aqui[0].categoria.id : null });
+        const cont = document.getElementById("contenedor-productos");
+        if (total) {
+          const div = document.createElement("div");
+          div.className = "resumen-busqueda" + (aqui.length ? "" : " sin-aqui");
+          div.innerHTML = aqui.length
+            ? `<i class="bi bi-search"></i> <strong>${total}</strong> resultado${total === 1 ? "" : "s"} para “${esc(q)}”: <strong>${aqui.length}</strong> en ${esc(enDonde)}` +
+              (fuera.length ? ` y <a href="#otras-categorias" class="resumen-salto"><strong>${fuera.length}</strong> en otras categorías <i class="bi bi-arrow-down"></i></a>` : "")
+            : `<i class="bi bi-arrow-down-circle-fill"></i> No hay “${esc(q)}” en ${esc(enDonde)}, <strong>pero encontramos ${fuera.length}</strong> en otras categorías`;
+          cont.prepend(div);
+          const salto = div.querySelector(".resumen-salto");
+          if (salto) salto.onclick = (ev) => { ev.preventDefault(); const s = document.getElementById("otras-categorias"); if (s) s.scrollIntoView({ behavior: "smooth", block: "start" }); };
+        }
+        const detalleVista = document.querySelector("#encabezado-vista .detalle-vista");
+        if (detalleVista) detalleVista.textContent = aqui.length ? `en ${enDonde} y en todo el catálogo` : "en todo el catálogo";
+        return;
       }
 
       txtContadorResultados.textContent = `Mostrando ${resultado.length} productos`;
@@ -750,9 +921,9 @@ const CONFIG = {
           <img src="${p.imagen || SIN_FOTO}" alt="${p.titulo}" loading="lazy" decoding="async" onerror="reintentarImg(this, SIN_FOTO)"${p.imagen ? "" : ' class="sin-foto"'}>
         </div>
         <div class="contenido">
-          <h3>${p.titulo}</h3>
+          <h3 data-id="${esc(p.id)}">${urlPagina(p.id) ? `<a class="titulo-enlace" href="${urlPagina(p.id)}">${esc(p.titulo)}</a>` : esc(p.titulo)}</h3>
           <div class="descripcion-container">
-              <p class="descripcion-texto" id="desc-${p.id}">${p.descripcion}</p>
+              <p class="descripcion-texto" id="desc-${p.id}">${esc(resumenDescripcion(p.descripcion))}</p>
               ${p.descripcion && p.descripcion.length > 40 ? `<span class="link-leer-mas" id="link-${p.id}" onclick="window.toggleDescripcion('${p.id}')">Leer más...</span>` : ''}
           </div>
           <span class="badge-estado ${isAgotado ? 'estado-agotado' : 'estado-disponible'}">
@@ -767,7 +938,7 @@ const CONFIG = {
       return div;
     }
 
-    function renderProductos(lista) {
+    function renderProductos(lista, opciones = {}) {
       const contenedor = document.getElementById("contenedor-productos");
       contenedor.innerHTML = "";
       if (lista && lista.length > 0) {
@@ -777,9 +948,13 @@ const CONFIG = {
 
       if (lista.length === 0) {
         const e = leerURL();
+        // v10: si la palabra no aparece en ningún lado, se dice "en el catálogo" y no se ofrece buscar en todo
+        const hayEnOtrasCats = categoriaActual && e.q && productos.some(p => p.categoria.id !== categoriaActual.id && coincideBusqueda(p, e.q));
         contenedor.innerHTML = `<div class="sin-resultados"><i class="bi bi-search" aria-hidden="true"></i>
-          <p>No encontramos productos${e.q ? ` para “${esc(e.q)}”` : ""}${categoriaActual && e.q ? ` en ${esc(categoriaActual.nombre)}` : ""}.</p></div>`;
-        if (categoriaActual && e.q) {
+          <p>No encontramos productos${e.q ? ` para “${esc(e.q)}”` : ""}${hayEnOtrasCats ? ` en ${esc(categoriaActual.nombre)}` : (e.q ? " en el catálogo" : "")}.</p></div>`;
+        if (e.q && !hayEnOtrasCats) {
+          contenedor.querySelector(".sin-resultados p").insertAdjacentHTML("beforeend", `<br>Prueba con otra palabra o <a href="https://wa.me/${CONFIG.telefonoWhatsApp}?text=${encodeURIComponent("Hola, estoy buscando: " + e.q)}" target="_blank" rel="noopener">pregúntanos por WhatsApp</a>.`);
+        } else if (hayEnOtrasCats) {
           const a = document.createElement("a");
           a.className = "btn-ver-todos-productos";
           a.href = construirURL({ q: e.q });
@@ -793,13 +968,13 @@ const CONFIG = {
       }
 
       // Vista "Ver todos los productos" (?ver=todos): agrupar por categoría, como en la v8
-      const esTodo = vistaActual === "todos";
+      const esTodo = vistaActual === "todos" || opciones.agrupar;
 
       if (esTodo) {
         const porCategoria = {};
         lista.forEach(p => {
           const key = p.categoria.id;
-          if (!porCategoria[key]) porCategoria[key] = { nombre: p.categoria.nombre, items: [] };
+          if (!porCategoria[key]) porCategoria[key] = { id: key, nombre: p.categoria.nombre, items: [] };
           porCategoria[key].items.push(p);
         });
 
@@ -807,14 +982,18 @@ const CONFIG = {
           const seccion = document.createElement("div");
           // Primera categoría expandida, el resto colapsadas en móvil
           const isMobile = window.innerWidth < 768;
-          seccion.className = "seccion-categoria" + (isMobile && idx > 0 ? " colapsada" : "");
+          const colapsar = isMobile && idx > 0 && !opciones.agrupar;
+          const esPrimera = opciones.agrupar && opciones.primero && cat.id === opciones.primero;
+          seccion.className = "seccion-categoria" + (colapsar ? " colapsada" : "") + (opciones.agrupar && !esPrimera ? " seccion-otra" : "") + (esPrimera ? " seccion-aqui" : "");
+          if (opciones.agrupar && !esPrimera && !document.getElementById("otras-categorias")) seccion.id = "otras-categorias";
 
           const header = document.createElement("div");
           header.className = "seccion-categoria-header";
           header.setAttribute("role", "button");
-          header.setAttribute("aria-expanded", isMobile && idx > 0 ? "false" : "true");
+          header.setAttribute("aria-expanded", colapsar ? "false" : "true");
           header.innerHTML = `
             <h2><i class="bi bi-tag-fill" style="font-size:0.8rem; opacity:0.5; margin-right:6px;"></i>${cat.nombre}</h2>
+            ${esPrimera ? '<span class="cat-aqui"><i class="bi bi-geo-alt-fill"></i> Estás aquí</span>' : ""}
             <span class="cat-badge">${cat.items.length} producto${cat.items.length !== 1 ? 's' : ''}</span>
             <i class="bi bi-chevron-down cat-chevron"></i>
           `;
@@ -858,7 +1037,7 @@ const CONFIG = {
 
     // ── v9: subcategorías ──
     // Productos sin subcategoría se agrupan como "OTROS" (valor interno "", URL &sub=otros)
-    const nombreSub = (s) => s === "" ? "OTROS" : s;
+    const nombreSub = (s) => s === "" ? "Otros" : s;
     const slugSub = (s) => s === "" ? "otros" : slugify(s);
     function gruposSub(cat) {
         const m = new Map();
@@ -881,12 +1060,18 @@ const CONFIG = {
         // Con una sola subcategoría (o ninguna) los botones no aportan nada
         if (grupos.length < 2) return;
         const conTarjetas = usaTarjetasSub(cat);
-        const crear = (texto, sub) => {
+        // v10: chips con mini foto y contador; el elegido se rellena con un pequeño rebote
+        const crear = (texto, sub, n, items) => {
             const btn = document.createElement("button");
+            btn.type = "button";
             btn.className = "btn-subfiltro" + (sub === subActiva ? " activo" : "");
             btn.setAttribute("role", "tab");
             btn.setAttribute("aria-selected", String(sub === subActiva));
-            btn.textContent = texto;
+            const conFoto = items && items.find(p => p.imagen && p.estado !== "AGOTADO") || (items || []).find(p => p.imagen);
+            btn.innerHTML = (conFoto
+                ? `<img src="${esc(miniatura(conFoto.imagen, 80))}" alt="" loading="lazy" width="28" height="28" onerror="this.replaceWith(Object.assign(document.createElement('i'),{className:'bi bi-tag'}))">`
+                : `<i class="bi bi-grid-3x3-gap" aria-hidden="true"></i>`)
+              + `<span>${esc(texto)}</span><b>${n}</b>`;
             btn.onclick = () => {
                 const e = leerURL();
                 const destino = sub === "Todas"
@@ -896,12 +1081,47 @@ const CONFIG = {
             };
             subContainer.appendChild(btn);
         };
-        crear("Todas", "Todas");
-        grupos.forEach(g => crear(nombreSub(g.sub), g.sub));
-        // Desliza la fila para que la pestaña activa quede a la vista (sin mover la página)
+        crear("Todas", "Todas", cat.items.length, null);
+        grupos.forEach(g => crear(nombreSub(g.sub), g.sub, g.items.length, g.items));
+        // Flecha "›" cuando hay más chips de los que caben
+        const mas = document.createElement("button");
+        mas.type = "button";
+        mas.className = "sub-mas";
+        mas.setAttribute("aria-label", "Ver más subcategorías");
+        mas.innerHTML = '<i class="bi bi-chevron-right" aria-hidden="true"></i>';
+        mas.onclick = () => subContainer.scrollBy({ left: subContainer.clientWidth * 0.7, behavior: "smooth" });
+        subContainer.appendChild(mas);
+        // Flecha "‹" para regresar cuando la fila ya se deslizó
+        const menos = document.createElement("button");
+        menos.type = "button";
+        menos.className = "sub-mas sub-menos oculto";
+        menos.setAttribute("aria-label", "Ver subcategorías anteriores");
+        menos.innerHTML = '<i class="bi bi-chevron-left" aria-hidden="true"></i>';
+        menos.onclick = () => subContainer.scrollBy({ left: -subContainer.clientWidth * 0.7, behavior: "smooth" });
+        subContainer.prepend(menos);
+        const revisarMas = () => {
+            const hayMas = subContainer.scrollWidth - subContainer.clientWidth - subContainer.scrollLeft > 8;
+            mas.classList.toggle("oculto", !hayMas);
+            menos.classList.toggle("oculto", subContainer.scrollLeft <= 8);
+            subContainer.classList.toggle("con-mas", hayMas);
+        };
+        subContainer.onscroll = revisarMas;
+        // Desliza la fila para que el chip activo quede a la vista (sin mover la página)
         requestAnimationFrame(() => {
             const activa = subContainer.querySelector(".btn-subfiltro.activo");
-            if (activa) subContainer.scrollLeft = Math.max(0, activa.offsetLeft - subContainer.offsetLeft - (subContainer.clientWidth - activa.offsetWidth) / 2);
+            if (activa && activa !== subContainer.querySelector(".btn-subfiltro")) subContainer.scrollLeft = Math.max(0, activa.offsetLeft - subContainer.offsetLeft - (subContainer.clientWidth - activa.offsetWidth) / 2);
+            revisarMas();
+            // La primera vez que el cliente ve una fila que no cabe, se desliza un poco para mostrar que hay más
+            let yaMostrado = false;
+            try { yaMostrado = sessionStorage.getItem("gc-sub-pista") === "1"; } catch (e) {}
+            const reducir = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            if (!yaMostrado && !reducir && subContainer.scrollLeft === 0 && subContainer.scrollWidth > subContainer.clientWidth + 40) {
+                try { sessionStorage.setItem("gc-sub-pista", "1"); } catch (e) {}
+                setTimeout(() => {
+                    subContainer.scrollTo({ left: 90, behavior: "smooth" });
+                    setTimeout(() => subContainer.scrollTo({ left: 0, behavior: "smooth" }), 700);
+                }, 600);
+            }
         });
     }
 
@@ -926,7 +1146,7 @@ const CONFIG = {
         if (e.q) partes.push({ texto: `Búsqueda: "${e.q}"`, estado: null });
         partes.pop();   // v9: la página actual no se repite en la ruta; se muestra como título
         partes.forEach((parte, i) => {
-            if (i > 0) migas.insertAdjacentHTML("beforeend", '<i class="bi bi-chevron-right migas-sep" aria-hidden="true"></i>');
+            if (i > 0) migas.insertAdjacentHTML("beforeend", ' <i class="bi bi-chevron-right migas-sep" aria-hidden="true"></i> ');   // espacios: Google lee "Inicio Utensilios", no "InicioUtensilios"
             if (!parte.estado) {
                 const span = document.createElement("span");
                 span.className = "migas-actual";
@@ -1116,11 +1336,12 @@ const CONFIG = {
             if (cat) {
                 categoriaActualProductos = cat.items;
                 const grupos = gruposSub(cat);
-                const grupo = e.sub ? (grupos.find(g => g.sub && slugify(g.sub) === e.sub) || grupos.find(g => g.sub === "" && e.sub === "otros")) : null;
+                const grupo = (e.sub && !e.q) ? (grupos.find(g => g.sub && slugify(g.sub) === e.sub) || grupos.find(g => g.sub === "" && e.sub === "otros")) : null;
                 subcategoriaSeleccionada = grupo ? grupo.sub : "Todas";
                 // Sin subcategoría elegida, sin búsqueda y sin "ver todos" → tarjetas de subcategorías
                 vistaActual = (!grupo && !e.q && e.ver !== "todos" && usaTarjetasSub(cat)) ? "subcategorias" : "categoria";
                 if (vistaActual === "subcategorias") subContainer.innerHTML = "";
+                else if (e.q) subContainer.innerHTML = "";   // v10: con búsqueda no hay pestañas (se busca en todo)
                 else generarSubfiltros(cat, subcategoriaSeleccionada);
                 document.title = `${grupo ? nombreSub(grupo.sub) + " · " : ""}${cat.nombre} | ${CONFIG.nombreNegocio}`;
             } else {
@@ -1162,13 +1383,13 @@ const CONFIG = {
     function renderEncabezado(e, cat) {
       const cont = document.getElementById("encabezado-vista");
       const buscador = document.getElementById("buscar-producto-central");
-      buscador.placeholder = cat ? `Buscar en ${cat.nombre}…` : "Buscar por nombre, código o palabra clave...";
+      buscador.placeholder = cat ? "Buscar en todo el catálogo…" : "Buscar por nombre, código o palabra clave...";   // v10: la búsqueda siempre es en todo
       if (!cont) return;
       if (vistaActual === "inicio") { cont.innerHTML = ""; return; }
       let titulo, detalle = "", icono = "";
       if (e.q) {
         titulo = `Resultados para “${esc(e.q)}”`;
-        detalle = cat ? `en ${esc(cat.nombre)}` : "en todo el catálogo";
+        detalle = cat ? `en ${subcategoriaSeleccionada !== "Todas" ? esc(nombreSub(subcategoriaSeleccionada)) + " · " : ""}${esc(cat.nombre)}` : "en todo el catálogo";
         icono = "bi-search";
       } else if (cat) {
         icono = iconoCategoria(cat.nombre);
@@ -1192,15 +1413,22 @@ const CONFIG = {
     function actualizarSEO(e, cat) {
       let link = document.querySelector('link[rel="canonical"]');
       if (!link) { link = document.createElement("link"); link.rel = "canonical"; document.head.appendChild(link); }
-      const u = new URLSearchParams();
+      // v10: la versión oficial de cada categoría es su página fija c/<categoría>/<subcategoría>/ (la genera
+      // process/GenerarPaginas.py). Así Google no ve "?cat=…" como copia del inicio.
+      let ruta = "";
       if (cat && !e.q) {
-        u.set("cat", cat.slug);
-        if (subcategoriaSeleccionada !== "Todas") u.set("sub", slugSub(subcategoriaSeleccionada));
+        ruta = "c/" + cat.slug + "/";
+        const sub = subcategoriaSeleccionada;
+        if (sub !== "Todas" && sub && slugify(sub) !== cat.slug) ruta += slugify(sub) + "/";
       }
-      const s = u.toString();
-      link.href = CONFIG.urlSitio + (s ? "?" + s : "");
+      link.href = CONFIG.urlSitio + ruta;
+      // (en Inicio no hay categoría: cat es null)
+      const enSub = !!cat && subcategoriaSeleccionada !== "Todas";
+      const delGrupo = cat ? (enSub ? cat.items.filter(p => (p.subcategoria || "") === subcategoriaSeleccionada) : cat.items) : [];
+      const cuantos = delGrupo.length;
+      const ejemplos = delGrupo.filter(p => p.estado !== "AGOTADO").slice(0, 3).map(p => p.titulo.toLowerCase()).join(", ");
       const desc = cat && !e.q
-        ? `${subcategoriaSeleccionada !== "Todas" ? nombreSub(subcategoriaSeleccionada) + " – " : ""}${cat.nombre} en Rompecabezas de Guatemala: ${cat.items.length} productos con precio y disponibilidad. Envíos a toda Guatemala.`
+        ? `${enSub ? nombreSub(subcategoriaSeleccionada) + " – " : ""}${cat.nombre} en ${CONFIG.nombreNegocio}: ${cuantos} productos con precio y disponibilidad${ejemplos ? ", como " + ejemplos : ""}. Envíos a toda Guatemala.`
         : CONFIG.metaDescripcion;
       document.getElementById("meta-desc").content = desc;
       document.getElementById("meta-og-description").content = desc;
@@ -1316,7 +1544,7 @@ const CONFIG = {
         agregarBoton('<i class="bi bi-house-door-fill"></i> INICIO', {}, "inicio", "btn-ver-todo");
         agregarBoton('<i class="bi bi-grid-fill"></i> VER TODOS LOS PRODUCTOS', { ver: "todos" }, "todos", "btn-ver-todo");
         categorias.forEach(cat => agregarBoton(
-            `<i class="bi ${iconoCategoria(cat.nombre)} icono-cat" aria-hidden="true"></i><span>${esc(cat.nombre.toUpperCase())}</span>`,
+            `<i class="bi ${iconoCategoria(cat.nombre)} icono-cat" aria-hidden="true"></i><span>${esc(cat.nombre)}</span>`,
             { cat: cat.slug }, "cat:" + cat.slug));
 
         const st = history.state || {};
@@ -1370,7 +1598,8 @@ const CONFIG = {
         const q = valor.trim() ? valor : "";
         if (q === e.q) return;
         if (!q && history.state && history.state.busqueda) { history.back(); return; }
-        const nuevo = { cat: e.cat, sub: e.sub, ver: e.cat ? "" : e.ver, q };
+        // v10: la búsqueda cubre la categoría completa (sale primero) y todo el catálogo; se quita la pestaña
+        const nuevo = { cat: e.cat, sub: "", ver: e.cat ? "" : e.ver, q };
         // v9: mantener la caja de búsqueda en el mismo lugar de la pantalla mientras cambia la página
         // (al pasar del Inicio a resultados desaparece el banner; en iPhone la caja quedaba escondida arriba)
         const caja = document.getElementById("buscar-producto-central");
